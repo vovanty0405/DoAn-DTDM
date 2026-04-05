@@ -21,8 +21,8 @@ class AuthController {
             await newUser.save();
             res.redirect('/'); // Đăng ký thành công, đẩy về trang chủ (bạn có thể thêm flash message sau)
         } catch (error) {
-            console.log(error);
-            res.status(500).send('Lỗi đăng ký (Có thể email đã tồn tại)');
+            req.flash('registerError', 'Lỗi đăng ký (Có thể email đã tồn tại)');
+            res.redirect(req.header('Referer') || '/');
         }
     }
 
@@ -32,11 +32,17 @@ class AuthController {
             const { email, password } = req.body;
             const user = await User.findOne({ email: email });
 
-            if (!user) return res.send('<script>alert("Tài khoản không tồn tại!"); window.history.back();</script>');
+            if (!user) {
+                req.flash('loginError', 'Tài khoản không tồn tại!');
+                return res.redirect(req.header('Referer') || '/');
+            }
 
             // So sánh mật khẩu người dùng nhập với mật khẩu mã hóa trong DB
             const validPassword = await bcrypt.compare(password, user.password);
-            if (!validPassword) return res.send('<script>alert("Sai mật khẩu!"); window.history.back();</script>');
+            if (!validPassword) {
+                req.flash('loginError', 'Sai mật khẩu!');
+                return res.redirect(req.header('Referer') || '/');
+            }
 
             // 1. GÁN THÔNG TIN USER VÀO SESSION
             req.session.user = user.toObject(); // Lưu toàn bộ thông tin user vào session (có thể rút gọn nếu muốn)

@@ -45,9 +45,27 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3 address-group">
                             <label class="form-label fw-semibold">Địa chỉ giao hàng cụ thể</label>
-                            <textarea name="address" class="form-control py-2" rows="3" required placeholder="Số nhà, tên đường, phường/xã..."><%= user ? user.address : '' %></textarea>
+                            <div class="row mb-2">
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <select class="form-select province" required>
+                                        <option value="">Tỉnh/Thành phố</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <select class="form-select district" required>
+                                        <option value="">Quận/Huyện</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select class="form-select ward" required>
+                                        <option value="">Phường/Xã</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="text" class="form-control py-2 street" placeholder="Số nhà, tên đường cụ thể" required>
+                            <input type="hidden" name="address" class="address-hidden" value="<%= user ? user.address : '' %>">
                         </div>
                     </div>
                 </div>
@@ -98,5 +116,79 @@
     </section>
 
     <%- include('partials/footer') %>
+
+    <script>
+        // Logic Auto Load Province API
+        document.addEventListener('DOMContentLoaded', function() {
+            const addressGroups = document.querySelectorAll('.address-group');
+            addressGroups.forEach(group => {
+                const provinceSel = group.querySelector('.province');
+                const districtSel = group.querySelector('.district');
+                const wardSel = group.querySelector('.ward');
+                const streetInp = group.querySelector('.street');
+                const hiddenInp = group.querySelector('.address-hidden');
+
+                // Lấy danh sách tỉnh thành
+                fetch('https://provinces.open-api.vn/api/p/')
+                    .then(res => res.json())
+                    .then(data => {
+                        data.forEach(item => {
+                            provinceSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                        });
+                    })
+                    .catch(err => console.error("Lấy tỉnh không thành công:", err));
+
+                provinceSel.addEventListener('change', function() {
+                    districtSel.innerHTML = '<option value="">Quận/Huyện</option>';
+                    wardSel.innerHTML = '<option value="">Phường/Xã</option>';
+                    if(this.value) {
+                        fetch(`https://provinces.open-api.vn/api/p/${this.value}?depth=2`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if(data.districts) {
+                                    data.districts.forEach(item => {
+                                        districtSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                                    });
+                                }
+                            });
+                    }
+                    updateAddress();
+                });
+
+                districtSel.addEventListener('change', function() {
+                    wardSel.innerHTML = '<option value="">Phường/Xã</option>';
+                    if(this.value) {
+                        fetch(`https://provinces.open-api.vn/api/d/${this.value}?depth=2`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if(data.wards) {
+                                    data.wards.forEach(item => {
+                                        wardSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                                    });
+                                }
+                            });
+                    }
+                    updateAddress();
+                });
+
+                wardSel.addEventListener('change', updateAddress);
+                streetInp.addEventListener('input', updateAddress);
+
+                function updateAddress() {
+                    let parts = [];
+                    if(streetInp.value.trim()) parts.push(streetInp.value.trim());
+                    if(wardSel.value) parts.push(wardSel.options[wardSel.selectedIndex].text);
+                    if(districtSel.value) parts.push(districtSel.options[districtSel.selectedIndex].text);
+                    if(provinceSel.value) parts.push(provinceSel.options[provinceSel.selectedIndex].text);
+                    hiddenInp.value = parts.join(', ');
+                }
+                
+                const form = group.closest('form');
+                if(form) {
+                    form.addEventListener('submit', updateAddress);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

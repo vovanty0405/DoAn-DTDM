@@ -5,6 +5,9 @@ const Product = require('../models/Product');
 const SubCategory = require('../models/SubCategory');
 const Brand = require('../models/Brand');
 const Review = require('../models/Review');
+const Contact = require('../models/Contact');
+const Order = require('../models/Order');
+const PromotionConfig = require('../models/PromotionConfig');
 
 class SiteController {
     // [GET] / (Trang chủ)
@@ -19,40 +22,55 @@ class SiteController {
                 .limit(8)
                 .lean();
 
-            // 3. BEST SELLER: Load 4 sản phẩm có giá giảm cao nhất
-            // Chúng ta dùng aggregate để tính toán trực tiếp trên database
-            const saleProducts = await Product.aggregate([
-                { 
-                    $match: { 
-                        status: 1, 
-                        discount_price: { $ne: null } // Lọc sản phẩm có giảm giá
-                    } 
-                },
-                { 
-                    $addFields: { 
-                        // Tạo một trường tạm 'discount_amount' = giá gốc - giá giảm
-                        discount_amount: { $subtract: ["$price", "$discount_price"] } 
-                    } 
-                },
-                { 
-                    $sort: { discount_amount: -1 } // Sắp xếp giảm dần theo số tiền được giảm
-                },
-                { 
-                    $limit: 4 // Chỉ lấy 4 sản phẩm đầu tiên
-                }
-            ]);
+            // Lấy config Khuyến Mãi
+            let promoConfig = await PromotionConfig.findOne()
+                 .populate('promo1_category_id')
+                 .populate('promo2_category_id')
+                 .lean();
 
-            // 4. ƯU ĐÃI ĐỘC QUYỀN (NƯỚC NGỌT)
-            const drinkCategory = await Category.findOne({ slug: 'nuoc-ngot', status: 1 }).lean();
-            let drinkProducts = [];
-            if (drinkCategory) {
-                drinkProducts = await Product.find({ 
-                    category_id: drinkCategory._id, 
-                    status: 1 
-                })
-                .limit(6)
-                .lean();
+            // 3. BEST SELLER (Slot 1: Siêu sale cuối tuần)
+            // Lấy sản phẩm đang giảm giá tương ứng với Danh mục được chọn ở config
+            let saleProducts = [];
+            if (promoConfig && promoConfig.promo1_category_id) {
+                 // Nếu Admin đã cài đặt
+                 saleProducts = await Product.find({
+                      category_id: promoConfig.promo1_category_id._id,
+                      status: 1,
+                      discount_price: { $ne: null }
+                 }).limit(4).lean();
+            } else {
+                 // Fallback mặc định nếu Admin chưa cấu hình gì
+                 saleProducts = await Product.aggregate([
+                    { $match: { status: 1, discount_price: { $ne: null } } },
+                    { $addFields: { discount_amount: { $subtract: ["$price", "$discount_price"] } } },
+                    { $sort: { discount_amount: -1 } },
+                    { $limit: 4 }
+                 ]);
             }
+
+            // 4. ƯU ĐÃI ĐỘC QUYỀN (Slot 2)
+            let drinkProducts = [];
+            if (promoConfig && promoConfig.promo2_category_id) {
+                 drinkProducts = await Product.find({ 
+                      category_id: promoConfig.promo2_category_id._id, 
+                      status: 1
+                 })
+                 .limit(6)
+                 .lean();
+            } else {
+                 // Fallback nước ngọt
+                 const drinkCategory = await Category.findOne({ slug: 'nuoc-ngot', status: 1 }).lean();
+                 if (drinkCategory) {
+                     drinkProducts = await Product.find({ category_id: drinkCategory._id, status: 1 })
+                     .limit(6).lean();
+                 }
+            }
+
+            // GỢI Ý 8 SẢN PHẨM
+            const recommendedProducts = await Product.aggregate([
+                { $match: { status: 1 } },
+                { $sample: { size: 8 } }
+            ]);
 
             const cartCount = 0; 
 
@@ -62,12 +80,45 @@ class SiteController {
                 newProducts, 
                 saleProducts, 
                 drinkProducts,
+                recommendedProducts,
+                promoConfig,
             });
         } catch (error) {
             console.log(error);
             res.status(500).send('Lỗi Server ở Trang Chủ');
         }
     }
+
+    // [GET] /about (Trang Giới thiệu)
+    about(req, res) {
+        res.render('about');
+    }
+
+    // [GET] /contact (Trang Liên hệ)
+    contact(req, res) {
+        const contactSuccess = req.flash('contactSuccess');
+        res.render('contact', { contactSuccess: contactSuccess[0] || null });
+    }
+
+    // [POST] /contact/store (Xử lý Gửi Liên hệ)
+    async storeContact(req, res) {
+        try {
+            const newContact = new Contact({
+                name: req.body.name,
+                email: req.body.email,
+                title: req.body.title,
+                content: req.body.content,
+                status: 0 // 0: Chưa xử lý
+            });
+            await newContact.save();
+            req.flash('contactSuccess', 'Cảm ơn bạn! Yêu cầu của bạn đã được gửi. Chúng tôi sẽ sớm phản hồi.');
+            res.redirect('/contact');
+        } catch (error) {
+            console.log(error);
+            res.status(500).send('Lỗi Server khi gửi liên hệ');
+        }
+    }
+
     // [GET] /category/:slug (Trang danh sách sản phẩm theo danh mục)
     async category(req, res) {
         try {
@@ -86,8 +137,8 @@ class SiteController {
             if (subcatId) filter.sub_category_id = subcatId; // Nếu có bấm vào thể loại con thì lọc thêm
             if (brandId) filter.brand_id = brandId;          // Nếu có bấm vào hãng thì lọc thêm
 
-            // Lấy sản phẩm THEO BỘ LỌC
-            const products = await Product.find(filter).sort({ createdAt: -1 }).lean();
+            // Lấy sản phẩm THEO BỘ LỌC (giới hạn 8 sản phẩm ban đầu để không bị lag)
+            const products = await Product.find(filter).sort({ createdAt: -1 }).limit(8).lean();
 
             // Để hiển thị danh sách tất cả các Hãng, ta cần lấy dựa trên TẤT CẢ sản phẩm của danh mục gốc (bỏ qua filter tạm thời)
             const allProducts = await Product.find({ category_id: currentCategory._id, status: 1 }).lean();
@@ -228,6 +279,27 @@ class SiteController {
         } catch (error) {
             console.log(error);
             res.status(500).send('Lỗi khi gửi đánh giá');
+        }
+    }
+
+    // [GET] /orders (Trang Đơn Hàng Của Tôi)
+    async myOrders(req, res) {
+        try {
+            if (!req.session || !req.session.user) {
+                return res.redirect('/'); // Phải đăng nhập mới được xem
+            }
+            const userId = req.session.user._id;
+            
+            // Tìm các đơn hàng của user, populate chi tiết món hàng
+            const orders = await Order.find({ user_id: userId })
+                                      .populate('items.product_id', 'name cover_image slug')
+                                      .sort({ createdAt: -1 })
+                                      .lean();
+
+            res.render('my_orders', { orders });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send('Lỗi Server ở Trang Đơn Hàng');
         }
     }
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,27 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .sidebar { min-height: 100vh; background-color: #005a3c; }
-        .sidebar a { color: #fff; text-decoration: none; padding: 12px 20px; display: block; transition: 0.3s; }
-        .sidebar a:hover, .sidebar a.active { background-color: #00452d; border-left: 4px solid #f9b612; }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #005a3c;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #00452d;
+            border-left: 4px solid #f9b612;
+        }
     </style>
 </head>
+
 <body class="bg-light">
     <div class="container-fluid">
         <div class="row">
@@ -30,6 +47,9 @@
                     <a href="/admin/products"><i class="fas fa-box me-2"></i> Sản Phẩm</a>
                     <a href="/admin/customers"><i class="fas fa-users me-2"></i> Khách Hàng</a>
                     <a href="/admin/orders"><i class="fas fa-file-invoice-dollar me-2"></i> Đơn Hàng</a>
+                    <a href="/admin/reviews"><i class="fas fa-star me-2"></i> Đánh Giá</a>
+                    <a href="/admin/contacts"><i class="fas fa-envelope me-2"></i> Liên Hệ</a>
+                    <a href="/admin/promotions"><i class="fas fa-percent me-2"></i> Khuyến Mãi</a>
                     <a href="/logout" class="text-danger mt-5"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a>
                 </div>
             </div>
@@ -37,9 +57,10 @@
             <div class="col-md-10 p-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="fw-bold">Quản lý Thể Loại Con</h2>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal"><i class="fas fa-plus"></i> Thêm thể loại</button>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal"><i
+                            class="fas fa-plus"></i> Thêm thể loại</button>
                 </div>
-                
+
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <table class="table table-hover align-middle text-center">
@@ -52,25 +73,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% if (typeof sub_categories !== 'undefined' && sub_categories.length > 0) { %>
-                                    <% sub_categories.forEach(sc => { %>
+                                <% if (typeof sub_categories !=='undefined' && sub_categories.length> 0) { %>
+                                    <% sub_categories.forEach(sc=> { %>
                                         <tr>
                                             <td>
                                                 <% if (sc.image) { %>
-                                                    <img src="/<%= sc.image %>" alt="Img" style="width: 50px; height: 50px; object-fit: contain; border-radius: 5px;">
-                                                <% } else { %>
-                                                    <span class="text-muted small">Chưa có</span>
-                                                <% } %>
+                                                    <img src="/<%= sc.image %>" alt="Img"
+                                                        style="width: 50px; height: 50px; object-fit: contain; border-radius: 5px;">
+                                                    <% } else { %>
+                                                        <span class="text-muted small">Chưa có</span>
+                                                        <% } %>
                                             </td>
-                                            <td class="fw-bold"><%= sc.name %></td>
+                                            <td class="fw-bold">
+                                                <%= sc.name %>
+                                            </td>
                                             <td>
                                                 <span class="badge bg-primary">
                                                     <%= sc.category_id ? sc.category_id.name : 'Không có' %>
                                                 </span>
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal<%= sc._id %>"><i class="fas fa-edit"></i></button>
-                                                <a href="/admin/sub_categories/delete/<%= sc._id %>" class="btn btn-sm btn-danger" onclick="return confirm('Xóa thể loại này?');"><i class="fas fa-trash"></i></a>
+                                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                                    data-bs-target="#editModal<%= sc._id %>"><i
+                                                        class="fas fa-edit"></i></button>
+                                                <a href="/admin/sub_categories/delete/<%= sc._id %>"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Xóa thể loại này?');"><i
+                                                        class="fas fa-trash"></i></a>
                                             </td>
                                         </tr>
 
@@ -79,42 +108,55 @@
                                                 <div class="modal-content text-start">
                                                     <div class="modal-header bg-warning text-dark">
                                                         <h5 class="modal-title fw-bold">Sửa Thể Loại Con</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal"></button>
                                                     </div>
-                                                    <form action="/admin/sub_categories/update" method="POST" enctype="multipart/form-data">
+                                                    <form action="/admin/sub_categories/update" method="POST"
+                                                        enctype="multipart/form-data">
                                                         <div class="modal-body">
                                                             <input type="hidden" name="id" value="<%= sc._id %>">
                                                             <div class="mb-3">
                                                                 <label class="form-label">Thuộc danh mục gốc</label>
                                                                 <select class="form-select" name="category_id" required>
-                                                                    <% categories.forEach(cat => { %>
-                                                                        <option value="<%= cat._id %>" <%= (sc.category_id && sc.category_id._id.toString() == cat._id.toString()) ? 'selected' : '' %>>
+                                                                    <% categories.forEach(cat=> { %>
+                                                                        <option value="<%= cat._id %>"
+                                                                            <%=(sc.category_id &&
+                                                                            sc.category_id._id.toString()==cat._id.toString())
+                                                                            ? 'selected' : '' %>>
                                                                             <%= cat.name %>
                                                                         </option>
-                                                                    <% }) %>
+                                                                        <% }) %>
                                                                 </select>
                                                             </div>
                                                             <div class="mb-3">
                                                                 <label class="form-label">Tên thể loại con</label>
-                                                                <input type="text" class="form-control" name="name" value="<%= sc.name %>" required>
+                                                                <input type="text" class="form-control" name="name"
+                                                                    value="<%= sc.name %>" required>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label">Đổi hình ảnh (Tùy chọn)</label>
-                                                                <input type="file" class="form-control" name="image" accept="image/*">
+                                                                <label class="form-label">Đổi hình ảnh (Tùy
+                                                                    chọn)</label>
+                                                                <input type="file" class="form-control" name="image"
+                                                                    accept="image/*">
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                            <button type="submit" class="btn btn-warning fw-bold">Cập nhật</button>
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Đóng</button>
+                                                            <button type="submit" class="btn btn-warning fw-bold">Cập
+                                                                nhật</button>
                                                         </div>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
-                                    <% }) %>
-                                <% } else { %>
-                                    <tr><td colspan="4" class="py-4 text-muted">Chưa có thể loại con nào.</td></tr>
-                                <% } %>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="4" class="py-4 text-muted">Chưa có thể loại con nào.
+                                                    </td>
+                                                </tr>
+                                                <% } %>
                             </tbody>
                         </table>
                     </div>
@@ -136,9 +178,11 @@
                             <label class="form-label">Chọn Danh Mục Gốc</label>
                             <select class="form-select" name="category_id" required>
                                 <option value="">-- Chọn danh mục --</option>
-                                <% categories.forEach(cat => { %>
-                                    <option value="<%= cat._id %>"><%= cat.name %></option>
-                                <% }) %>
+                                <% categories.forEach(cat=> { %>
+                                    <option value="<%= cat._id %>">
+                                        <%= cat.name %>
+                                    </option>
+                                    <% }) %>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -160,4 +204,5 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

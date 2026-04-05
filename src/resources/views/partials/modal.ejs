@@ -25,6 +25,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="/auth/login" method="POST">
+                    <% if (loginError && loginError.length > 0) { %>
+                        <div class="alert alert-danger p-2 mb-3"><%= loginError %></div>
+                    <% } %>
                     <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
                     <input type="password" name="password" class="form-control mb-3" placeholder="Mật khẩu" required>
                     
@@ -33,6 +36,15 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        <% if (typeof loginError !== 'undefined' && loginError && loginError.length > 0) { %>
+            document.addEventListener('DOMContentLoaded', function() {
+                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            });
+        <% } %>
+    </script>
 
     <div class="modal fade" id="registerModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -42,10 +54,33 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="/auth/register" method="POST">
+                    <% if (registerError && registerError.length > 0) { %>
+                        <div class="alert alert-danger p-2 mb-3"><%= registerError %></div>
+                    <% } %>
                     <input type="text" name="fullname" class="form-control mb-3" placeholder="Họ và tên" required>
                     <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
                     <input type="text" name="phone" class="form-control mb-3" placeholder="Số điện thoại" required>
-                    <input type="text" name="address" class="form-control mb-3" placeholder="Địa chỉ giao hàng cụ thể" required>
+                    <div class="address-group">
+                        <div class="row mb-3">
+                            <div class="col-sm-4 mb-2 mb-sm-0">
+                                <select class="form-select province" required>
+                                    <option value="">Tỉnh/Thành phố</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-4 mb-2 mb-sm-0">
+                                <select class="form-select district" required>
+                                    <option value="">Quận/Huyện</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <select class="form-select ward" required>
+                                    <option value="">Phường/Xã</option>
+                                </select>
+                            </div>
+                        </div>
+                        <input type="text" class="form-control mb-3 street" placeholder="Số nhà, tên đường cụ thể" required>
+                        <input type="hidden" name="address" class="address-hidden">
+                    </div>
                     <input type="password" name="password" class="form-control mb-3" placeholder="Mật khẩu" required>
                     
                     <button type="submit" class="btn btn-success w-100 fw-bold">ĐĂNG KÝ</button>
@@ -53,3 +88,84 @@
             </div>
         </div>
     </div>
+
+    <script>
+        <% if (typeof registerError !== 'undefined' && registerError && registerError.length > 0) { %>
+            document.addEventListener('DOMContentLoaded', function() {
+                var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+                registerModal.show();
+            });
+        <% } %>
+
+        // Logic Auto Load Province API
+        document.addEventListener('DOMContentLoaded', function() {
+            const addressGroups = document.querySelectorAll('.address-group');
+            addressGroups.forEach(group => {
+                const provinceSel = group.querySelector('.province');
+                const districtSel = group.querySelector('.district');
+                const wardSel = group.querySelector('.ward');
+                const streetInp = group.querySelector('.street');
+                const hiddenInp = group.querySelector('.address-hidden');
+
+                // Lấy danh sách tỉnh thành
+                fetch('https://provinces.open-api.vn/api/p/')
+                    .then(res => res.json())
+                    .then(data => {
+                        data.forEach(item => {
+                            provinceSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                        });
+                    })
+                    .catch(err => console.error("Lấy tỉnh không thành công:", err));
+
+                provinceSel.addEventListener('change', function() {
+                    districtSel.innerHTML = '<option value="">Quận/Huyện</option>';
+                    wardSel.innerHTML = '<option value="">Phường/Xã</option>';
+                    if(this.value) {
+                        fetch(`https://provinces.open-api.vn/api/p/${this.value}?depth=2`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if(data.districts) {
+                                    data.districts.forEach(item => {
+                                        districtSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                                    });
+                                }
+                            });
+                    }
+                    updateAddress();
+                });
+
+                districtSel.addEventListener('change', function() {
+                    wardSel.innerHTML = '<option value="">Phường/Xã</option>';
+                    if(this.value) {
+                        fetch(`https://provinces.open-api.vn/api/d/${this.value}?depth=2`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if(data.wards) {
+                                    data.wards.forEach(item => {
+                                        wardSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                                    });
+                                }
+                            });
+                    }
+                    updateAddress();
+                });
+
+                wardSel.addEventListener('change', updateAddress);
+                streetInp.addEventListener('input', updateAddress);
+
+                function updateAddress() {
+                    let parts = [];
+                    if(streetInp.value.trim()) parts.push(streetInp.value.trim());
+                    if(wardSel.value) parts.push(wardSel.options[wardSel.selectedIndex].text);
+                    if(districtSel.value) parts.push(districtSel.options[districtSel.selectedIndex].text);
+                    if(provinceSel.value) parts.push(provinceSel.options[provinceSel.selectedIndex].text);
+                    hiddenInp.value = parts.join(', ');
+                }
+                
+                const form = group.closest('form');
+                if(form) {
+                    form.addEventListener('submit', updateAddress);
+                }
+            });
+        });
+    </script>

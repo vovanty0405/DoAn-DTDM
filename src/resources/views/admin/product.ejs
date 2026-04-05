@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,27 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .sidebar { min-height: 100vh; background-color: #005a3c; }
-        .sidebar a { color: #fff; text-decoration: none; padding: 12px 20px; display: block; transition: 0.3s; }
-        .sidebar a:hover, .sidebar a.active { background-color: #00452d; border-left: 4px solid #f9b612; }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #005a3c;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #00452d;
+            border-left: 4px solid #f9b612;
+        }
     </style>
 </head>
+
 <body class="bg-light">
     <div class="container-fluid">
         <div class="row">
@@ -20,7 +37,7 @@
                     <h4 class="fw-bold text-warning mb-0">BÁCH HÓA PEW</h4>
                     <div class="mt-2 small opacity-75">
                         <i class="fas fa-user-shield"></i>Quản trị viên<br>
-                        <span style="font-size: 0.8em;">ID: ADMIN</span> 
+                        <span style="font-size: 0.8em;">ID: ADMIN</span>
                     </div>
                 </div>
                 <div class="mt-3">
@@ -30,6 +47,9 @@
                     <a href="/admin/products" class="active"><i class="fas fa-box me-2"></i> Sản Phẩm</a>
                     <a href="/admin/customers"><i class="fas fa-users me-2"></i> Khách Hàng</a>
                     <a href="/admin/orders"><i class="fas fa-file-invoice-dollar me-2"></i> Đơn Hàng</a>
+                    <a href="/admin/reviews"><i class="fas fa-star me-2"></i> Đánh Giá</a>
+                    <a href="/admin/contacts"><i class="fas fa-envelope me-2"></i> Liên Hệ</a>
+                    <a href="/admin/promotions"><i class="fas fa-percent me-2"></i> Khuyến Mãi</a>
                     <a href="/logout" class="text-danger mt-5"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a>
                 </div>
             </div>
@@ -46,18 +66,23 @@
                     <div class="card-body">
                         <form action="/admin/products" method="GET" class="row g-2 align-items-center">
                             <div class="col-md-4">
-                                <input type="text" name="keyword" class="form-control" placeholder="Tìm theo tên sản phẩm..." value="<%= (typeof query !== 'undefined' && query.keyword) ? query.keyword : '' %>">
+                                <input type="text" name="keyword" class="form-control"
+                                    placeholder="Tìm theo tên sản phẩm..."
+                                    value="<%= (typeof query !== 'undefined' && query.keyword) ? query.keyword : '' %>">
                             </div>
                             <div class="col-md-3">
                                 <select name="category_id" class="form-select">
                                     <option value="">-- Tất cả danh mục --</option>
-                                    <% categories.forEach(cat => { %>
-                                        <option value="<%= cat._id %>" <%= (typeof query !== 'undefined' && query.category_id == cat._id) ? 'selected' : '' %>><%= cat.name %></option>
-                                    <% }) %>
+                                    <% categories.forEach(cat=> { %>
+                                        <option value="<%= cat._id %>" <%=(typeof query !=='undefined' &&
+                                            query.category_id==cat._id) ? 'selected' : '' %>><%= cat.name %>
+                                        </option>
+                                        <% }) %>
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Lọc</button>
+                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i>
+                                    Lọc</button>
                             </div>
                             <div class="col-md-2">
                                 <a href="/admin/products" class="btn btn-secondary w-100">Xóa lọc</a>
@@ -81,32 +106,45 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% if (typeof products !== 'undefined' && products.length > 0) { %>
-                                    <% products.forEach(prod => { %>
+                                <% if (typeof products !=='undefined' && products.length> 0) { %>
+                                    <% products.forEach(prod=> { %>
                                         <tr>
                                             <td>
                                                 <% if (prod.cover_image) { %>
-                                                    <img src="/<%= prod.cover_image %>" alt="Img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
-                                                <% } else { %>
-                                                    <span class="text-muted small">No Image</span>
-                                                <% } %>
+                                                    <img src="/<%= prod.cover_image %>" alt="Img"
+                                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                                    <% } else { %>
+                                                        <span class="text-muted small">No Image</span>
+                                                        <% } %>
                                             </td>
-                                            <td class="fw-bold text-start"><%= prod.name %></td>
-                                            <td><%= prod.category_id ? prod.category_id.name : 'Trống' %></td>
-                                            <td><span class="badge bg-info text-dark"><%= prod.sub_category_id ? prod.sub_category_id.name : 'Chưa phân loại' %></span></td>
-                                            <td><strong class="text-danger"><%= prod.price.toLocaleString() %> đ</strong></td>
+                                            <td class="fw-bold text-start">
+                                                <%= prod.name %>
+                                            </td>
                                             <td>
-                                                <% if (prod.status == 1) { %>
+                                                <%= prod.category_id ? prod.category_id.name : 'Trống' %>
+                                            </td>
+                                            <td><span class="badge bg-info text-dark">
+                                                    <%= prod.sub_category_id ? prod.sub_category_id.name
+                                                        : 'Chưa phân loại' %>
+                                                </span></td>
+                                            <td><strong class="text-danger">
+                                                    <%= prod.price.toLocaleString() %> đ
+                                                </strong></td>
+                                            <td>
+                                                <% if (prod.status==1) { %>
                                                     <span class="badge bg-success">Đang bán</span>
-                                                <% } else { %>
-                                                    <span class="badge bg-secondary">Ngừng bán</span>
-                                                <% } %>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary">Ngừng bán</span>
+                                                        <% } %>
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal<%= prod._id %>">
+                                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                                    data-bs-target="#editModal<%= prod._id %>">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <a href="/admin/products/delete/<%= prod._id %>" class="btn btn-sm btn-danger" onclick="return confirm('Xóa sản phẩm này?');">
+                                                <a href="/admin/products/delete/<%= prod._id %>"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Xóa sản phẩm này?');">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>
@@ -117,56 +155,77 @@
                                                 <div class="modal-content text-start">
                                                     <div class="modal-header bg-warning text-dark">
                                                         <h5 class="modal-title fw-bold">Sửa Sản Phẩm</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal"></button>
                                                     </div>
-                                                    <form action="/admin/products/update" method="POST" enctype="multipart/form-data">
+                                                    <form action="/admin/products/update" method="POST"
+                                                        enctype="multipart/form-data">
                                                         <div class="modal-body">
                                                             <input type="hidden" name="id" value="<%= prod._id %>">
                                                             <div class="mb-3">
                                                                 <label class="form-label">Tên sản phẩm</label>
-                                                                <input type="text" class="form-control" name="name" value="<%= prod.name %>" required>
+                                                                <input type="text" class="form-control" name="name"
+                                                                    value="<%= prod.name %>" required>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label">Đổi ảnh (Để trống nếu giữ ảnh cũ)</label>
-                                                                <input type="file" class="form-control" name="cover_image" accept="image/*">
+                                                                <label class="form-label">Đổi ảnh (Để trống nếu giữ ảnh
+                                                                    cũ)</label>
+                                                                <input type="file" class="form-control"
+                                                                    name="cover_image" accept="image/*">
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-6 mb-3">
                                                                     <label class="form-label">Giá bán (VNĐ)</label>
-                                                                    <input type="number" class="form-control" name="price" value="<%= prod.price %>" required>
+                                                                    <input type="number" class="form-control"
+                                                                        name="price" value="<%= prod.price %>" required>
                                                                 </div>
                                                                 <div class="col-6 mb-3">
                                                                     <label class="form-label">Giá khuyến mãi</label>
-                                                                    <input type="number" class="form-control" name="discount_price" value="<%= prod.discount_price %>">
+                                                                    <input type="number" class="form-control"
+                                                                        name="discount_price"
+                                                                        value="<%= prod.discount_price %>">
                                                                 </div>
                                                                 <div class="col-12 mb-3">
                                                                     <label class="form-label">Tồn kho</label>
-                                                                    <input type="number" class="form-control" name="stock_quantity" value="<%= prod.stock_quantity %>">
+                                                                    <input type="number" class="form-control"
+                                                                        name="stock_quantity"
+                                                                        value="<%= prod.stock_quantity %>">
                                                                 </div>
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-6 mb-3">
                                                                     <label class="form-label">Danh mục Gốc</label>
-                                                                    <select class="form-select" name="category_id" onchange="updateSubCatDropdown(this, 'edit_subcat_<%= prod._id %>')">
+                                                                    <select class="form-select" name="category_id"
+                                                                        onchange="updateSubCatDropdown(this, 'edit_subcat_<%= prod._id %>')">
                                                                         <option value="">-- Chọn danh mục --</option>
-                                                                        <% categories.forEach(cat => { %>
-                                                                            <option value="<%= cat._id %>" <%= (prod.category_id && prod.category_id._id.toString() == cat._id.toString()) ? 'selected' : '' %>><%= cat.name %></option>
-                                                                        <% }) %>
+                                                                        <% categories.forEach(cat=> { %>
+                                                                            <option value="<%= cat._id %>"
+                                                                                <%=(prod.category_id &&
+                                                                                prod.category_id._id.toString()==cat._id.toString())
+                                                                                ? 'selected' : '' %>><%= cat.name %>
+                                                                            </option>
+                                                                            <% }) %>
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-6 mb-3">
                                                                     <label class="form-label">Thể Loại Con</label>
-                                                                    <select class="form-select" name="sub_category_id" id="edit_subcat_<%= prod._id %>">
+                                                                    <select class="form-select" name="sub_category_id"
+                                                                        id="edit_subcat_<%= prod._id %>">
                                                                         <option value="">-- Chọn (Tùy chọn) --</option>
-                                                                        <% 
-                                                                            // Lọc thủ công bằng EJS: Chỉ in ra những Thể loại con CÙNG danh mục gốc với sản phẩm này
-                                                                            let filteredSC = subCategories.filter(sc => prod.category_id && sc.category_id && sc.category_id._id.toString() == prod.category_id._id.toString());
-                                                                            filteredSC.forEach(sc => { 
-                                                                        %>
-                                                                            <option value="<%= sc._id %>" <%= (prod.sub_category_id && prod.sub_category_id._id.toString() == sc._id.toString()) ? 'selected' : '' %>>
+                                                                        <% // Lọc thủ công bằng EJS: Chỉ in ra những Thể loại con CÙNG danh mục gốc với sản phẩm này
+                                                                            let filteredSC=subCategories.filter(sc=>
+                                                                            prod.category_id && sc.category_id &&
+                                                                            sc.category_id._id.toString() ==
+                                                                            prod.category_id._id.toString());
+                                                                            filteredSC.forEach(sc => {
+                                                                            %>
+                                                                            <option value="<%= sc._id %>"
+                                                                                <%=(prod.sub_category_id &&
+                                                                                prod.sub_category_id._id.toString()==sc._id.toString())
+                                                                                ? 'selected' : '' %>>
                                                                                 <%= sc.name %>
                                                                             </option>
-                                                                        <% }) %>
+                                                                            <% }) %>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -175,34 +234,42 @@
                                                                     <label class="form-label">Hãng sản xuất</label>
                                                                     <select class="form-select" name="brand_id">
                                                                         <option value="">-- Chọn hãng --</option>
-                                                                        <% brands.forEach(b => { %>
-                                                                            <option value="<%= b._id %>" <%= (prod.brand_id && prod.brand_id._id.toString() == b._id.toString()) ? 'selected' : '' %>><%= b.name %></option>
-                                                                        <% }) %>
+                                                                        <% brands.forEach(b=> { %>
+                                                                            <option value="<%= b._id %>"
+                                                                                <%=(prod.brand_id &&
+                                                                                prod.brand_id._id.toString()==b._id.toString())
+                                                                                ? 'selected' : '' %>><%= b.name %>
+                                                                            </option>
+                                                                            <% }) %>
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-6 mb-3">
                                                                     <label class="form-label">Trạng thái</label>
                                                                     <select class="form-select" name="status">
-                                                                        <option value="1" <%= prod.status == 1 ? 'selected' : '' %>>Đang bán</option>
-                                                                        <option value="0" <%= prod.status == 0 ? 'selected' : '' %>>Ngừng bán</option>
+                                                                        <option value="1" <%=prod.status==1 ? 'selected'
+                                                                            : '' %>>Đang bán</option>
+                                                                        <option value="0" <%=prod.status==0 ? 'selected'
+                                                                            : '' %>>Ngừng bán</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                            <button type="submit" class="btn btn-warning fw-bold">Cập nhật</button>
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Đóng</button>
+                                                            <button type="submit" class="btn btn-warning fw-bold">Cập
+                                                                nhật</button>
                                                         </div>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
-                                    <% }) %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="7" class="py-4 text-muted">Chưa có sản phẩm nào.</td>
-                                    </tr>
-                                <% } %>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="7" class="py-4 text-muted">Chưa có sản phẩm nào.</td>
+                                                </tr>
+                                                <% } %>
                             </tbody>
                         </table>
                     </div>
@@ -245,11 +312,14 @@
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Danh mục Gốc</label>
-                                <select class="form-select" name="category_id" onchange="updateSubCatDropdown(this, 'add_subcat')">
+                                <select class="form-select" name="category_id"
+                                    onchange="updateSubCatDropdown(this, 'add_subcat')">
                                     <option value="">-- Chọn danh mục --</option>
-                                    <% categories.forEach(cat => { %>
-                                        <option value="<%= cat._id %>"><%= cat.name %></option>
-                                    <% }) %>
+                                    <% categories.forEach(cat=> { %>
+                                        <option value="<%= cat._id %>">
+                                            <%= cat.name %>
+                                        </option>
+                                        <% }) %>
                                 </select>
                             </div>
                             <div class="col-6 mb-3">
@@ -264,9 +334,11 @@
                                 <label class="form-label">Hãng sản xuất</label>
                                 <select class="form-select" name="brand_id">
                                     <option value="">-- Chọn hãng --</option>
-                                    <% brands.forEach(b => { %>
-                                        <option value="<%= b._id %>"><%= b.name %></option>
-                                    <% }) %>
+                                    <% brands.forEach(b=> { %>
+                                        <option value="<%= b._id %>">
+                                            <%= b.name %>
+                                        </option>
+                                        <% }) %>
                                 </select>
                             </div>
                             <div class="col-6 mb-3">
@@ -295,7 +367,7 @@
         function updateSubCatDropdown(catSelectElement, subCatSelectId) {
             const catId = catSelectElement.value; // Lấy ID của danh mục đang chọn
             const subCatSelect = document.getElementById(subCatSelectId); // Tìm đúng ô Thể loại con tương ứng
-            
+
             // Bước 1: Xóa trắng ô Thể loại con cũ
             subCatSelect.innerHTML = '<option value="">-- Chọn (Tùy chọn) --</option>';
 
@@ -313,4 +385,5 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

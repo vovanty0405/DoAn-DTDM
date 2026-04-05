@@ -65,5 +65,22 @@ router.get('/orders/delete/:id', orderController.destroy);
 router.get('/orders/detail/:id', orderController.detail); // Route xem chi tiết
 
 
+// Liên Hệ
+const contactController = require('../app/controllers/ContactController');
+router.get('/contacts', contactController.index);
+router.post('/contacts/update', contactController.updateStatus);
+router.get('/contacts/delete/:id', contactController.destroy);
+
+// Đánh Giá
+const reviewController = require('../app/controllers/ReviewController');
+router.get('/reviews', reviewController.index);
+router.post('/reviews/update', reviewController.updateStatus);
+router.get('/reviews/delete/:id', reviewController.destroy);
+
+// Quản lý Khuyến Mãi
+const promotionController = require('../app/controllers/PromotionController');
+router.get('/promotions', promotionController.index);
+router.post('/promotions/slot1', promotionController.updateSlot1);
+router.post('/promotions/slot2', promotionController.updateSlot2);
 
 module.exports = router;

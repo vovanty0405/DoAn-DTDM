@@ -2,11 +2,14 @@ var express = require('express');
 var app = express();
 //var session = require('express-session');
 const session = require('express-session');
+const flash = require('connect-flash');
 var path = require('path');
 const db = require('./config/db');
 const Cart = require('./app/models/Cart');
 // Connect to MongoDB
 db.connect();
+
+app.use(flash());
 
 app.use(session({
     secret: 'bachhoapew-secret-key', // Bạn có thể đổi chuỗi này tùy ý
@@ -14,11 +17,12 @@ app.use(session({
     saveUninitialized: true,
     cookie: { maxAge: 1000 * 60 * 60 * 24 } // Phiên đăng nhập tồn tại 1 ngày
 }));
+app.use(flash());
 // TẠO BIẾN TOÀN CỤC CHO USER VÀ SỐ LƯỢNG GIỎ HÀNG
-app.use(async function(req, res, next) {
+app.use(async function (req, res, next) {
     res.locals.user = req.session.user || null;
     let totalCartCount = 0;
-    
+
     try {
         if (req.session.user) {
             // Đếm cho người dùng đã đăng nhập
@@ -34,8 +38,11 @@ app.use(async function(req, res, next) {
     } catch (err) {
         console.log('Lỗi đếm giỏ hàng ở file index:', err);
     }
-    
+
     res.locals.cartCount = totalCartCount;
+    // Đổ flash messages
+    res.locals.loginError = req.flash('loginError');
+    res.locals.registerError = req.flash('registerError');
     next();
 });
 
@@ -51,5 +58,5 @@ route(app);
 
 
 app.listen(3000, () => {
-	console.log('Server is running at http://127.0.0.1:3000');
+    console.log('Server is running at http://127.0.0.1:3000');
 });

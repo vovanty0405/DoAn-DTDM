@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Về Chúng Tôi - Bách Hóa Pew</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link href="http://127.0.0.1:3000/css/style.css" rel="stylesheet" />
+</head>
+
+<body class="bg-light">
+    <!-- Header -->
+    <%- include('partials/navbar') %>
+
+        <!-- Breadcrumb banner -->
+        <div class="container-fluid bg-tempi-green text-white py-5 text-center">
+            <h1 class="fw-bold display-4 text-dark">Về Chúng Tôi</h1>
+            <p class="lead text-dark">Tìm hiểu câu chuyện và sứ mệnh của Bách Hóa Pew</p>
+        </div>
+
+        <!-- Nội dung Giới thiệu -->
+        <div class="container my-5 bg-white p-5 rounded shadow-sm">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <img src="/image/banner_head.webp" alt="Về Bách Hóa Pew" class="img-fluid rounded shadow-sm w-100"
+                        style="object-fit: cover; height: 350px;">
+                </div>
+                <div class="col-md-6">
+                    <h2 class="fw-bold text-success mb-3"><i class="fas fa-leaf me-2"></i> Bách Hóa Pew </h2>
+                    <h5 class="text-secondary mb-4">"Nơi đem lại bữa ăn tươi ngon và chất lượng cho người Việt"</h5>
+                    <p>
+                        Được thành lập với sứ mệnh mang đến nguồn thực phẩm tươi sạch, an toàn và đa dạng, <strong>Bách
+                            Hóa Pew</strong> tự hào là người bạn đồng hành đáng tin cậy của hàng triệu gia đình Việt
+                        Nam.
+                    </p>
+                    <p>
+                        Chúng tôi cam kết 100% sản phẩm bày bán đều được kiểm định nguồn gốc xuất xứ rõ ràng. Từ rau củ
+                        quả tươi ngon lấy từ nông trại mỗi góc bình minh, cho đến các loại thịt, hải sản và hàng tiêu
+                        dùng thiết yếu - tất cả đều được lựa chọn với quy trình gắt gao nhất.
+                    </p>
+                    <p>
+                        Hãy để Bách Hóa Pew san sẻ nỗi lo đi chợ và giúp bạn xây dựng những mâm cơm hạnh phúc!
+                    </p>
+                </div>
+            </div>
+
+            <div class="row text-center mt-5">
+                <div class="col-md-4 mb-4">
+                    <i class="fas fa-medal text-warning fs-1 mb-3"></i>
+                    <h5 class="fw-bold">Chất lượng hàng đầu</h5>
+                    <p class="text-muted">Kiểm định nghiêm ngặt từ nông trại tới bàn ăn.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <i class="fas fa-truck-fast text-success fs-1 mb-3"></i>
+                    <h5 class="fw-bold">Giao hàng thần tốc</h5>
+                    <p class="text-muted">Nhận ngay sản phẩm tươi ngon chỉ trong 2 giờ.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <i class="fas fa-hand-holding-heart text-danger fs-1 mb-3"></i>
+                    <h5 class="fw-bold">Tận tâm phục vụ</h5>
+                    <p class="text-muted">Lắng nghe và giải quyết lập tức nhu cầu khách hàng.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <%- include('partials/footer') %>
+            <!-- Modal -->
+            <%- include('partials/modal') %>
+
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -164,28 +164,49 @@
     </section>
     <!-- Sale Cuối Tuần 40% -->
     <section class="container-fluid banner-mid p-0 my-5">
+        <% 
+            let slot1Title = "Siêu sale cuối tuần"; 
+            let slot1Percent = "GIẢM ĐẾN 40%"; 
+            let slot1CategoryName = "THỰC PHẨM TƯƠI SỐNG"; 
+            let slot1Link = "#"; 
+            if (typeof promoConfig !== 'undefined' && promoConfig && promoConfig.promo1_category_id) { 
+                 slot1Percent = "GIẢM ĐẾN " + promoConfig.promo1_percent + "%";
+                 slot1CategoryName = promoConfig.promo1_category_id.name.toUpperCase();
+                 slot1Link = "/category/" + promoConfig.promo1_category_id.slug;
+            } 
+        %>
         <div class="mid-banner-wrapper">
             <div class="mid-banner-overlay"></div>
             <img src="https://via.placeholder.com/1920x300?text=Banner+Deal" alt="Deal of the week" class="img-cover position-absolute top-0 start-0 w-100 h-100" style="z-index: 0;">
             <div class="mid-banner-content text-center text-white">
-                <h4 class="text-uppercase mb-2">Siêu sale cuối tuần</h4>
-                <h1 class="display-5 fw-bold mb-4">GIẢM ĐẾN 40%<br>THỰC PHẨM TƯƠI SỐNG</h1>
-                <button class="btn btn-warning rounded-pill px-4 py-2 fw-bold">Mua ngay</button>
+                <h4 class="text-uppercase mb-2"><%= slot1Title %></h4>
+                <h1 class="display-5 fw-bold mb-4"><%= slot1Percent %><br><%= slot1CategoryName %></h1>
+                <a href="<%= slot1Link %>" class="btn btn-warning rounded-pill px-4 py-2 fw-bold">Mua ngay</a>
             </div>
         </div>
     </section>
     <!-- Ưu đãi độc quyền 30% -->
     <section class="container my-5 py-4 bg-light rounded shadow-sm">
+        <% 
+            let slot2Percent = "-30%"; 
+            let slot2CategoryName = "Các Loại Nước"; 
+            let slot2Link = "/category/nuoc-ngot"; 
+            if (typeof promoConfig !== 'undefined' && promoConfig && promoConfig.promo2_category_id) { 
+                 slot2Percent = "-" + promoConfig.promo2_percent + "%";
+                 slot2CategoryName = promoConfig.promo2_category_id.name;
+                 slot2Link = "/category/" + promoConfig.promo2_category_id.slug;
+            } 
+        %>
         <div class="row align-items-center">
             <div class="col-lg-3 col-md-12 mb-4 mb-lg-0 text-center text-lg-start px-4">
                 <h4 class="text-uppercase mb-2 text-muted" style="letter-spacing: 1px;">Ưu đãi độc quyền</h4>
-                <h1 class="display-4 fw-bold mb-0 text-warning">-30%</h1>
-                <h2 class="h3 fw-bold mb-4">Các Loại Nước</h2>
-                <a href="/category/nuoc-ngot" class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark">Xem tất cả</a>
+                <h1 class="display-4 fw-bold mb-0 text-warning"><%= slot2Percent %></h1>
+                <h2 class="h3 fw-bold mb-4"><%= slot2CategoryName %></h2>
+                <a href="<%= slot2Link %>" class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark">Xem tất cả</a>
             </div>
 
             <div class="col-lg-9 col-md-12">
-                <div class="row justify-content-start">
+                <div class="row justify-content-start" id="promo2-product-list">
                     <% if (typeof drinkProducts !== 'undefined' && drinkProducts.length > 0) { %>
                         <% drinkProducts.forEach(product => { %>
                             <div class="col-md-4 col-sm-6 mb-3">
@@ -236,6 +257,16 @@
                     <% } else { %>
                         <p class="text-center">Đang cập nhật sản phẩm...</p>
                     <% } %>
+                </div>
+                
+                <!-- Xem thêm Promo 2 -->
+                <div class="text-center mt-3 w-100">
+                    <button id="load-more-promo2" class="btn btn-outline-warning rounded-pill px-4 py-2 fw-bold" onclick="loadMoreProducts('promo2', this)" data-offset="6">
+                        Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>
+                    </button>
+                     <button id="collapse-btn-promo2" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold ms-2" onclick="collapseProducts('promo2', 6)" style="display: none;">
+                        Thu gọn <i class="fas fa-chevron-up ms-1"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -305,6 +336,62 @@
                     Thu gọn <i class="fas fa-chevron-up ms-1"></i>
                 </button>
             </div>
+        </div>
+    </section>
+    <!-- Gợi Ý Dành Cho Bạn -->
+    <section class="container my-5 py-4 bg-white rounded shadow-sm">
+        <h2 class="text-center mb-4 fw-bold" style="color: var(--tempi-green);"><i class="fas fa-star text-warning me-2"></i> GỢI Ý DÀNH CHO BẠN</h2>
+        <div class="row">
+            <% if (typeof recommendedProducts !== 'undefined' && recommendedProducts.length > 0) { %>
+                <% recommendedProducts.forEach(product => { %>
+                    <div class="col-md-3 col-sm-6 mb-4">
+                        <div class="card product-card h-100 border-0 shadow-sm position-relative">
+                            <% if (product.discount_price) { %>
+                                <% let percent = Math.round(((product.price - product.discount_price) / product.price) * 100); %>
+                                <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded" style="z-index: 10;">
+                                    -<%= percent %>%
+                                </div>
+                            <% } %>
+
+                            <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                <div class="product-img-wrapper">
+                                    <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="img-cover">
+                                </div>
+                            </a>
+
+                            <div class="card-body text-center">
+                                <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                    <h6 class="card-title fw-bold" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px;" title="<%= product.name %>">
+                                        <%= product.name %>
+                                    </h6>
+                                </a>
+
+                                <% if (product.discount_price) { %>
+                                    <div class="text-muted text-decoration-line-through small"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                    <div class="fw-bold text-dark mb-2"><%= product.discount_price.toLocaleString('vi-VN') %> đ</div>
+                                <% } else { %>
+                                    <div class="text-muted small">&nbsp;</div>
+                                    <div class="fw-bold text-dark mb-2"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                <% } %>
+
+                                <div class="stars text-warning mb-3">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <div class="d-flex justify-content-center align-items-center gap-3 mt-2">
+                                    <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom" title="Thêm vào giỏ hàng">
+                                        <i class="fas fa-cart-plus fs-4"></i>
+                                    </a>
+                                    <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                                        Mua ngay
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-center text-muted w-100">Chưa có gợi ý nào dành cho bạn.</p>
+            <% } %>
         </div>
     </section>
     <!-- Banner -->
@@ -463,7 +550,7 @@
 
         function loadMoreProducts(type, btnElement) {
             let currentOffset = parseInt(btnElement.getAttribute('data-offset'));
-            let targetId = (type === 'sale') ? 'sale-product-list' : 'new-product-list';
+            let targetId = (type === 'sale') ? 'sale-product-list' : (type === 'promo2') ? 'promo2-product-list' : 'new-product-list';
 
             if (!originalContent[targetId]) {
                 originalContent[targetId] = document.getElementById(targetId).innerHTML;
@@ -480,7 +567,7 @@
                     if (html.trim() === '') {
                         btnElement.innerHTML = 'Đã hiển thị tất cả';
                         btnElement.disabled = true;
-                        btnElement.classList.remove('btn-outline-success', 'btn-outline-light');
+                        btnElement.classList.remove('btn-outline-success', 'btn-outline-light', 'btn-outline-warning');
                         btnElement.classList.add('btn-secondary');
                     } else {
                         document.getElementById(targetId).insertAdjacentHTML('beforeend', html);
@@ -498,7 +585,7 @@
         }
 
         function collapseProducts(type, defaultOffset) {
-            let targetId = (type === 'sale') ? 'sale-product-list' : 'new-product-list';
+            let targetId = (type === 'sale') ? 'sale-product-list' : (type === 'promo2') ? 'promo2-product-list' : 'new-product-list';
             let loadMoreBtn = document.getElementById(`load-more-${type}`);
             let collapseBtn = document.getElementById(`collapse-btn-${type}`);
 
@@ -513,6 +600,7 @@
             loadMoreBtn.classList.remove('btn-secondary');
             if (type === 'sale') loadMoreBtn.classList.add('btn-outline-success');
             if (type === 'new') loadMoreBtn.classList.add('btn-outline-light');
+            if (type === 'promo2') loadMoreBtn.classList.add('btn-outline-warning');
 
             collapseBtn.style.display = 'none';
 

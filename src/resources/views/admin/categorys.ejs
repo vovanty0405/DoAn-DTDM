@@ -47,6 +47,9 @@
                     <a href="/admin/products"><i class="fas fa-box me-2"></i> Sản Phẩm</a>
                     <a href="/admin/customers"><i class="fas fa-users me-2"></i> Khách Hàng</a>
                     <a href="/admin/orders"><i class="fas fa-file-invoice-dollar me-2"></i> Đơn Hàng</a>
+                    <a href="/admin/contacts"><i class="fas fa-envelope me-2"></i> Liên Hệ</a>
+                    <a href="/admin/reviews"><i class="fas fa-star me-2"></i> Đánh Giá</a>
+                    <a href="/admin/promotions"><i class="fas fa-percent me-2"></i> Khuyến Mãi</a>
                     <a href="/logout" class="text-danger mt-5"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a>
                 </div>
             </div>
@@ -64,7 +67,7 @@
                         <table class="table table-hover align-middle text-center">
                             <thead class="table-light">
                                 <tr>
-                                    
+
                                     <th>Tên Danh Mục</th>
                                     <th>Đường dẫn (Slug)</th>
                                     <th>Trạng Thái</th>
@@ -73,24 +76,31 @@
                             </thead>
                             <!-- Hiển thị dữ liệu lên bảng -->
                             <tbody>
-                                <% if (categories && categories.length > 0) { %>
-                                    <% categories.forEach(cat => { %>
+                                <% if (categories && categories.length> 0) { %>
+                                    <% categories.forEach(cat=> { %>
                                         <tr>
-                                            
-                                            <td class="fw-bold"><%= cat.name %></td>
-                                            <td><%= cat.slug %></td>
-                                            <td>
-                                                <% if (cat.status == 1) { %>
-                                                    <span class="badge bg-success">Hiển thị</span>
-                                                <% } else { %>
-                                                    <span class="badge bg-secondary">Đã ẩn</span>
-                                                <% } %>
+
+                                            <td class="fw-bold">
+                                                <%= cat.name %>
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal<%= cat._id %>">
+                                                <%= cat.slug %>
+                                            </td>
+                                            <td>
+                                                <% if (cat.status==1) { %>
+                                                    <span class="badge bg-success">Hiển thị</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary">Đã ẩn</span>
+                                                        <% } %>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                                    data-bs-target="#editModal<%= cat._id %>">
                                                     <i class="fas fa-edit"></i> Sửa
                                                 </button>
-                                                <a href="/admin/categories/delete/<%= cat._id %>" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?');">
+                                                <a href="/admin/categories/delete/<%= cat._id %>"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Bạn có chắc muốn xóa?');">
                                                     <i class="fas fa-trash"></i> Xóa
                                                 </a>
                                             </td>
@@ -101,45 +111,57 @@
                                                 <div class="modal-content text-start">
                                                     <div class="modal-header bg-warning text-dark">
                                                         <h5 class="modal-title fw-bold">Sửa Danh Mục</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal"></button>
                                                     </div>
                                                     <form action="/admin/categories/update" method="POST">
                                                         <div class="modal-body">
                                                             <input type="hidden" name="id" value="<%= cat._id %>">
                                                             <div class="mb-3">
                                                                 <label class="form-label">Tên danh mục</label>
-                                                                <input type="text" class="form-control" name="name" value="<%= cat.name %>" required>
+                                                                <input type="text" class="form-control" name="name"
+                                                                    value="<%= cat.name %>" required>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label">Slug (Đường dẫn không dấu)</label>
-                                                                <input type="text" class="form-control" name="slug" value="<%= cat.slug %>" required>
+                                                                <label class="form-label">Slug (Đường dẫn không
+                                                                    dấu)</label>
+                                                                <input type="text" class="form-control" name="slug"
+                                                                    value="<%= cat.slug %>" required>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label">Bài viết giới thiệu (SEO)</label>
-                                                                <textarea class="form-control" name="description" rows="5" placeholder="Nhập bài viết mô tả danh mục..."><%= cat.description %></textarea>
+                                                                <label class="form-label">Bài viết giới thiệu
+                                                                    (SEO)</label>
+                                                                <textarea class="form-control" name="description"
+                                                                    rows="5"
+                                                                    placeholder="Nhập bài viết mô tả danh mục..."><%= cat.description %></textarea>
                                                             </div>
                                                             <div class="mb-3">
                                                                 <label class="form-label">Trạng thái</label>
                                                                 <select class="form-select" name="status">
-                                                                    <option value="1" <%= cat.status == 1 ? 'selected' : '' %>>Hiển thị</option>
-                                                                    <option value="0" <%= cat.status == 0 ? 'selected' : '' %>>Ẩn</option>
+                                                                    <option value="1" <%=cat.status==1 ? 'selected' : ''
+                                                                        %>>Hiển thị</option>
+                                                                    <option value="0" <%=cat.status==0 ? 'selected' : ''
+                                                                        %>>Ẩn</option>
                                                                 </select>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                            <button type="submit" class="btn btn-warning fw-bold">Cập nhật</button>
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Đóng</button>
+                                                            <button type="submit" class="btn btn-warning fw-bold">Cập
+                                                                nhật</button>
                                                         </div>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
-                                    <% }) %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="5" class="text-center py-4">Chưa có dữ liệu danh mục</td>
-                                    </tr>
-                                <% } %>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="5" class="text-center py-4">Chưa có dữ liệu danh mục
+                                                    </td>
+                                                </tr>
+                                                <% } %>
                             </tbody>
                         </table>
                     </div>
@@ -167,7 +189,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Bài viết giới thiệu (SEO)</label>
-                            <textarea class="form-control" name="description" rows="5" placeholder="Nhập bài viết mô tả danh mục..."></textarea>
+                            <textarea class="form-control" name="description" rows="5"
+                                placeholder="Nhập bài viết mô tả danh mục..."></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Trạng thái</label>

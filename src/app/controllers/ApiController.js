@@ -1,23 +1,51 @@
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
+const Category = require('../models/Category');
 class ApiController {
     // [GET] /api/products/load-more
     async loadMoreProducts(req, res) {
         try {
-            const type = req.query.type; // 'sale' hoặc 'new'
+            const type = req.query.type; // 'sale' hoặc 'new' hoặc 'category'
             const offset = parseInt(req.query.offset) || 0;
-            const limit = 4; // Mỗi lần bấm load thêm 4 sản phẩm
+            const limit = type === 'category' ? 8 : 4; // Bấm xem thêm trong category load 8
             let products = [];
 
             if (type === 'sale') {
-                // Tương tự Best Seller nhưng thêm hàm $skip để bỏ qua các sản phẩm đã tải
-                products = await Product.aggregate([
-                    { $match: { status: 1, discount_price: { $ne: null } } },
-                    { $addFields: { discount_amount: { $subtract: ["$price", "$discount_price"] } } },
-                    { $sort: { discount_amount: -1 } },
-                    { $skip: offset }, 
-                    { $limit: limit }
-                ]);
+                // Tải thêm sản phẩm sale
+                const PromotionConfig = require('../models/PromotionConfig');
+                let config = await PromotionConfig.findOne();
+                if (config && config.promo1_category_id) {
+                     products = await Product.find({
+                          category_id: config.promo1_category_id,
+                          status: 1,
+                          discount_price: { $ne: null }
+                     }).skip(offset).limit(limit).lean();
+                } else {
+                     products = await Product.aggregate([
+                         { $match: { status: 1, discount_price: { $ne: null } } },
+                         { $addFields: { discount_amount: { $subtract: ["$price", "$discount_price"] } } },
+                         { $sort: { discount_amount: -1 } },
+                         { $skip: offset }, 
+                         { $limit: limit }
+                     ]);
+                }
+            } else if (type === 'drink' || type === 'promo2') { 
+                // Tải thêm sản phẩm ưu đãi độc quyền
+                const PromotionConfig = require('../models/PromotionConfig');
+                let config = await PromotionConfig.findOne();
+                if (config && config.promo2_category_id) {
+                     products = await Product.find({ 
+                          category_id: config.promo2_category_id, 
+                          status: 1 
+                      })
+                     .skip(offset).limit(6).lean(); // Drink limit is 6
+                } else {
+                     const drinkCategory = await Category.findOne({ slug: 'nuoc-ngot' }).lean();
+                     if (drinkCategory) {
+                         products = await Product.find({ category_id: drinkCategory._id, status: 1 })
+                             .skip(offset).limit(6).lean();
+                     }
+                }
             } else if (type === 'new') {
                 // Tương tự Hàng Mới Về nhưng có thêm hàm skip()
                 products = await Product.find({ status: 1 })
@@ -25,6 +53,23 @@ class ApiController {
                     .skip(offset)
                     .limit(limit)
                     .lean();
+            } else if (type === 'category') {
+                const categorySlug = req.query.categorySlug;
+                const subcatId = req.query.subcat;
+                const brandId = req.query.brand;
+                
+                const currentCategory = await Category.findOne({ slug: categorySlug, status: 1 }).lean();
+                if (currentCategory) {
+                    let filter = { category_id: currentCategory._id, status: 1 };
+                    if (subcatId) filter.sub_category_id = subcatId;
+                    if (brandId) filter.brand_id = brandId;
+
+                    products = await Product.find(filter)
+                        .sort({ createdAt: -1 })
+                        .skip(offset)
+                        .limit(limit)
+                        .lean();
+                }
             }
 
             // Nếu không còn sản phẩm nào để load thêm
