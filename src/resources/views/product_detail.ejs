@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= product.name %> - Bách Hóa Pew</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+     <link href="http://127.0.0.1:3000/css/style.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+
+    <header class="header-bg sticky-top py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3 col-12 mb-3 mb-md-0 text-center text-md-start">
+                    <a class="navbar-brand fw-bold fs-3 text-white text-decoration-none" href="/">Bách Hóa Pew</a>
+                </div>
+                <div class="col-md-6 col-12 mb-3 mb-md-0">
+                    <form action="/search" method="GET" class="d-flex w-100 shadow-sm rounded-1 overflow-hidden">
+                        <input type="text" name="keyword" class="form-control border-0 py-2 px-3 shadow-none" placeholder="Bạn muốn tìm sản phẩm gì?..." required>
+                        <button class="btn btn-warning border-0 px-4" style="background-color: #f9b612;" type="submit"><i class="fas fa-search text-dark fw-bold"></i></button>
+                    </form>
+                </div>
+                <div class="col-md-3 col-12 d-flex justify-content-center justify-content-md-end align-items-center gap-3">
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <div class="dropdown">
+                            <a class="text-white text-decoration-none fw-bold dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fas fa-user-circle fs-4 me-2"></i> <%= user.fullname %></a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                                <% if (user.role == 1) { %><li><a class="dropdown-item fw-bold text-success" href="/admin/products"><i class="fas fa-shield-alt me-2"></i> Trang Admin</a></li><% } %>
+                                <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
+                            </ul>
+                        </div>
+                    <% } else { %>
+                        <a href="#" class="text-white text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</a>
+                        <a href="#" class="text-white text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</a>
+                    <% } %>
+                    <a href="/cart" class="cart-icon position-relative text-white ms-2 text-decoration-none">
+                        <i class="fas fa-shopping-cart fs-4"></i><span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-4 mb-2">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-tempi-green">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/category/<%= product.category_id ? product.category_id.slug : '' %>" class="text-decoration-none text-tempi-green"><%= product.category_id ? product.category_id.name : 'Danh mục' %></a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= product.name %></li>
+            </ol>
+        </nav>
+    </div>
+    <!-- Chi tiết sản phẩm -->
+    <section class="container my-4">
+        <div class="bg-white p-4 p-md-5 rounded shadow-sm">
+            <div class="row">
+                <div class="col-md-5 mb-4 mb-md-0">
+                    <div class="position-relative border rounded p-3 text-center" style="background-color: #f8f9fa;">
+                        <% if (product.discount_price) { %>
+                            <% let percent = Math.round(((product.price - product.discount_price) / product.price) * 100); %>
+                            <div class="badge-discount position-absolute top-0 end-0 m-3 bg-danger text-white px-2 py-1 rounded fs-6" style="z-index: 10;">-<%= percent %>%</div>
+                        <% } %>
+                        <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="product-detail-img img-fluid">
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <img src="/<%= product.cover_image %>" class="thumbnail-img active" alt="Thumb">
+                        <div class="thumbnail-img bg-light d-flex align-items-center justify-content-center text-muted border"><i class="fas fa-image"></i></div>
+                    </div>
+                </div>
+
+                <div class="col-md-7 ps-md-5">
+                    <div class="stars text-warning mb-2 fs-5"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+                    <h2 class="fw-bold mb-3"><%= product.name %></h2>
+                    
+                    <div class="price-section mb-3">
+                        <% if (product.discount_price) { %>
+                            <span class="fs-2 fw-bold text-primary me-2"><%= product.discount_price.toLocaleString('vi-VN') %> đ</span>
+                            <span class="text-muted text-decoration-line-through fs-5"><%= product.price.toLocaleString('vi-VN') %> đ</span>
+                        <% } else { %>
+                            <span class="fs-2 fw-bold text-primary"><%= product.price.toLocaleString('vi-VN') %> đ</span>
+                        <% } %>
+                    </div>
+
+                    <p class="text-muted mb-4 small">Đã bán: <span class="text-dark fw-bold">128</span> (Dữ liệu giả lập)</p>
+
+                    <div class="d-flex gap-3 mb-4">
+                        <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom"><i class="fas fa-cart-plus fs-1"></i></a>
+                        <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill fw-bold shadow-sm fs-5">Mua ngay</a>
+                    </div>
+
+                    <hr class="my-4">
+                    <div class="product-description">
+                        <h5 class="fw-bold mb-3">Mô tả sản phẩm</h5>
+                        <p class="text-muted" style="line-height: 1.8;">
+                            <%- product.description ? product.description.replace(/\n/g, '<br>') : "Sản phẩm này hiện tại chưa có mô tả chi tiết từ nhà cung cấp. Bách Hóa Pew cam kết cung cấp hàng chính hãng 100% với chất lượng tốt nhất." %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Đánh giá khách hàng -->
+    <section class="container mt-5 pt-4 border-top">
+        <h4 class="fw-bold">Đánh giá khách hàng</h4>
+        <% if (typeof reviewSuccess !== 'undefined' && reviewSuccess) { %>
+            <div class="alert alert-success mt-2 review-alert"><%= reviewSuccess %></div>
+        <% } %>
+
+        <% if (typeof user !== 'undefined' && user) { %>
+            <form action="/product/<%= product._id %>/review" method="POST" class="mb-4 mt-3">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Chấm sao</label>
+                        <select name="rating" class="form-select border-warning" required>
+                            <option value="">Chọn số sao</option>
+                            <option value="5">★★★★★ (Tuyệt vời)</option>
+                            <option value="4">★★★★ (Tốt)</option>
+                            <option value="3">★★★ (Bình thường)</option>
+                            <option value="2">★★ (Tệ)</option>
+                            <option value="1">★ (Rất tệ)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Bình luận (tuỳ chọn)</label>
+                        <textarea name="comment" class="form-control" rows="2" placeholder="Chia sẻ cảm nhận của bạn..."></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success fw-bold">Gửi đánh giá</button>
+                    </div>
+                </div>
+            </form>
+        <% } else { %>
+            <div class="alert alert-info mt-3">Vui lòng <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="fw-bold text-success">Đăng nhập</a> để đánh giá sản phẩm.</div>
+        <% } %>
+
+        <div class="mt-4">
+            <% if (reviews && reviews.length > 0) { %>
+                <% reviews.forEach(review => { %>
+                    <div class="border rounded p-3 mb-2 bg-white shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-tempi-green"><i class="fas fa-user-circle me-1"></i> <%= review.user_id ? review.user_id.fullname : 'Khách' %></strong>
+                            <small class="text-muted"><%= review.createdAt.toLocaleString('vi-VN') %></small>
+                        </div>
+                        <div class="mb-2" style="color:#ffb400;">
+                            <%= '★'.repeat(review.rating) %><%= '☆'.repeat(5 - review.rating) %>
+                        </div>
+                        <p class="mb-0 text-dark"><%- review.comment ? review.comment.replace(/\n/g, '<br>') : '<em>Không có bình luận</em>' %></p>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-muted">Chưa có đánh giá nào được duyệt.</p>
+            <% } %>
+        </div>
+    </section>
+    
+    <section class="container mt-5 pt-4 border-top mb-5">
+        <h4 class="fw-bold mb-4">Sản phẩm bạn có thể thích</h4>
+        <div class="row" id="related-product-list">
+            <% if (relatedProducts && relatedProducts.length > 0) { %>
+                <% relatedProducts.forEach((item, index) => { %>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4 related-item" style="<%= index > 7 ? 'display: none;' : '' %>">
+                        <div class="card product-card h-100 border-0 shadow-sm position-relative">
+                            <% if (item.discount_price) { %>
+                                <% let pPercent = Math.round(((item.price - item.discount_price) / item.price) * 100); %>
+                                <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded" style="z-index: 10;">-<%= pPercent %>%</div>
+                            <% } %>
+
+                            <a href="/product/<%= item._id %>" class="text-decoration-none">
+                                <div class="product-img-wrapper">
+                                    <img src="/<%= item.cover_image %>" alt="<%= item.name %>" class="img-cover">
+                                </div>
+                            </a>
+
+                            <div class="card-body text-center d-flex flex-column p-2">
+                                <a href="/product/<%= item._id %>" class="text-decoration-none flex-grow-1">
+                                    <h6 class="card-title text-dark fw-bold text-truncate-2" style="font-size: 0.9rem; min-height: 40px;"><%= item.name %></h6>
+                                </a>
+                                <div class="mt-2">
+                                    <% if (item.discount_price) { %>
+                                        <div class="text-muted text-decoration-line-through small"><%= item.price.toLocaleString('vi-VN') %> đ</div>
+                                        <div class="fw-bold text-danger mb-2"><%= item.discount_price.toLocaleString('vi-VN') %> đ</div>
+                                    <% } else { %>
+                                        <div class="text-muted small">&nbsp;</div>
+                                        <div class="fw-bold text-danger mb-2"><%= item.price.toLocaleString('vi-VN') %> đ</div>
+                                    <% } %>
+
+                                    <div class="d-flex gap-2 mt-2">
+                                        <a href="javascript:void(0);" onclick="addToCart('<%= item._id %>')" class="text-tempi-green transition-zoom border p-1 rounded"><i class="fas fa-cart-plus fs-4"></i></a>
+                                        <a href="/cart/buy-now/<%= item._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill fw-bold shadow-sm py-1">Mua ngay</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-muted">Chưa có sản phẩm liên quan.</p>
+            <% } %>
+        </div>
+
+        <% if (relatedProducts && relatedProducts.length > 8) { %>
+            <div class="text-center my-3">
+                <button id="btn-load-more" class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold" onclick="toggleRelatedProducts()" data-expanded="false">
+                    Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>
+                </button>
+            </div>
+        <% } %>
+    </section>
+
+    <!-- Footer -->
+    <%- include('partials/footer') %>
+
+    <!-- Modal -->
+    <%- include('partials/modal') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 1. TỰ ĐỘNG ẨN THÔNG BÁO ĐÁNH GIÁ SAU 3 GIÂY
+        setTimeout(function() {
+            let alerts = document.querySelectorAll('.review-alert');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500); 
+            });
+        }, 3000);
+
+        // 2. HÀM MỞ RỘNG SẢN PHẨM LIÊN QUAN NHƯ PHP CŨ
+        function toggleRelatedProducts() {
+            let items = document.querySelectorAll('.related-item');
+            let btn = document.getElementById('btn-load-more');
+            let isExpanded = btn.getAttribute('data-expanded') === 'true';
+
+            if (!isExpanded) {
+                items.forEach(item => item.style.display = 'block');
+                btn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-1"></i>';
+                btn.classList.replace('btn-outline-success', 'btn-secondary');
+                btn.setAttribute('data-expanded', 'true');
+            } else {
+                items.forEach((item, index) => {
+                    if (index > 7) item.style.display = 'none';
+                });
+                btn.innerHTML = 'Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>';
+                btn.classList.replace('btn-secondary', 'btn-outline-success');
+                btn.setAttribute('data-expanded', 'false');
+                document.getElementById('related-product-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    </script>
+</body>
+</html>

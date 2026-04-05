@@ -1,0 +1,102 @@
+<header class="header-bg sticky-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark py-3">
+                <a class="navbar-brand fw-bold fs-3" href="/">Bách Hóa Pew</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link active-yellow" href="/">Trang chủ</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                Danh mục
+                            </a>
+                            <ul class="dropdown-menu custom-dropdown" aria-labelledby="navbarDropdown">
+                                <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+                                    <% categories.forEach(cat => { %>
+                                        <li><a class="dropdown-item" href="/category/<%= cat.slug %>"><%= cat.name %></a></li>
+                                    <% }) %>
+                                <% } else { %>
+                                    <li><a class="dropdown-item" href="#">Đang cập nhật...</a></li>
+                                <% } %>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Về chúng tôi</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Liện hệ</a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav align-items-center">
+                        <% if (typeof user !== 'undefined' && user) { %>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle fw-bold text-warning" href="#" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle fs-5 me-1"></i> <%= user.fullname || user.full_name %>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                                    <% if (user.role == 1) { %>
+                                        <li><a class="dropdown-item fw-bold text-success" href="/admin/products"><i class="fas fa-shield-alt me-2"></i> Vào trang Admin</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    <% } %>
+                                    <li><a class="dropdown-item" href="/orders"><i class="fas fa-box me-2"></i> Đơn hàng của tôi</a></li>
+                                    <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
+                                </ul>
+                            </li>
+                        <% } else { %>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</a>
+                            </li>
+                        <% } %>
+                        
+                        <li class="nav-item ms-lg-2">
+                            <a href="#" class="nav-link text-white" data-bs-toggle="modal" data-bs-target="#searchModal" title="Tìm kiếm">
+                                <i class="fas fa-search fs-5"></i>
+                            </a>
+                        </li>
+
+                        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                            <a href="/cart" class="cart-icon position-relative text-white">
+                                <i class="fas fa-shopping-cart fs-5"></i>
+                                <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                                    <%= typeof cartCount !== 'undefined' ? cartCount : 0 %>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <script>
+    function addToCart(productId) {
+        // Gửi request ngầm lên API đã viết trong ApiController
+        fetch(`/api/cart/add?id=${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Cập nhật con số trên icon giỏ hàng đỏ đỏ
+                    let badge = document.getElementById('cart-badge');
+                    if (badge) {
+                        badge.innerText = data.cart_count;
+                        
+                        // Hiệu ứng giật giật nhẹ cho đẹp mắt (tuỳ chọn)
+                        badge.style.transform = 'scale(1.5)';
+                        setTimeout(() => badge.style.transform = 'scale(1)', 200);
+                    }
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Lỗi khi gọi API giỏ hàng:', error));
+    }
+</script>

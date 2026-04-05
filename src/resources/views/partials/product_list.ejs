@@ -1,0 +1,56 @@
+<% products.forEach(product => { %>
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card product-card h-100 border-0 shadow-sm position-relative">
+            <% if (product.discount_price) { %>
+                <% let percent = Math.round(((product.price - product.discount_price) / product.price) * 100); %>
+                <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded" style="z-index: 10;">
+                    -<%= percent %>%
+                </div>
+            <% } %>
+
+            <a href="/product/<%= product._id %>" class="text-decoration-none">
+                <div class="product-img-wrapper">
+                    <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="img-cover p-2">
+                </div>
+            </a>
+
+            <div class="card-body text-center">
+                <a href="/product/<%= product._id %>" class="text-decoration-none">
+                    <h6 class="card-title fw-bold text-dark" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px;">
+                        <%= product.name %>
+                    </h6>
+                </a>
+
+                <% if (product.discount_price) { %>
+                    <div class="text-muted text-decoration-line-through small"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                    <div class="fw-bold text-danger mb-2"><%= product.discount_price.toLocaleString('vi-VN') %> đ</div>
+                <% } else { %>
+                    <div class="text-muted small">&nbsp;</div>
+                    <div class="fw-bold text-dark mb-2"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                <% } %>
+
+                <% if (typeof type !== 'undefined' && type === 'sale') { %>
+                    <div class="text-center fw-bold mb-1 mt-1" style="font-size: 0.75rem; color: #ff7f00;">Tối đa 5 sp/đơn</div>
+                    <div class="position-relative mb-3 mx-auto" style="max-width: 90%;">
+                        <div class="progress" style="height: 22px; border-radius: 50px; background-color: #fef0cd;">
+                            <% let stock = product.stock_quantity; let stockPercent = (stock <= 100) ? stock : 50; %>
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: <%= stockPercent %>%; border-radius: 50px;"></div>
+                        </div>
+                        <div class="position-absolute top-50 start-50 translate-middle w-100 text-center" style="font-size: 0.8rem; font-weight: 600; color: #333; line-height: 22px;">
+                            Còn <%= stock %> suất
+                        </div>
+                    </div>
+                <% } %>
+
+                <div class="d-flex justify-content-center align-items-center gap-3 mt-2">
+                    <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom" title="Thêm vào giỏ hàng">
+                        <i class="fas fa-cart-plus fs-4"></i>
+                    </a>
+                    <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                        Mua ngay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+<% }) %>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= currentCategory.name %> - Bách Hóa Pew</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css"> 
+     <link href="http://127.0.0.1:3000/css/style.css" rel="stylesheet" />
+    <style>
+        .scroll-horizontal {
+            display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; scrollbar-width: none;
+        }
+        .scroll-horizontal::-webkit-scrollbar { display: none; }
+        
+        .subcat-item { min-width: 100px; text-align: center; cursor: pointer; }
+        .subcat-img-wrapper {
+            width: 90px; /* ĐÃ TĂNG SIZE TỪ 70px LÊN 90px */
+            height: 90px;
+            margin: 0 auto 10px auto;
+            border-radius: 20px; 
+            background-color: #f1f3f5;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            border: 2px solid #e9ecef; transition: 0.2s;
+        }
+        .subcat-img-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
+        
+        /* Tô viền xanh cho Thể loại con đang được chọn */
+        .subcat-item.active .subcat-img-wrapper { border-color: var(--tempi-green); background-color: #e6f2ee; }
+        .subcat-item.active span { color: var(--tempi-green) !important; font-weight: bold; }
+
+        .brand-btn { white-space: nowrap; border: 1px solid #e0e0e0; color: #333; background: white; transition: 0.2s;}
+        .brand-btn:hover { border-color: var(--tempi-green); color: var(--tempi-green); }
+        /* Tô nền xanh cho Hãng đang được chọn */
+        .brand-btn.active { background-color: var(--tempi-green); color: white; border-color: var(--tempi-green); }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header-bg sticky-top py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3 col-12 mb-3 mb-md-0 text-center text-md-start">
+                    <a class="navbar-brand fw-bold fs-3 text-white text-decoration-none" href="/">Bách Hóa Pew</a>
+                </div>
+
+                <div class="col-md-6 col-12 mb-3 mb-md-0">
+                    <form action="/search" method="GET" class="d-flex w-100 shadow-sm rounded-1 overflow-hidden">
+                        <input type="text" name="keyword" class="form-control border-0 py-2 px-3 shadow-none" placeholder="Bạn muốn tìm sản phẩm gì?..." required value="<%= (typeof keyword !== 'undefined') ? keyword : '' %>">
+                        <button class="btn btn-warning border-0 px-4" style="background-color: #f9b612;" type="submit">
+                            <i class="fas fa-search text-dark fw-bold"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="col-md-3 col-12 d-flex justify-content-center justify-content-md-end align-items-center gap-3">
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <div class="dropdown">
+                            <a class="text-white text-decoration-none fw-bold dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fs-4 me-2"></i> <%= user.fullname || user.full_name || 'Khách hàng' %>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                                <% if (user.role == 1) { %>
+                                    <li><a class="dropdown-item fw-bold text-success" href="/admin/products"><i class="fas fa-shield-alt me-2"></i> Trang Admin</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                <% } %>
+                                <li><a class="dropdown-item" href="/orders"><i class="fas fa-box me-2"></i> Đơn hàng của tôi</a></li>
+                                <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
+                            </ul>
+                        </div>
+                    <% } else { %>
+                        <a href="#" class="text-white text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</a>
+                        <a href="#" class="text-white text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</a>
+                    <% } %>
+                    
+                    <a href="/cart" class="cart-icon position-relative text-white ms-2 text-decoration-none">
+                        <i class="fas fa-shopping-cart fs-4"></i>
+                        <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                            <%= typeof cartCount !== 'undefined' ? cartCount : 0 %>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container my-3">
+        <% if (subCategories && subCategories.length > 0) { %>
+            <div class="scroll-horizontal mb-4 mt-3">
+                <a href="/category/<%= currentCategory.slug %>" class="text-decoration-none">
+                    <div class="subcat-item <%= !typeof activeSubcat !== 'undefined' && !activeSubcat ? 'active' : '' %>">
+                        <div class="subcat-img-wrapper">
+                            <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" alt="Tất cả">
+                        </div>
+                        <span class="small fw-semibold text-dark">Tất cả</span>
+                    </div>
+                </a>
+                
+                <% subCategories.forEach(sc => { %>
+                    <a href="/category/<%= currentCategory.slug %>?subcat=<%= sc._id %>" class="text-decoration-none">
+                        <div class="subcat-item <%= (typeof activeSubcat !== 'undefined' && activeSubcat == sc._id) ? 'active' : '' %>">
+                            <div class="subcat-img-wrapper">
+                                <img src="<%= sc.image ? '/' + sc.image : 'https://cdn-icons-png.flaticon.com/512/679/679821.png' %>" alt="<%= sc.name %>">
+                            </div>
+                            <span class="small fw-semibold text-dark text-truncate-2" style="font-size: 0.85rem;"><%= sc.name %></span>
+                        </div>
+                    </a>
+                <% }) %>
+            </div>
+        <% } %>
+
+        <% if (brands && brands.length > 0) { %>
+            <div class="d-flex align-items-center mb-4">
+                <i class="fas fa-filter text-muted me-3"></i>
+                <div class="scroll-horizontal flex-grow-1" style="padding-bottom: 0;">
+                    <a href="/category/<%= currentCategory.slug %>" class="text-decoration-none">
+                        <button class="btn rounded-pill px-4 py-1 brand-btn fw-semibold shadow-sm <%= !typeof activeBrand !== 'undefined' && !activeBrand ? 'active' : '' %>">Tất cả</button>
+                    </a>
+                    
+                    <% brands.forEach(b => { %>
+                        <a href="/category/<%= currentCategory.slug %>?brand=<%= b._id %>" class="text-decoration-none">
+                            <button class="btn rounded-pill px-4 py-1 brand-btn fw-semibold shadow-sm <%= (typeof activeBrand !== 'undefined' && activeBrand == b._id) ? 'active' : '' %>"><%= b.name %></button>
+                        </a>
+                    <% }) %>
+                </div>
+            </div>
+        <% } %>
+
+        <% 
+            // KHAI BÁO ẢNH BANNER THEO SLUG
+            const catBanners = {
+                'rau-cu': '/image/banner_raucu.jpg',
+                'nuoc-ngot': '/image/banner_nuoc.jpg',
+                'my-mien-chao-pho': '/image/Mỳ/cate-mobile-compressed_202603060835210894.jpg'              
+            };
+            // Nếu không có banner riêng, dùng banner mặc định này
+            let bannerSrc = catBanners[currentCategory.slug] || 'https://via.placeholder.com/1200x200?text=Banner+Sieu+Giam+Gia';
+        %>
+        <div class="mb-5 text-center">
+            <img src="<%= bannerSrc %>" alt="Banner <%= currentCategory.name %>" class="img-fluid rounded shadow-sm w-100" style="object-fit: cover; max-height: 250px;">
+        </div>
+
+        <% if (saleProducts && saleProducts.length > 0) { %>
+            <div class="bg-danger rounded-4 p-4 mb-5 shadow-lg position-relative">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-white fw-bold fst-italic m-0"><i class="fas fa-bolt text-warning me-2"></i> KHUYẾN MÃI SỐC</h3>
+                </div>
+                
+                <div class="row">
+                    <% saleProducts.forEach(product => { %>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="card product-card h-100 border-0 shadow-sm position-relative">
+                                <% let percent = Math.round(((product.price - product.discount_price) / product.price) * 100); %>
+                                <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded" style="z-index: 10;">
+                                    -<%= percent %>%
+                                </div>
+                                <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                    <div class="product-img-wrapper">
+                                        <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="img-cover">
+                                    </div>
+                                </a>
+                                <div class="card-body text-center p-3">
+                                    <h6 class="card-title fw-bold text-dark text-truncate-2" style="font-size: 0.9rem; min-height: 38px;"><%= product.name %></h6>
+                                    <div class="text-muted text-decoration-line-through small"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                    <div class="fw-bold text-danger fs-5 mb-2"><%= product.discount_price.toLocaleString('vi-VN') %> đ</div>
+                                    
+                                    <div class="progress mb-2" style="height: 18px; border-radius: 50px; background-color: #fef0cd;">
+                                        <% let stockPercent = (product.stock_quantity <= 100) ? product.stock_quantity : 50; %>
+                                        <div class="progress-bar bg-warning text-dark fw-bold" style="width: <%= stockPercent %>%; font-size: 0.7rem; line-height: 18px;">
+                                            Còn <%= product.stock_quantity %>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                                        <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom" title="Thêm vào giỏ hàng">
+                                            <i class="fas fa-cart-plus fs-4"></i>
+                                        </a>
+                                        <a href="/cart/buy-now/<%= product._id %>" class="btn btn-warning flex-grow-1 text-dark rounded-pill text-decoration-none text-center fw-bold shadow-sm btn-sm">
+                                            Mua ngay
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        <% } %>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold text-uppercase m-0">Dành cho bạn</h4>
+            <span class="text-muted"><%= products.length %> sản phẩm</span>
+        </div>
+        <div class="row">
+            <% if (products && products.length > 0) { %>
+                <% products.forEach(product => { %>
+                    <div class="col-md-3 col-sm-6 mb-4">
+                        <div class="card product-card h-100 border-0 shadow-sm position-relative">
+                            <% if (product.discount_price) { %>
+                                <% let percent = Math.round(((product.price - product.discount_price) / product.price) * 100); %>
+                                <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded" style="z-index: 10;">
+                                    -<%= percent %>%
+                                </div>
+                            <% } %>
+
+                            <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                <div class="product-img-wrapper">
+                                    <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="img-cover">
+                                </div>
+                            </a>
+
+                            <div class="card-body text-center">
+                                <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                    <h6 class="card-title fw-bold text-dark text-truncate-2" style="min-height: 40px;">
+                                        <%= product.name %>
+                                    </h6>
+                                </a>
+
+                                <% if (product.discount_price) { %>
+                                    <div class="text-muted text-decoration-line-through small"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                    <div class="fw-bold text-danger mb-2"><%= product.discount_price.toLocaleString('vi-VN') %> đ</div>
+                                <% } else { %>
+                                    <div class="text-muted small">&nbsp;</div>
+                                    <div class="fw-bold text-danger mb-2"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                <% } %>
+
+                                <div class="d-flex justify-content-center align-items-center gap-3 mt-2">
+                                    <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom" title="Thêm vào giỏ hàng">
+                                        <i class="fas fa-cart-plus fs-4"></i>
+                                    </a>
+                                    <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm btn-sm">
+                                        Mua ngay
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="col-12 text-center py-5">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2748/2748558.png" alt="Empty" width="100" class="mb-3 opacity-50">
+                    <h5 class="text-muted">Danh mục này hiện chưa có sản phẩm nào.</h5>
+                    <a href="/" class="btn btn-success mt-3 rounded-pill px-4">Quay lại mua sắm</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    <!-- Footer -->
+   <%- include('partials/footer') %>
+    <!-- Modal Tìm kiếm -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pb-5 text-center">
+                    <h5 class="fw-bold mb-4" style="color: var(--tempi-green);">Bạn muốn tìm sản phẩm gì?</h5>
+                    <form action="/search" method="GET" class="d-flex w-100">
+                        <input type="text" name="keyword" class="form-control rounded-start-pill py-3 ps-4 border-success" placeholder="Ví dụ: Mì Hảo Hảo, Sữa tươi..." required autofocus>
+                        <button class="btn btn-warning rounded-end-pill px-4 fw-bold text-dark border-0" type="submit">
+                            <i class="fas fa-search me-1"></i> Tìm
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Đăng nhập -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-tempi-green text-white">
+                    <h5 class="modal-title fw-bold">Đăng nhập tài khoản</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form action="/auth/login" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Mật khẩu</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">ĐĂNG NHẬP</button>
+                        <div class="text-center mt-3 small">
+                            Chưa có tài khoản? <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal" class="text-decoration-none fw-bold text-success">Đăng ký ngay</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Đăng ký -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold">Đăng ký thành viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form action="/auth/register" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ và tên</label>
+                            <input type="text" name="fullname" class="form-control" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold">Số điện thoại</label>
+                                <input type="text" name="phone" class="form-control" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold">Email</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Địa chỉ giao hàng (Cụ thể)</label>
+                            <input type="text" name="address" class="form-control" placeholder="Số nhà, Đường, Phường/Xã..." required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Mật khẩu</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 fw-bold">ĐĂNG KÝ TÀI KHOẢN</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

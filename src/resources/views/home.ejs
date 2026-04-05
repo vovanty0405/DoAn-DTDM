@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bách Hóa Pew</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css"> 
+    <link href="http://127.0.0.1:3000/css/style.css" rel="stylesheet" />
+</head>
+
+<body>
+    <!-- Header -->
+    <%- include('partials/navbar') %>
+
+    <section id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="hero-wrapper">
+                    <img src="/image/banner_head.webp" alt="Banner 1" class="img-cover">
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="hero-wrapper">
+                    <img src="/image/banner_head2.webp" alt="Banner 2" class="img-cover">
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </section>
+
+    <!-- Danh mục -->
+    <section class="container my-5">
+        <h2 class="text-center mb-4 fw-bold">Danh mục</h2>
+        <div class="row text-center category-row justify-content-center">
+            <% 
+            // KHAI BÁO OBJECT CHỨA ĐƯỜNG DẪN ẢNH (Dựa vào slug thay vì ID)
+            // Lưu ý: Trong Express, đường dẫn từ thư mục public bắt đầu bằng dấu '/' chứ không phải './'
+            const catImages = {
+                'do-hop': '/image/Đồ hộp/ca-hop_202508291625395702 (1).png',
+                'rau-cu': '/image/raucai.webp',
+                'banh-mi': '/image/banhmi.webp',
+                'ruou': '/image/rượu.webp',
+                'sua-trung': '/image/sua_egg.webp',
+                'thit-gia-cam': '/image/meat.webp',
+                'nuoc-ngot': '/image/drink.webp',
+                'do-gia-dung': '/image/cleanning.webp',
+                'my-pham': '/image/snack.webp',
+                'my-mien-chao-pho': '/image/Mỳ/mi-an-lien_202511010301464949.png',
+                'thuc-pham-dong-mat': '/image/Đồ hộp/ca-hop_202508291625395702 (1).png',
+                'banh-keo': '/image/snack.webp',
+                'thit': '/image/meat.webp',
+            };
+            %>
+
+            <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+                <% categories.forEach(cat => { %>
+                    <% 
+                        // Kiểm tra xem slug của danh mục có trong object catImages không
+                        // Nếu có thì lấy ảnh đó, nếu không thì lấy ảnh mặc định
+                        let imgSrc = catImages[cat.slug] ? catImages[cat.slug] : 'https://cdn-icons-png.flaticon.com/512/679/679821.png';
+                    %>
+                    <div class="col-6 col-md-2 mb-3">
+                        <a href="/category/<%= cat.slug %>" class="text-decoration-none text-dark">
+                            <div class="category-item">
+                                <div class="category-wrapper mb-2">
+                                    <img src="<%= imgSrc %>" alt="<%= cat.name %>" class="img-cover p-2">
+                                </div>
+                                <span class="small fw-semibold" style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp:2;-webkit-box-orient: vertical; overflow: hidden;">
+                                    <%= cat.name %>
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-center text-muted">Đang cập nhật danh mục...</p>
+            <% } %>
+        </div>
+    </section>
+    <!-- Best Seller -->
+    <section class="container my-5">
+        <h2 class="text-center mb-4 fw-bold">Best Seller (Đang Giảm Giá)</h2>
+        <div class="row" id="sale-product-list">
+            <% if (typeof saleProducts !== 'undefined' && saleProducts.length > 0) { %>
+                <% saleProducts.forEach(product => { %>
+                    <div class="col-md-3 col-sm-6 mb-4">
+                        <div class="card product-card h-100 border-0 shadow-sm position-relative">
+                            <% 
+                                let percent = Math.round(((product.price - product.discount_price) / product.price) * 100); 
+                            %>
+                            <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded" style="z-index: 10;">
+                                -<%= percent %>%
+                            </div>
+
+                            <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                <div class="product-img-wrapper">
+                                    <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="img-cover">
+                                </div>
+                            </a>
+
+                            <div class="card-body text-center">
+                                <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                    <h6 class="card-title fw-bold" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px;" title="<%= product.name %>">
+                                        <%= product.name %>
+                                    </h6>
+                                </a>
+
+                                <div class="text-muted text-decoration-line-through small"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                <div class="fw-bold text-dark mb-2"><%= product.discount_price.toLocaleString('vi-VN') %> đ</div>
+
+                                <div class="text-center fw-bold mb-1 mt-1" style="font-size: 0.75rem; color: #ff7f00;">
+                                    Tối đa 5 sp/đơn
+                                </div>
+                                <div class="position-relative mb-3 mx-auto" style="max-width: 90%;">
+                                    <div class="progress" style="height: 22px; border-radius: 50px; background-color: #fef0cd;">
+                                        <% 
+                                            let stock = product.stock_quantity;
+                                            let stockPercent = (stock <= 100) ? stock : 50;
+                                        %>
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: <%= stockPercent %>%; border-radius: 50px;"></div>
+                                    </div>
+                                    <div class="position-absolute top-50 start-50 translate-middle w-100 text-center" style="font-size: 0.8rem; font-weight: 600; color: #333; line-height: 22px;">
+                                        Còn <%= stock %> suất
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-center align-items-center gap-3 mt-2">
+                                    <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom" title="Thêm vào giỏ hàng">
+                                        <i class="fas fa-cart-plus fs-4"></i>
+                                    </a>
+                                    <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                                        Mua ngay
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-center">Chưa có sản phẩm giảm giá.</p>
+            <% } %>
+        </div>
+        
+        <div class="text-center mt-3">
+            <button id="load-more-sale" class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold" onclick="loadMoreProducts('sale', this)" data-offset="4">
+                Xem thêm sản phẩm
+                <i class="fas fa-chevron-down ms-1"></i>
+            </button>
+            <button id="collapse-btn-sale" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold ms-2" onclick="collapseProducts('sale', 4)" style="display: none;">
+                Thu gọn <i class="fas fa-chevron-up ms-1"></i>
+            </button>
+        </div>
+    </section>
+    <!-- Sale Cuối Tuần 40% -->
+    <section class="container-fluid banner-mid p-0 my-5">
+        <div class="mid-banner-wrapper">
+            <div class="mid-banner-overlay"></div>
+            <img src="https://via.placeholder.com/1920x300?text=Banner+Deal" alt="Deal of the week" class="img-cover position-absolute top-0 start-0 w-100 h-100" style="z-index: 0;">
+            <div class="mid-banner-content text-center text-white">
+                <h4 class="text-uppercase mb-2">Siêu sale cuối tuần</h4>
+                <h1 class="display-5 fw-bold mb-4">GIẢM ĐẾN 40%<br>THỰC PHẨM TƯƠI SỐNG</h1>
+                <button class="btn btn-warning rounded-pill px-4 py-2 fw-bold">Mua ngay</button>
+            </div>
+        </div>
+    </section>
+    <!-- Ưu đãi độc quyền 30% -->
+    <section class="container my-5 py-4 bg-light rounded shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-lg-3 col-md-12 mb-4 mb-lg-0 text-center text-lg-start px-4">
+                <h4 class="text-uppercase mb-2 text-muted" style="letter-spacing: 1px;">Ưu đãi độc quyền</h4>
+                <h1 class="display-4 fw-bold mb-0 text-warning">-30%</h1>
+                <h2 class="h3 fw-bold mb-4">Các Loại Nước</h2>
+                <a href="/category/nuoc-ngot" class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark">Xem tất cả</a>
+            </div>
+
+            <div class="col-lg-9 col-md-12">
+                <div class="row justify-content-start">
+                    <% if (typeof drinkProducts !== 'undefined' && drinkProducts.length > 0) { %>
+                        <% drinkProducts.forEach(product => { %>
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="card product-card h-100 border-0 shadow-sm position-relative">
+                                    <% if (product.discount_price) { %>
+                                        <% let percent = Math.round(((product.price - product.discount_price) / product.price) * 100); %>
+                                        <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded" style="z-index: 10;">
+                                            -<%= percent %>%
+                                        </div>
+                                    <% } %>
+                                    
+                                    <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                        <div class="product-img-wrapper">
+                                            <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="img-cover">
+                                        </div>
+                                    </a>
+
+                                    <div class="card-body text-center">
+                                        <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                            <h6 class="card-title fw-bold" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px;" title="<%= product.name %>">
+                                                <%= product.name %>
+                                            </h6>
+                                        </a>
+
+                                        <% if (product.discount_price) { %>
+                                            <div class="text-muted text-decoration-line-through small"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                            <div class="fw-bold text-dark mb-2"><%= product.discount_price.toLocaleString('vi-VN') %> đ</div>
+                                        <% } else { %>
+                                            <div class="text-muted small">&nbsp;</div>
+                                            <div class="fw-bold text-dark mb-2"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                        <% } %>
+
+                                        <div class="stars text-warning mb-3">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                                        </div>
+                                        <div class="d-flex justify-content-center align-items-center gap-3 mt-2">
+                                            <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom" title="Thêm vào giỏ hàng">
+                                                <i class="fas fa-cart-plus fs-4"></i>
+                                            </a>
+                                            <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                                                Mua ngay
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="text-center">Đang cập nhật sản phẩm...</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Hang Mới Về -->
+    <section class="container-fluid my-5 bg-primary py-4">
+        <h2 class="text-center mb-4 fw-bold" style="color: white">Hàng Hóa Mới Về</h2>
+        <div class="container">
+            <div class="row" id="new-product-list">
+                <% if (typeof newProducts !== 'undefined' && newProducts.length > 0) { %>
+                    <% newProducts.forEach(product => { %>
+                        <div class="col-md-3 col-sm-6 mb-4">
+                            <div class="card product-card h-100 border-0 shadow-sm position-relative">
+                                <% if (product.discount_price) { %>
+                                    <% let percent = Math.round(((product.price - product.discount_price) / product.price) * 100); %>
+                                    <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded" style="z-index: 10;">
+                                        -<%= percent %>%
+                                    </div>
+                                <% } %>
+
+                                <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                    <div class="product-img-wrapper">
+                                        <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="img-cover">
+                                    </div>
+                                </a>
+
+                                <div class="card-body text-center">
+                                    <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                        <h6 class="card-title fw-bold" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px;" title="<%= product.name %>">
+                                            <%= product.name %>
+                                        </h6>
+                                    </a>
+
+                                    <% if (product.discount_price) { %>
+                                        <div class="text-muted text-decoration-line-through small"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                        <div class="fw-bold text-dark mb-2"><%= product.discount_price.toLocaleString('vi-VN') %> đ</div>
+                                    <% } else { %>
+                                        <div class="text-muted small">&nbsp;</div>
+                                        <div class="fw-bold text-dark mb-2"><%= product.price.toLocaleString('vi-VN') %> đ</div>
+                                    <% } %>
+
+                                    <div class="stars text-warning mb-3">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <div class="d-flex justify-content-center align-items-center gap-3 mt-2">
+                                        <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom" title="Thêm vào giỏ hàng">
+                                            <i class="fas fa-cart-plus fs-4"></i>
+                                        </a>
+                                        <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                                            Mua ngay
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="text-center text-white">Chưa có sản phẩm mới.</p>
+                <% } %>
+            </div>
+            
+            <div class="text-center mt-3">
+                <button id="load-more-new" class="btn btn-outline-light rounded-pill px-4 py-2 fw-bold" onclick="loadMoreProducts('new', this)" data-offset="8">
+                    Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>
+                </button>
+                <button id="collapse-btn-new" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold ms-2" onclick="collapseProducts('new', 8)" style="display: none;">
+                    Thu gọn <i class="fas fa-chevron-up ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- Banner -->
+    <section class="container-fluid banner-mid p-0 my-5">
+        <div class="mid-banner-wrapper">
+            <div class="mid-banner-overlay"></div>
+            <img src="/image/Bánh/cate-mobile-compressed_202603060835210894.jpg" alt="Deal of the week" class="img-cover position-absolute top-0 start-0 w-100 h-100" style="z-index: 999;">
+        </div>
+    </section>
+    <!-- Usp -->
+    <section class="container my-5 py-4 border-bottom">
+        <div class="row text-center">
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="usp-icon-wrapper mb-3">
+                    <i class="fas fa-truck-fast text-tempi-green fs-1 position-relative">
+                        <span class="position-absolute text-warning" style="font-size: 0.5rem; top: 0; right: -5px;"><i class="fas fa-circle"></i></span>
+                    </i>
+                </div>
+                <h5 class="fw-bold mb-3">Giao Hàng Hỏa Tốc</h5>
+                <p class="text-muted small">Nhận hàng chỉ trong 2 giờ. Miễn phí vận chuyển cho các đơn hàng từ 300.000đ trong nội thành.</p>
+            </div>
+
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="usp-icon-wrapper mb-3">
+                    <i class="fas fa-location-crosshairs text-tempi-green fs-1 position-relative">
+                        <span class="position-absolute text-warning" style="font-size: 0.5rem; top: 0; right: -5px;"><i class="fas fa-circle"></i></span>
+                    </i>
+                </div>
+                <h5 class="fw-bold mb-3">Giao Hàng Tận Nơi</h5>
+                <p class="text-muted small">Phủ sóng giao hàng rộng khắp mọi khu vực. Đảm bảo thực phẩm luôn giữ được độ tươi ngon nhất.</p>
+            </div>
+
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="usp-icon-wrapper mb-3">
+                    <i class="fas fa-headset text-tempi-green fs-1 position-relative"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Hỗ Trợ 24/7</h5>
+                <p class="text-muted small">Đội ngũ chăm sóc khách hàng luôn túc trực để giải đáp thắc mắc và xử lý đơn hàng nhanh chóng.</p>
+            </div>
+
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="usp-icon-wrapper mb-3">
+                    <i class="fas fa-check text-tempi-green fs-1 position-relative">
+                        <span class="position-absolute text-warning" style="font-size: 0.5rem; top: -5px; right: -10px;"><i class="fas fa-check"></i></span>
+                    </i>
+                </div>
+                <h5 class="fw-bold mb-3">100% Chính Hãng</h5>
+                <p class="text-muted small">Cam kết hoàn tiền 200% nếu phát hiện hàng giả, hàng kém chất lượng. Nguồn gốc xuất xứ rõ ràng.</p>
+            </div>
+        </div>
+    </section>
+    <!-- Bản đồ cửa hàng -->
+    <section class="container my-5 pb-4">
+        <h3 class="fw-bold mb-4 text-uppercase border-start border-4 border-success ps-3">Hệ thống cửa hàng</h3>
+        <div class="row shadow-sm bg-white rounded-3 overflow-hidden border">
+            
+            <div class="col-lg-7 p-0">
+               <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.6265442263393!2d105.43105995788002!3d10.371715699563184!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x310a731e7546fd7b%3A0x953539cd7673d9e5!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBBbiBHaWFuZyAtIMSQ4bqhaSBI4buNYyBRdeG7kWMgR2lhIFRow6BuaCBQaOG7kSBI4buTIENow60gTWluaA!5e0!3m2!1svi!2s!4v1775369078936!5m2!1svi!2s" 
+                    width="100%" 
+                    height="450" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            </div>
+            
+            <div class="col-lg-5 p-4 bg-light" style="max-height: 450px; overflow-y: auto;">
+                <h5 class="fw-bold mb-3 text-dark">
+                    <i class="fas fa-store-alt me-2 text-success"></i>Chọn cửa hàng gần bạn
+                </h5>
+                
+                <div class="input-group mb-4 shadow-sm rounded-1 overflow-hidden">
+                    <input type="text" class="form-control border-0" placeholder="Tìm theo tỉnh/thành, quận/huyện...">
+                    <button class="btn btn-success border-0 px-3"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="list-group list-group-flush">
+                    
+                    <div class="list-group-item bg-transparent px-0 py-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="pe-3">
+                                <h6 class="fw-bold text-dark mb-1">Bách Hóa Pew - Cơ sở Long Xuyên</h6>
+                                <p class="text-muted small mb-1">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>18 Ung Văn Khiêm, Phường Đông Xuyên, TP. Long Xuyên, An Giang
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    <i class="fas fa-clock me-2 text-warning"></i>Mở cửa: 06:00 - 22:00
+                                </p>
+                            </div>
+                            <button class="btn btn-outline-success btn-sm text-nowrap mt-1 fw-semibold">Xem đường</button>
+                        </div>
+                    </div>
+                    
+                    <div class="list-group-item bg-transparent px-0 py-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="pe-3">
+                                <h6 class="fw-bold text-dark mb-1">Bách Hóa Pew - Cơ sở Cần Thơ</h6>
+                                <p class="text-muted small mb-1">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>Đường 3/2, Phường Xuân Khánh, Ninh Kiều, Cần Thơ
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    <i class="fas fa-clock me-2 text-warning"></i>Mở cửa: 06:00 - 22:00
+                                </p>
+                            </div>
+                            <button class="btn btn-outline-success btn-sm text-nowrap mt-1 fw-semibold">Xem đường</button>
+                        </div>
+                    </div>
+
+                    <div class="list-group-item bg-transparent px-0 py-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="pe-3">
+                                <h6 class="fw-bold text-dark mb-1">Bách Hóa Pew - Cơ sở Quận 1</h6>
+                                <p class="text-muted small mb-1">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>Phố đi bộ Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    <i class="fas fa-clock me-2 text-warning"></i>Mở cửa: 24/7
+                                </p>
+                            </div>
+                            <button class="btn btn-outline-success btn-sm text-nowrap mt-1 fw-semibold">Xem đường</button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+   <%- include('partials/footer') %>
+    <!-- Modal -->
+    <%- include('partials/modal') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Load thêm sản phẩm -->
+    <script>
+        function addToCart(productId) {
+            // Thay đổi đường dẫn fetch API cho khớp với Node.js Router của bạn
+            fetch(`/api/cart/add?id=${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        let badge = document.getElementById('cart-badge');
+                        badge.innerText = data.cart_count;
+                        badge.classList.add('animate__animated', 'animate__rubberBand');
+                        setTimeout(() => {
+                            badge.classList.remove('animate__animated', 'animate__rubberBand');
+                        }, 1000);
+                    }
+                })
+                .catch(error => console.error('Lỗi thêm giỏ hàng:', error));
+        }
+
+        const originalContent = {};
+
+        function loadMoreProducts(type, btnElement) {
+            let currentOffset = parseInt(btnElement.getAttribute('data-offset'));
+            let targetId = (type === 'sale') ? 'sale-product-list' : 'new-product-list';
+
+            if (!originalContent[targetId]) {
+                originalContent[targetId] = document.getElementById(targetId).innerHTML;
+            }
+
+            let originalText = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang tải...';
+            btnElement.disabled = true;
+
+            // Thay đổi đường dẫn fetch API cho khớp với Node.js Router
+            fetch(`/api/products/load-more?type=${type}&offset=${currentOffset}`)
+                .then(response => response.text())
+                .then(html => {
+                    if (html.trim() === '') {
+                        btnElement.innerHTML = 'Đã hiển thị tất cả';
+                        btnElement.disabled = true;
+                        btnElement.classList.remove('btn-outline-success', 'btn-outline-light');
+                        btnElement.classList.add('btn-secondary');
+                    } else {
+                        document.getElementById(targetId).insertAdjacentHTML('beforeend', html);
+                        btnElement.setAttribute('data-offset', currentOffset + 4);
+                        btnElement.innerHTML = originalText;
+                        btnElement.disabled = false;
+                    }
+                    document.getElementById(`collapse-btn-${type}`).style.display = 'inline-block';
+                })
+                .catch(error => {
+                    console.error('Lỗi khi tải thêm:', error);
+                    btnElement.innerHTML = originalText;
+                    btnElement.disabled = false;
+                });
+        }
+
+        function collapseProducts(type, defaultOffset) {
+            let targetId = (type === 'sale') ? 'sale-product-list' : 'new-product-list';
+            let loadMoreBtn = document.getElementById(`load-more-${type}`);
+            let collapseBtn = document.getElementById(`collapse-btn-${type}`);
+
+            if (originalContent[targetId]) {
+                document.getElementById(targetId).innerHTML = originalContent[targetId];
+            }
+
+            loadMoreBtn.setAttribute('data-offset', defaultOffset);
+            loadMoreBtn.innerHTML = 'Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>';
+            loadMoreBtn.disabled = false;
+
+            loadMoreBtn.classList.remove('btn-secondary');
+            if (type === 'sale') loadMoreBtn.classList.add('btn-outline-success');
+            if (type === 'new') loadMoreBtn.classList.add('btn-outline-light');
+
+            collapseBtn.style.display = 'none';
+
+            document.getElementById(targetId).scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+<!-- Modal Tìm kiếm -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pb-5 text-center">
+                    <h5 class="fw-bold mb-4" style="color: var(--tempi-green);">Bạn muốn tìm sản phẩm gì?</h5>
+                    <form action="/search" method="GET" class="d-flex w-100">
+                        <input type="text" name="keyword" class="form-control rounded-start-pill py-3 ps-4 border-success" placeholder="Ví dụ: Mì Hảo Hảo, Sữa tươi..." required autofocus>
+                        <button class="btn btn-warning rounded-end-pill px-4 fw-bold text-dark border-0" type="submit">
+                            <i class="fas fa-search me-1"></i> Tìm
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4 border-0 shadow-lg">
+                <div class="modal-header border-0 p-0 mb-3">
+                    <h5 class="modal-title fw-bold">Đăng nhập tài khoản</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/auth/login" method="POST">
+                    <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
+                    <input type="password" name="password" class="form-control mb-3" placeholder="Mật khẩu" required>
+                    
+                    <button type="submit" class="btn btn-warning w-100 fw-bold">ĐĂNG NHẬP</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4 border-0 shadow-lg">
+                <div class="modal-header border-0 p-0 mb-3">
+                    <h5 class="modal-title fw-bold">Đăng ký thành viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/auth/register" method="POST">
+                    <input type="text" name="fullname" class="form-control mb-3" placeholder="Họ và tên" required>
+                    <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
+                    <input type="text" name="phone" class="form-control mb-3" placeholder="Số điện thoại" required>
+                    <input type="text" name="address" class="form-control mb-3" placeholder="Địa chỉ giao hàng cụ thể" required>
+                    <input type="password" name="password" class="form-control mb-3" placeholder="Mật khẩu" required>
+                    
+                    <button type="submit" class="btn btn-success w-100 fw-bold">ĐĂNG KÝ</button>
+                </form>
+            </div>
+        </div>
+    </div>
