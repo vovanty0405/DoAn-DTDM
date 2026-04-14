@@ -1,11 +1,18 @@
 const Brand = require('../models/Brand');
 
 class BrandController {
-    // 1. [GET] /admin/brands (Hiển thị danh sách)
+    // 1. [GET] /admin/brands (Hiển thị danh sách + Phân trang)
     async index(req, res) {
         try {
-            const brands = await Brand.find({}).sort({ createdAt: -1 }).lean();
-            res.render('admin/brand', { brands });
+            const page = parseInt(req.query.page) || 1;
+            const limit = 10;
+            const skip = (page - 1) * limit;
+
+            const totalItems = await Brand.countDocuments({});
+            const totalPages = Math.ceil(totalItems / limit);
+            const brands = await Brand.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+
+            res.render('admin/brand', { brands, currentPage: page, totalPages });
         } catch (error) {
             console.log(error);
             res.status(500).send('Lỗi Server');
@@ -41,7 +48,5 @@ class BrandController {
             res.status(500).send('Lỗi khi xóa thương hiệu');
         }
     }
-
-
 }
 module.exports = new BrandController(); 

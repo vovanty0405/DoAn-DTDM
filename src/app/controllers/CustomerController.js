@@ -1,11 +1,18 @@
 const Customer = require('../models/Customer');
 
 class CustomerController {
-    // 1. [GET] /admin/customers (Hiển thị danh sách)
+    // 1. [GET] /admin/customers (Hiển thị danh sách + Phân trang)
     async index(req, res) {
         try {
-            const customers = await Customer.find({}).sort({ createdAt: -1 }).lean();
-            res.render('admin/customers', { customers });
+            const page = parseInt(req.query.page) || 1;
+            const limit = 10;
+            const skip = (page - 1) * limit;
+
+            const totalItems = await Customer.countDocuments({});
+            const totalPages = Math.ceil(totalItems / limit);
+            const customers = await Customer.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+
+            res.render('admin/customers', { customers, currentPage: page, totalPages });
         } catch (error) {
             console.log(error);
             res.status(500).send('Lỗi Server');

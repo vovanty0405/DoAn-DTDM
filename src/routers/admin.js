@@ -26,11 +26,11 @@ router.post('/categories/store', categoryController.store);        // Submit for
 router.post('/categories/update', categoryController.update);      // Submit form sửa
 router.get('/categories/delete/:id', categoryController.destroy);  // Bấm nút xóa
 
-// Product routes
+// Product routes (hỗ trợ multi-image upload)
+const productUpload = upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'images', maxCount: 10 }]);
 router.get('/products', productController.index);
-// Dùng upload.single('cover_image') để hứng file từ input có name="cover_image"
-router.post('/products/store', upload.single('cover_image'), productController.store);
-router.post('/products/update', upload.single('cover_image'), productController.update);
+router.post('/products/store', productUpload, productController.store);
+router.post('/products/update', productUpload, productController.update);
 router.get('/products/delete/:id', productController.destroy);
 
 // sub_categories
@@ -76,11 +76,13 @@ const reviewController = require('../app/controllers/ReviewController');
 router.get('/reviews', reviewController.index);
 router.post('/reviews/update', reviewController.updateStatus);
 router.get('/reviews/delete/:id', reviewController.destroy);
+router.post('/reviews/reply/:id', reviewController.reply);
 
 // Quản lý Khuyến Mãi
 const promotionController = require('../app/controllers/PromotionController');
 router.get('/promotions', promotionController.index);
 router.post('/promotions/slot1', promotionController.updateSlot1);
 router.post('/promotions/slot2', promotionController.updateSlot2);
+router.post('/promotions/banner', upload.single('banner_image'), promotionController.updateBanner);
 
 module.exports = router;

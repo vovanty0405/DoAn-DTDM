@@ -79,7 +79,7 @@
                                     <% customers.forEach((cust, index)=> { %>
                                         <tr>
                                             <td>
-                                                <%= index + 1 %>
+                                                <%= (currentPage - 1) * 10 + index + 1 %>
                                             </td>
                                             <td class="fw-bold text-start">
                                                 <%= cust.full_name %>
@@ -148,6 +148,7 @@
                             </tbody>
                         </table>
                     </div>
+                    <%- include('../partials/pagination', { currentPage, totalPages, query: {} }) %>
                 </div>
             </div>
         </div>

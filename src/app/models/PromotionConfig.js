@@ -10,6 +10,10 @@ const PromotionConfig = new Schema({
     // Slot 2: Ưu đãi độc quyền (Box 6 món)
     promo2_category_id: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
     promo2_percent: { type: Number, default: 0 },
+
+    // Banner Danh Mục (Dynamic Category Banner)
+    banner_image: { type: String, default: null },
+    banner_category_id: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model('PromotionConfig', PromotionConfig);

@@ -1,0 +1,33 @@
+<%# Pagination Bar - Bootstrap 5 %>
+<%# Biến cần truyền: currentPage, totalPages, query, pageParam (tùy chọn) %>
+<% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+<% let param = typeof pageParam !== 'undefined' ? pageParam : 'page'; %>
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center mb-0">
+        <%# Nút Trang Trước %>
+        <li class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+            <a class="page-link" href="?<%= Object.keys(query || {}).filter(k => k !== param).map(k => k + '=' + encodeURIComponent(query[k])).join('&') %><%= Object.keys(query || {}).filter(k => k !== param).length > 0 ? '&' : '' %><%= param %>=<%= currentPage - 1 %>">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+
+        <%# Các số trang %>
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
+                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="?<%= Object.keys(query || {}).filter(k => k !== param).map(k => k + '=' + encodeURIComponent(query[k])).join('&') %><%= Object.keys(query || {}).filter(k => k !== param).length > 0 ? '&' : '' %><%= param %>=<%= i %>"><%= i %></a>
+                </li>
+            <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            <% } %>
+        <% } %>
+
+        <%# Nút Trang Sau %>
+        <li class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+            <a class="page-link" href="?<%= Object.keys(query || {}).filter(k => k !== param).map(k => k + '=' + encodeURIComponent(query[k])).join('&') %><%= Object.keys(query || {}).filter(k => k !== param).length > 0 ? '&' : '' %><%= param %>=<%= currentPage + 1 %>">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+<% } %>

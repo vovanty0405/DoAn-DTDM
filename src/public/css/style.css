@@ -7,7 +7,8 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa; /* Màu nền xám nhạt cho toàn trang */
+    background-color: #c0daf3;
+    /* Màu nền xám nhạt cho toàn trang */
 }
 
 /* Header & Navbar */
@@ -63,7 +64,7 @@ body {
 
 .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 .btn-tempi-green {
@@ -102,8 +103,10 @@ body {
 /* Khung chờ cho Hero Banner (Slider) */
 .hero-wrapper {
     width: 100%;
-    height: 450px; /* Bạn có thể chỉnh chiều cao banner ở đây */
-    background-color: #e9ecef; /* Màu xám hiển thị khi chưa có ảnh */
+    height: 450px;
+    /* Bạn có thể chỉnh chiều cao banner ở đây */
+    background-color: #e9ecef;
+    /* Màu xám hiển thị khi chưa có ảnh */
     position: relative;
     overflow: hidden;
 }
@@ -114,7 +117,8 @@ body {
     height: 80px;
     border-radius: 50%;
     background-color: #e9ecef;
-    margin: 0 auto; /* Căn giữa */
+    margin: 0 auto;
+    /* Căn giữa */
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -124,10 +128,12 @@ body {
 /* Khung chờ cho ảnh Sản phẩm (Tỷ lệ vuông 1:1) */
 .product-img-wrapper {
     width: 100%;
-    aspect-ratio: 1 / 1; /* Ép khung ảnh luôn là hình vuông */
+    aspect-ratio: 1 / 1;
+    /* Ép khung ảnh luôn là hình vuông */
     background-color: #f8f9fa;
     overflow: hidden;
-    padding: 10px; /* Tạo khoảng trắng viền xung quanh ảnh nếu muốn */
+    padding: 10px;
+    /* Tạo khoảng trắng viền xung quanh ảnh nếu muốn */
 }
 
 /* Khung chờ cho Banner giữa trang (Deal of the week) */
@@ -146,18 +152,25 @@ body {
 /* Lớp phủ mờ (overlay) cho banner giữa trang để chữ dễ đọc hơn khi chèn ảnh */
 .mid-banner-overlay {
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0, 90, 60, 0.7); /* Màu xanh Tempi trong suốt */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 90, 60, 0.7);
+    /* Màu xanh Tempi trong suốt */
     z-index: 1;
 }
 
 .mid-banner-content {
     position: relative;
-    z-index: 2; /* Đẩy chữ lên trên lớp phủ và ảnh */
+    z-index: 2;
+    /* Đẩy chữ lên trên lớp phủ và ảnh */
 }
-.card-body{
-     box-shadow: 5px 5px 10px 0px rgba(0,0,0,0.5);
+
+.card-body {
+    box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.5);
 }
+
 /* --- CSS CHO CÁC SECTION MỚI --- */
 
 /* Màu xanh chuẩn của logo/icon Tempi */
@@ -191,6 +204,7 @@ body {
     align-items: center;
     justify-content: center;
 }
+
 /* --- TRANG CHI TIẾT SẢN PHẨM --- */
 .text-tempi-green {
     color: var(--tempi-green) !important;
@@ -211,7 +225,8 @@ body {
     border: 2px solid transparent;
 }
 
-.thumbnail-img.active, .thumbnail-img:hover {
+.thumbnail-img.active,
+.thumbnail-img:hover {
     border-color: var(--tempi-green);
 }
 
@@ -226,12 +241,15 @@ body {
     color: white;
     background-color: var(--tempi-green);
 }
+
 .related-products-container {
     display: flex;
     gap: 20px;
-    overflow-x: auto; /* Tạo thanh cuộn ngang nếu nhiều sản phẩm */
+    overflow-x: auto;
+    /* Tạo thanh cuộn ngang nếu nhiều sản phẩm */
     padding: 10px;
 }
+
 .product-item {
     width: 200px;
     border: 1px solid #ddd;
@@ -241,7 +259,79 @@ body {
 
 .related-product-img {
     width: 100%;
-    height: 200px; /* Hoặc chiều cao bạn muốn */
-    object-fit: contain; /* Giữ nguyên tỉ lệ ảnh để không bị cắt mất chữ trên thùng nước ngọt */
+    height: 200px;
+    /* Hoặc chiều cao bạn muốn */
+    object-fit: contain;
+    /* Giữ nguyên tỉ lệ ảnh để không bị cắt mất chữ trên thùng nước ngọt */
     background: #f9f9f9;
+}
+
+/* --- MODERN UI UPGRADES --- */
+.section-premium {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.section-title {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-weight: 800;
+    color: #2c3e50;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--tempi-green), var(--tempi-yellow));
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.bg-gradient-yellow {
+    background: linear-gradient(145deg, #ffffff 0%, #fffdf2 100%);
+    border-color: #fef0cd;
+}
+
+.bg-gradient-green {
+    background: linear-gradient(145deg, #ffffff 0%, #f3faf6 100%);
+    border-color: #d1eadb;
+}
+
+.bg-gradient-blue {
+    background: linear-gradient(145deg, #ffffff 0%, #f4f8fc 100%);
+    border-color: #e2edf6;
+}
+
+.category-item {
+    transition: all 0.3s ease;
+    padding: 10px;
+    border-radius: 15px;
+}
+
+.category-item:hover {
+    background-color: #ffffff;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.06);
+    transform: translateY(-5px);
+}
+
+.category-wrapper {
+    background-color: #f8f9fa;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.product-card {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }

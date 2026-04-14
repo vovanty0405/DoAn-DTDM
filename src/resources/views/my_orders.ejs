@@ -95,6 +95,9 @@
                         <%- include('partials/order_list', { filterStatus: [3], orders: orders }) %>
                     </div>
                 </div>
+                <div class="mt-4">
+                    <%- include('partials/pagination', { currentPage, totalPages, query: {} }) %>
+                </div>
             </div>
         </div>
     </div>

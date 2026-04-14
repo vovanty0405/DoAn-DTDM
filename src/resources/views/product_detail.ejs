@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= product.name %> - Bách Hóa Pew</title>
+    <title>
+        <%= product.name %> - Bách Hóa Pew
+    </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
-     <link href="http://127.0.0.1:3000/css/style.css" rel="stylesheet" />
+    <link href="http://127.0.0.1:3000/css/style.css" rel="stylesheet" />
 </head>
+
 <body class="bg-light">
 
-    <header class="header-bg sticky-top py-3">
+    <!-- <header class="header-bg sticky-top py-3">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-3 col-12 mb-3 mb-md-0 text-center text-md-start">
@@ -42,236 +46,635 @@
                 </div>
             </div>
         </div>
-    </header>
-
-    <div class="container mt-4 mb-2">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-tempi-green">Trang chủ</a></li>
-                <li class="breadcrumb-item"><a href="/category/<%= product.category_id ? product.category_id.slug : '' %>" class="text-decoration-none text-tempi-green"><%= product.category_id ? product.category_id.name : 'Danh mục' %></a></li>
-                <li class="breadcrumb-item active" aria-current="page"><%= product.name %></li>
-            </ol>
-        </nav>
-    </div>
-    <!-- Chi tiết sản phẩm -->
-    <section class="container my-4">
-        <div class="bg-white p-4 p-md-5 rounded shadow-sm">
-            <div class="row">
-                <div class="col-md-5 mb-4 mb-md-0">
-                    <div class="position-relative border rounded p-3 text-center" style="background-color: #f8f9fa;">
-                        <% if (product.discount_price) { %>
-                            <% let percent = Math.round(((product.price - product.discount_price) / product.price) * 100); %>
-                            <div class="badge-discount position-absolute top-0 end-0 m-3 bg-danger text-white px-2 py-1 rounded fs-6" style="z-index: 10;">-<%= percent %>%</div>
-                        <% } %>
-                        <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="product-detail-img img-fluid">
-                    </div>
-                    <div class="d-flex gap-2 mt-3">
-                        <img src="/<%= product.cover_image %>" class="thumbnail-img active" alt="Thumb">
-                        <div class="thumbnail-img bg-light d-flex align-items-center justify-content-center text-muted border"><i class="fas fa-image"></i></div>
-                    </div>
-                </div>
-
-                <div class="col-md-7 ps-md-5">
-                    <div class="stars text-warning mb-2 fs-5"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
-                    <h2 class="fw-bold mb-3"><%= product.name %></h2>
-                    
-                    <div class="price-section mb-3">
-                        <% if (product.discount_price) { %>
-                            <span class="fs-2 fw-bold text-primary me-2"><%= product.discount_price.toLocaleString('vi-VN') %> đ</span>
-                            <span class="text-muted text-decoration-line-through fs-5"><%= product.price.toLocaleString('vi-VN') %> đ</span>
-                        <% } else { %>
-                            <span class="fs-2 fw-bold text-primary"><%= product.price.toLocaleString('vi-VN') %> đ</span>
-                        <% } %>
-                    </div>
-
-                    <p class="text-muted mb-4 small">Đã bán: <span class="text-dark fw-bold">128</span> (Dữ liệu giả lập)</p>
-
-                    <div class="d-flex gap-3 mb-4">
-                        <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom"><i class="fas fa-cart-plus fs-1"></i></a>
-                        <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill fw-bold shadow-sm fs-5">Mua ngay</a>
-                    </div>
-
-                    <hr class="my-4">
-                    <div class="product-description">
-                        <h5 class="fw-bold mb-3">Mô tả sản phẩm</h5>
-                        <p class="text-muted" style="line-height: 1.8;">
-                            <%- product.description ? product.description.replace(/\n/g, '<br>') : "Sản phẩm này hiện tại chưa có mô tả chi tiết từ nhà cung cấp. Bách Hóa Pew cam kết cung cấp hàng chính hãng 100% với chất lượng tốt nhất." %>
-                        </p>
-                    </div>
-                </div>
-            </div>
+    </header> -->
+    <%- include('partials/navbar') %>
+        <div class="container mt-4 mb-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-tempi-green">Trang chủ</a>
+                    </li>
+                    <li class="breadcrumb-item"><a
+                            href="/category/<%= product.category_id ? product.category_id.slug : '' %>"
+                            class="text-decoration-none text-tempi-green">
+                            <%= product.category_id ? product.category_id.name : 'Danh mục' %>
+                        </a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <%= product.name %>
+                    </li>
+                </ol>
+            </nav>
         </div>
-    </section>
-    <!-- Đánh giá khách hàng -->
-    <section class="container mt-5 pt-4 border-top">
-        <h4 class="fw-bold">Đánh giá khách hàng</h4>
-        <% if (typeof reviewSuccess !== 'undefined' && reviewSuccess) { %>
-            <div class="alert alert-success mt-2 review-alert"><%= reviewSuccess %></div>
-        <% } %>
-
-        <% if (typeof user !== 'undefined' && user) { %>
-            <form action="/product/<%= product._id %>/review" method="POST" class="mb-4 mt-3">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Chấm sao</label>
-                        <select name="rating" class="form-select border-warning" required>
-                            <option value="">Chọn số sao</option>
-                            <option value="5">★★★★★ (Tuyệt vời)</option>
-                            <option value="4">★★★★ (Tốt)</option>
-                            <option value="3">★★★ (Bình thường)</option>
-                            <option value="2">★★ (Tệ)</option>
-                            <option value="1">★ (Rất tệ)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-8">
-                        <label class="form-label fw-bold">Bình luận (tuỳ chọn)</label>
-                        <textarea name="comment" class="form-control" rows="2" placeholder="Chia sẻ cảm nhận của bạn..."></textarea>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-success fw-bold">Gửi đánh giá</button>
-                    </div>
-                </div>
-            </form>
-        <% } else { %>
-            <div class="alert alert-info mt-3">Vui lòng <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="fw-bold text-success">Đăng nhập</a> để đánh giá sản phẩm.</div>
-        <% } %>
-
-        <div class="mt-4" id="review-list">
-            <% if (reviews && reviews.length > 0) { %>
-                <% reviews.forEach((review, index) => { %>
-                    <div class="border rounded p-3 mb-2 bg-white shadow-sm review-item <%- index >= 5 ? 'd-none' : '' %>">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <strong class="text-tempi-green"><i class="fas fa-user-circle me-1"></i> <%= review.user_id ? review.user_id.fullname : 'Khách' %></strong>
-                            <small class="text-muted"><%= review.createdAt.toLocaleString('vi-VN') %></small>
-                        </div>
-                        <div class="mb-2" style="color:#ffb400;">
-                            <%= '★'.repeat(review.rating) %><%= '☆'.repeat(5 - review.rating) %>
-                        </div>
-                        <p class="mb-0 text-dark"><%- review.comment ? review.comment.replace(/\n/g, '<br>') : '<em>Không có bình luận</em>' %></p>
-                    </div>
-                <% }) %>
-            <% } else { %>
-                <p class="text-muted">Chưa có đánh giá nào được duyệt.</p>
-            <% } %>
-        </div>
-
-        <% if (reviews && reviews.length > 5) { %>
-            <div class="text-center my-3">
-                <button id="btn-load-more-reviews" class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold" onclick="loadMoreReviews()">
-                    Xem thêm đánh giá <i class="fas fa-chevron-down ms-1"></i>
-                </button>
-            </div>
-        <% } %>
-    </section>
-    
-    <section class="container mt-5 pt-4 border-top mb-5">
-        <h4 class="fw-bold mb-4">Sản phẩm bạn có thể thích</h4>
-        <div class="row" id="related-product-list">
-            <% if (relatedProducts && relatedProducts.length > 0) { %>
-                <% relatedProducts.forEach((item, index) => { %>
-                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4 related-item" style="<%= index > 7 ? 'display: none;' : '' %>">
-                        <div class="card product-card h-100 border-0 shadow-sm position-relative">
-                            <% if (item.discount_price) { %>
-                                <% let pPercent = Math.round(((item.price - item.discount_price) / item.price) * 100); %>
-                                <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded" style="z-index: 10;">-<%= pPercent %>%</div>
-                            <% } %>
-
-                            <a href="/product/<%= item._id %>" class="text-decoration-none">
-                                <div class="product-img-wrapper">
-                                    <img src="/<%= item.cover_image %>" alt="<%= item.name %>" class="img-cover">
-                                </div>
-                            </a>
-
-                            <div class="card-body text-center d-flex flex-column p-2">
-                                <a href="/product/<%= item._id %>" class="text-decoration-none flex-grow-1">
-                                    <h6 class="card-title text-dark fw-bold text-truncate-2" style="font-size: 0.9rem; min-height: 40px;"><%= item.name %></h6>
-                                </a>
-                                <div class="mt-2">
-                                    <% if (item.discount_price) { %>
-                                        <div class="text-muted text-decoration-line-through small"><%= item.price.toLocaleString('vi-VN') %> đ</div>
-                                        <div class="fw-bold text-danger mb-2"><%= item.discount_price.toLocaleString('vi-VN') %> đ</div>
-                                    <% } else { %>
-                                        <div class="text-muted small">&nbsp;</div>
-                                        <div class="fw-bold text-danger mb-2"><%= item.price.toLocaleString('vi-VN') %> đ</div>
+        <!-- Chi tiết sản phẩm -->
+        <section class="container my-4">
+            <div class="bg-white p-4 p-md-5 rounded shadow-sm">
+                <div class="row">
+                    <div class="col-md-5 mb-4 mb-md-0">
+                        <div class="position-relative border rounded p-3 text-center"
+                            style="background-color: #f8f9fa;">
+                            <% if (product.discount_price) { %>
+                                <% let percent=Math.round(((product.price - product.discount_price) / product.price) * 100); %>
+                                    <div class="badge-discount position-absolute top-0 end-0 m-3 bg-danger text-white px-2 py-1 rounded fs-6"
+                                        style="z-index: 10;">-<%= percent %>%</div>
                                     <% } %>
 
-                                    <div class="d-flex gap-2 mt-2">
-                                        <a href="javascript:void(0);" onclick="addToCart('<%= item._id %>')" class="text-tempi-green transition-zoom border p-1 rounded"><i class="fas fa-cart-plus fs-4"></i></a>
-                                        <a href="/cart/buy-now/<%= item._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill fw-bold shadow-sm py-1">Mua ngay</a>
-                                    </div>
-                                </div>
-                            </div>
+                                        <!-- Image Carousel -->
+                                        <div id="productImageCarousel" class="carousel slide" data-bs-ride="carousel">
+                                            <div class="carousel-inner">
+                                                <div class="carousel-item active">
+                                                    <img src="/<%= product.cover_image %>" alt="<%= product.name %>"
+                                                        class="product-detail-img img-fluid"
+                                                        style="max-height: 400px; object-fit: contain;">
+                                                </div>
+                                                <% if (product.images && product.images.length> 0) { %>
+                                                    <% product.images.forEach((img, index)=> { %>
+                                                        <div class="carousel-item">
+                                                            <img src="/<%= img %>" alt="<%= product.name %>"
+                                                                class="product-detail-img img-fluid"
+                                                                style="max-height: 400px; object-fit: contain;">
+                                                        </div>
+                                                        <% }) %>
+                                                            <% } %>
+                                            </div>
+                                            <% if (product.images && product.images.length> 0) { %>
+                                                <button class="carousel-control-prev" type="button"
+                                                    data-bs-target="#productImageCarousel" data-bs-slide="prev">
+                                                    <span class="carousel-control-prev-icon bg-dark rounded-circle"
+                                                        aria-hidden="true" style="padding: 1rem; opacity: 0.5;"></span>
+                                                    <span class="visually-hidden">Previous</span>
+                                                </button>
+                                                <button class="carousel-control-next" type="button"
+                                                    data-bs-target="#productImageCarousel" data-bs-slide="next">
+                                                    <span class="carousel-control-next-icon bg-dark rounded-circle"
+                                                        aria-hidden="true" style="padding: 1rem; opacity: 0.5;"></span>
+                                                    <span class="visually-hidden">Next</span>
+                                                </button>
+                                                <% } %>
+                                        </div>
+                        </div>
+
+                        <!-- Thumbnails -->
+                        <div class="d-flex gap-2 mt-3 flex-wrap justify-content-center">
+                            <img src="/<%= product.cover_image %>" class="thumbnail-img active border rounded"
+                                alt="Thumb" style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;"
+                                data-bs-target="#productImageCarousel" data-bs-slide-to="0">
+                            <% if (product.images && product.images.length> 0) { %>
+                                <% product.images.forEach((img, index)=> { %>
+                                    <img src="/<%= img %>" class="thumbnail-img border rounded shadow-sm" alt="Thumb"
+                                        style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;"
+                                        data-bs-target="#productImageCarousel" data-bs-slide-to="<%= index + 1 %>">
+                                    <% }) %>
+                                        <% } %>
                         </div>
                     </div>
-                <% }) %>
-            <% } else { %>
-                <p class="text-muted">Chưa có sản phẩm liên quan.</p>
-            <% } %>
-        </div>
 
-        <% if (relatedProducts && relatedProducts.length > 8) { %>
-            <div class="text-center my-3">
-                <button id="btn-load-more" class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold" onclick="toggleRelatedProducts()" data-expanded="false">
-                    Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>
-                </button>
+                    <div class="col-md-7 ps-md-5">
+                        <div class="stars text-warning mb-2 fs-5">
+                            <% let fullStars=Math.floor(avgRating); %>
+                                <% let halfStar=avgRating % 1 !==0; %>
+                                    <% let emptyStars=5 - Math.ceil(avgRating); %>
+                                        <% for (let i=0; i < fullStars; i++) { %> <i class="fas fa-star"></i>
+                                            <% } %>
+                                                <% if (halfStar) { %> <i class="fas fa-star-half-alt"></i>
+                                                    <% } %>
+                                                        <% for (let i=0; i < emptyStars; i++) { %> <i
+                                                                class="far fa-star"></i>
+                                                            <% } %>
+                                                                <span class="text-muted ms-2 fs-6">(<%= avgRating %> /
+                                                                        5)</span>
+                        </div>
+                        <h2 class="fw-bold mb-3">
+                            <%= product.name %>
+                        </h2>
+
+                        <div class="price-section mb-3">
+                            <% if (product.discount_price) { %>
+                                <span class="fs-2 fw-bold text-primary me-2">
+                                    <%= product.discount_price.toLocaleString('vi-VN') %> đ
+                                </span>
+                                <span class="text-muted text-decoration-line-through fs-5">
+                                    <%= product.price.toLocaleString('vi-VN') %> đ
+                                </span>
+                                <% } else { %>
+                                    <span class="fs-2 fw-bold text-primary">
+                                        <%= product.price.toLocaleString('vi-VN') %> đ
+                                    </span>
+                                    <% } %>
+                        </div>
+
+                        <p class="text-muted mb-4 small">Đã bán: <span class="text-dark fw-bold">
+                                <%= soldCount %>
+                            </span></p>
+
+                        <!-- Thông tin tồn kho -->
+                        <p class="text-muted mb-2 small">
+                            Tồn kho: 
+                            <% if (product.stock_quantity > 0) { %>
+                                <span class="text-success fw-bold"><%= product.stock_quantity %> sản phẩm</span>
+                            <% } else { %>
+                                <span class="text-danger fw-bold">Hết hàng</span>
+                            <% } %>
+                        </p>
+
+                        <div class="d-flex gap-3 mb-4">
+                            <% if (product.stock_quantity > 0) { %>
+                                <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')"
+                                    class="text-tempi-green transition-zoom"><i class="fas fa-cart-plus fs-1"></i></a>
+                                <a href="/cart/buy-now/<%= product._id %>"
+                                    class="btn btn-tempi-green flex-grow-1 text-white rounded-pill fw-bold shadow-sm fs-5">Mua
+                                    ngay</a>
+                            <% } else { %>
+                                <button class="btn btn-secondary flex-grow-1 rounded-pill fw-bold fs-5 opacity-75" disabled>
+                                    <i class="fas fa-clock me-2"></i>Hết hàng
+                                </button>
+                                <% if (typeof user !== 'undefined' && user) { %>
+                                <button class="btn btn-outline-warning rounded-pill fw-bold px-4" 
+                                    onclick="subscribeStock('<%= product._id %>')">
+                                    <i class="fas fa-bell me-1"></i> Thông báo khi có hàng
+                                </button>
+                                <% } %>
+                            <% } %>
+                        </div>
+
+                        
+                    </div>
+                </div>
             </div>
-        <% } %>
-    </section>
+        </section>
+        <!-- Các thông tin chi tiết: 1 cột dọc -->
+        <section class="container mt-4 mb-4">
+            <div class="row">
+                <!-- Cột trái: Mô tả sản phẩm -->
+                <div class="col-lg-8 pe-lg-4 mb-4 mb-lg-0">
+                    <div class="bg-white p-4 rounded shadow-sm relative position-relative">
+                        <h4 class="fw-bold mb-4 text-tempi-green border-bottom pb-2">Mô tả sản phẩm</h4>
+                        <div class="text-dark lh-lg ck-content position-relative overflow-hidden" id="productDescription" style="max-height: 200px; font-size: 1.05rem;">
+                            <%- product.description ? product.description : "Sản phẩm này hiện tại chưa có mô tả chi tiết từ nhà cung cấp." %>
+                            
+                            <!-- Gradient overlay -->
+                            <div class="desc-gradient" id="descGradient"></div>
+                        </div>
+                        <div class="text-center mt-3" id="descBtnContainer">
+                            <button class="btn btn-outline-success rounded-pill px-4" id="toggleDescBtn" onclick="toggleDescription()">
+                                Xem thêm <i class="fas fa-chevron-down ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Footer -->
-    <%- include('partials/footer') %>
+                <!-- Cột phải: Đánh giá -->
+                <div class="col-lg-4">
+                    <div class="bg-white p-4 rounded shadow-sm h-100" id="review-section">
+                        <h4 class="fw-bold mb-4 text-dark border-bottom pb-2">Đánh giá sản phẩm</h4>
+                        
+            
+            <% if (typeof reviewSuccess !=='undefined' && reviewSuccess) { %>
+                <div class="alert alert-success mt-2 review-alert">
+                    <%= reviewSuccess %>
+                </div>
+                <% } %>
 
-    <!-- Modal -->
-    <%- include('partials/modal') %>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // 1. TỰ ĐỘNG ẨN THÔNG BÁO ĐÁNH GIÁ SAU 3 GIÂY
-        setTimeout(function() {
-            let alerts = document.querySelectorAll('.review-alert');
-            alerts.forEach(function(alert) {
-                alert.style.transition = 'opacity 0.5s ease';
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 500); 
-            });
-        }, 3000);
+                    <% if (typeof user !=='undefined' && user) { %>
+                        <form action="/product/<%= product._id %>/review" method="POST" class="mb-4 mt-3" id="reviewFormMain">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Chấm sao</label>
+                                <select name="rating" class="form-select form-select-sm border-warning" required>
+                                    <option value="">Chọn số sao</option>
+                                    <option value="5">★★★★★ (Tuyệt vời)</option>
+                                    <option value="4">★★★★ (Tốt)</option>
+                                    <option value="3">★★★ (Bình thường)</option>
+                                    <option value="2">★★ (Tệ)</option>
+                                    <option value="1">★ (Rất tệ)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Bình luận</label>
+                                <textarea name="comment" class="form-control form-control-sm" rows="2"
+                                    placeholder="Chia sẻ cảm nhận..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-sm w-100 fw-bold">Gửi đánh giá</button>
+                        </form>
+                        <% } else { %>
+                            <div class="alert alert-info mt-3">Vui lòng <a href="#" data-bs-toggle="modal"
+                                    data-bs-target="#loginModal" class="fw-bold text-success">Đăng nhập</a> để đánh giá
+                                sản phẩm.</div>
+                            <% } %>
 
-        // 2. HÀM MỞ RỘNG SẢN PHẨM LIÊN QUAN NHƯ PHP CŨ
-        function toggleRelatedProducts() {
-            let items = document.querySelectorAll('.related-item');
-            let btn = document.getElementById('btn-load-more');
-            let isExpanded = btn.getAttribute('data-expanded') === 'true';
+                                <div class="mt-4" id="review-list">
+                                    <% if (reviews && reviews.length > 0) { %>
+                                        <% reviews.forEach((review, index) => { %>
+                                            <div class="border rounded p-3 mb-3 bg-white shadow-sm review-item <%- index >= 5 ? 'd-none' : '' %>">
+                                                <!-- Header: Tên người đánh giá + Badge -->
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <div class="d-flex align-items-center flex-wrap gap-2">
+                                                        <strong class="text-tempi-green">
+                                                            <i class="fas fa-user-circle me-1"></i>
+                                                            <%= review.user_id ? review.user_id.fullname : 'Khách' %>
+                                                        </strong>
+                                                        <% if (review.user_id && review.user_id.role === 1) { %>
+                                                            <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">
+                                                                <i class="fas fa-shield-alt me-1"></i>Quản trị viên
+                                                            </span>
+                                                        <% } %>
+                                                        <% if (review.user_id && typeof verifiedUserIds !== 'undefined' && verifiedUserIds.includes(review.user_id._id.toString())) { %>
+                                                            <span class="badge bg-success" style="font-size: 0.7rem;">
+                                                                <i class="fas fa-check-circle me-1"></i>Đã mua hàng
+                                                            </span>
+                                                        <% } %>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <%= review.createdAt.toLocaleString('vi-VN') %>
+                                                    </small>
+                                                </div>
+                                                <!-- Stars -->
+                                                <div class="mb-2" style="color:#ffb400;">
+                                                    <%= '★'.repeat(review.rating || 0) %><%= '☆'.repeat(5 - (review.rating || 0)) %>
+                                                </div>
+                                                <!-- Comment -->
+                                                <p class="mb-2 text-dark"><%- review.comment ? review.comment.replace(/\n/g, '<br>') : '<em>Không có bình luận</em>' %></p>
 
-            if (!isExpanded) {
-                items.forEach(item => item.style.display = 'block');
-                btn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-1"></i>';
-                btn.classList.replace('btn-outline-success', 'btn-secondary');
-                btn.setAttribute('data-expanded', 'true');
-            } else {
-                items.forEach((item, index) => {
-                    if (index > 7) item.style.display = 'none';
-                });
-                btn.innerHTML = 'Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>';
-                btn.classList.replace('btn-secondary', 'btn-outline-success');
-                btn.setAttribute('data-expanded', 'false');
-                document.getElementById('related-product-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
+                                                <!-- === NESTED REPLIES (Phản hồi dạng cây) === -->
+                                                <% if (review.childReplies && review.childReplies.length > 0) { %>
+                                                    <% review.childReplies.forEach(reply => { %>
+                                                        <div class="ms-4 mt-2 p-3 border-start border-3 rounded bg-light" style="border-color: <%= (reply.user_id && reply.user_id.role === 1) ? '#198754' : '#0d6efd' %> !important;">
+                                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <strong style="color: <%= (reply.user_id && reply.user_id.role === 1) ? '#198754' : '#0d6efd' %>;">
+                                                                        <i class="fas fa-reply me-1"></i>
+                                                                        <%= reply.user_id ? reply.user_id.fullname : 'Khách' %>
+                                                                    </strong>
+                                                                    <% if (reply.user_id && reply.user_id.role === 1) { %>
+                                                                        <span class="badge bg-success" style="font-size: 0.65rem;">
+                                                                            <i class="fas fa-store me-1"></i>Quản trị viên
+                                                                        </span>
+                                                                    <% } %>
+                                                                    <% if (reply.user_id && typeof verifiedUserIds !== 'undefined' && verifiedUserIds.includes(reply.user_id._id.toString())) { %>
+                                                                        <span class="badge bg-success" style="font-size: 0.65rem;">
+                                                                            <i class="fas fa-check-circle me-1"></i>Đã mua hàng
+                                                                        </span>
+                                                                    <% } %>
+                                                                </div>
+                                                                <small class="text-muted"><%= reply.createdAt.toLocaleString('vi-VN') %></small>
+                                                            </div>
+                                                            <p class="mb-0 text-dark"><%- reply.comment ? reply.comment.replace(/\n/g, '<br>') : '' %></p>
+                                                        </div>
+                                                    <% }) %>
+                                                <% } %>
 
-        // 3. TẢI THÊM ĐÁNH GIÁ (5 MÓT)
-        function loadMoreReviews() {
-            let hiddenItems = document.querySelectorAll('.review-item.d-none');
-            // Mở giới hạn 5 thẻ đang ẩn
-            for (let i = 0; i < 5; i++) {
-                if (hiddenItems[i]) {
-                    hiddenItems[i].classList.remove('d-none');
-                }
-            }
-            // Kiểm tra xem còn thẻ nào ẩn không, nếu không thì vứt luôn nút load hơn
-            if (document.querySelectorAll('.review-item.d-none').length === 0) {
-                let btn = document.getElementById('btn-load-more-reviews');
-                if (btn) btn.style.display = 'none';
-            }
-        }
-    </script>
+                                                <!-- Phản hồi cũ từ Admin (trường replies[] cũ) -->
+                                                <% if (review.replies && review.replies.length > 0) { %>
+                                                    <% review.replies.forEach(reply => { %>
+                                                        <div class="ms-4 mt-2 p-3 bg-light border-start border-4 border-success rounded">
+                                                            <h6 class="fw-bold text-success mb-1"><i class="fas fa-store"></i> Phản hồi từ Cửa hàng:</h6>
+                                                            <p class="mb-0 text-dark"><%- reply.comment ? reply.comment.replace(/\n/g, '<br>') : '' %></p>
+                                                            <small class="text-muted"><%= new Date(reply.createdAt).toLocaleString('vi-VN') %></small>
+                                                        </div>
+                                                    <% }) %>
+                                                <% } %>
+
+                                                <!-- Nút Trả lời (cho user đã đăng nhập) -->
+                                                <% if (typeof user !== 'undefined' && user) { %>
+                                                    <div class="mt-2">
+                                                        <a href="javascript:void(0);" class="text-primary small fw-bold text-decoration-none" onclick="toggleReplyForm('<%= review._id %>')">
+                                                            <i class="fas fa-reply me-1"></i>Trả lời
+                                                        </a>
+                                                        <div id="reply-form-<%= review._id %>" style="display: none;" class="mt-2 ms-4">
+                                                            <form action="/product/<%= product._id %>/review/reply" method="POST">
+                                                                <input type="hidden" name="parent_id" value="<%= review._id %>">
+                                                                <div class="input-group">
+                                                                    <input type="text" name="comment" class="form-control form-control-sm" placeholder="Viết phản hồi..." required>
+                                                                    <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-paper-plane"></i></button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <p class="text-muted">Chưa có đánh giá nào được duyệt.</p>
+                                                    <% } %>
+                                </div>
+
+                        <% if (reviews && reviews.length > 5) { %>
+                            <div class="text-center my-3">
+                                <button id="btn-load-more-reviews" class="btn btn-outline-success btn-sm rounded-pill px-3 py-1 fw-bold" onclick="loadMoreReviews()">
+                                    Xem thêm <i class="fas fa-chevron-down ms-1"></i>
+                                </button>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container mt-5 pt-4 border-top mb-5">
+            <h4 class="fw-bold mb-4">Sản phẩm bạn có thể thích</h4>
+            <div class="row" id="related-product-list">
+                <% if (relatedProducts && relatedProducts.length> 0) { %>
+                    <% relatedProducts.forEach((item, index)=> { %>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 related-item"
+                            style="<%= index > 7 ? 'display: none;' : '' %>">
+                            <div class="card product-card h-100 border-0 shadow-sm position-relative">
+                                <% if (item.discount_price) { %>
+                                    <% let pPercent=Math.round(((item.price - item.discount_price) / item.price) * 100);
+                                        %>
+                                        <div class="badge-discount position-absolute top-0 end-0 m-2 bg-danger text-white px-2 py-1 rounded"
+                                            style="z-index: 10;">-<%= pPercent %>%</div>
+                                        <% } %>
+
+                                            <a href="/product/<%= item._id %>" class="text-decoration-none">
+                                                <div class="product-img-wrapper">
+                                                    <img src="/<%= item.cover_image %>" alt="<%= item.name %>"
+                                                        class="img-cover">
+                                                </div>
+                                            </a>
+
+                                            <div class="card-body text-center d-flex flex-column p-2">
+                                                <a href="/product/<%= item._id %>"
+                                                    class="text-decoration-none flex-grow-1">
+                                                    <h6 class="card-title text-dark fw-bold text-truncate-2"
+                                                        style="font-size: 0.9rem; min-height: 40px;">
+                                                        <%= item.name %>
+                                                    </h6>
+                                                </a>
+                                                <div class="mt-2">
+                                                    <% if (item.discount_price) { %>
+                                                        <div class="text-muted text-decoration-line-through small">
+                                                            <%= item.price.toLocaleString('vi-VN') %> đ
+                                                        </div>
+                                                        <div class="fw-bold text-danger mb-2">
+                                                            <%= item.discount_price.toLocaleString('vi-VN') %> đ
+                                                        </div>
+                                                        <% } else { %>
+                                                            <div class="text-muted small">&nbsp;</div>
+                                                            <div class="fw-bold text-danger mb-2">
+                                                                <%= item.price.toLocaleString('vi-VN') %> đ
+                                                            </div>
+                                                            <% } %>
+
+                                                                <div class="d-flex gap-2 mt-2">
+                                                                    <a href="javascript:void(0);"
+                                                                        onclick="addToCart('<%= item._id %>')"
+                                                                        class="text-tempi-green transition-zoom border p-1 rounded"><i
+                                                                            class="fas fa-cart-plus fs-4"></i></a>
+                                                                    <a href="/cart/buy-now/<%= item._id %>"
+                                                                        class="btn btn-tempi-green flex-grow-1 text-white rounded-pill fw-bold shadow-sm py-1">Mua
+                                                                        ngay</a>
+                                                                </div>
+                                                </div>
+                                            </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                            <% } else { %>
+                                <p class="text-muted">Chưa có sản phẩm liên quan.</p>
+                                <% } %>
+            </div>
+
+            <% if (relatedProducts && relatedProducts.length> 8) { %>
+                <div class="text-center my-3">
+                    <button id="btn-load-more" class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold"
+                        onclick="toggleRelatedProducts()" data-expanded="false">
+                        Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>
+                    </button>
+                </div>
+                <% } %>
+        </section>
+
+        <!-- Footer -->
+        <%- include('partials/footer') %>
+
+            <!-- Modal -->
+            <%- include('partials/modal') %>
+                <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+                <%- include('partials/javascript')%>
+
+                <!-- Script & Styles for Details -->
+                <style>
+                    .desc-gradient {
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 80px;
+                        background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+                        pointer-events: none;
+                    }
+                    .desc-expanded #productDescription {
+                        max-height: none !important;
+                    }
+                    .desc-expanded .desc-gradient {
+                        display: none;
+                    }
+                </style>
+
+                <script>
+                    // 7. TOGGLE XEM THÊM CHI TIẾT SẢN PHẨM
+                    function toggleDescription() {
+                        const descDiv = document.getElementById('productDescription').parentNode;
+                        const btn = document.getElementById('toggleDescBtn');
+                        
+                        if (descDiv.classList.contains('desc-expanded')) {
+                            descDiv.classList.remove('desc-expanded');
+                            btn.innerHTML = 'Xem thêm <i class="fas fa-chevron-down ms-1"></i>';
+                            // Scroll lên phần mô tả
+                            descDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        } else {
+                            descDiv.classList.add('desc-expanded');
+                            btn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-1"></i>';
+                        }
+                    }
+
+                    // Xử lý ẩn nút nếu nội dung quá ngắn
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const descElem = document.getElementById('productDescription');
+                        // Nếu thẻ mô tả < 200px (chiều cao max-height) thì ẩn luôn nút xem thêm
+                        if (descElem && descElem.scrollHeight <= 200) {
+                            document.getElementById('descBtnContainer').style.display = 'none';
+                            document.getElementById('descGradient').style.display = 'none';
+                        }
+                    });
+
+                    // 1. TỰ ĐỘNG ẨN THÔNG BÁO ĐÁNH GIÁ SAU 3 GIÂY
+                    setTimeout(function () {
+                        let alerts = document.querySelectorAll('.review-alert');
+                        alerts.forEach(function (alert) {
+                            alert.style.transition = 'opacity 0.5s ease';
+                            alert.style.opacity = '0';
+                            setTimeout(() => alert.remove(), 500);
+                        });
+                    }, 3000);
+
+                    // 2. HÀM MỞ RỘNG SẢN PHẨM LIÊN QUAN NHƯ PHP CŨ
+                    function toggleRelatedProducts() {
+                        let items = document.querySelectorAll('.related-item');
+                        let btn = document.getElementById('btn-load-more');
+                        let isExpanded = btn.getAttribute('data-expanded') === 'true';
+
+                        if (!isExpanded) {
+                            items.forEach(item => item.style.display = 'block');
+                            btn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-1"></i>';
+                            btn.classList.replace('btn-outline-success', 'btn-secondary');
+                            btn.setAttribute('data-expanded', 'true');
+                        } else {
+                            items.forEach((item, index) => {
+                                if (index > 7) item.style.display = 'none';
+                            });
+                            btn.innerHTML = 'Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>';
+                            btn.classList.replace('btn-secondary', 'btn-outline-success');
+                            btn.setAttribute('data-expanded', 'false');
+                            document.getElementById('related-product-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+
+                    // 3. TẢI THÊM ĐÁNH GIÁ (5 MÓT)
+                    function loadMoreReviews() {
+                        let hiddenItems = document.querySelectorAll('.review-item.d-none');
+                        // Mở giới hạn 5 thẻ đang ẩn
+                        for (let i = 0; i < 5; i++) {
+                            if (hiddenItems[i]) {
+                                hiddenItems[i].classList.remove('d-none');
+                            }
+                        }
+                        // Kiểm tra xem còn thẻ nào ẩn không, nếu không thì vứt luôn nút load hơn
+                        if (document.querySelectorAll('.review-item.d-none').length === 0) {
+                            let btn = document.getElementById('btn-load-more-reviews');
+                            if (btn) btn.style.display = 'none';
+                        }
+                    }
+
+                    // 4. TOGGLE FORM TRẢ LỜI BÌNH LUẬN
+                    function toggleReplyForm(reviewId) {
+                        const form = document.getElementById('reply-form-' + reviewId);
+                        if (form) {
+                            if (form.style.display === 'none') {
+                                // Đóng tất cả form khác trước
+                                document.querySelectorAll('[id^="reply-form-"]').forEach(f => f.style.display = 'none');
+                                form.style.display = 'block';
+                                form.querySelector('input[name="comment"]').focus();
+                            } else {
+                                form.style.display = 'none';
+                            }
+                        }
+                    }
+
+                    // 5. AJAX SUBMIT ĐÁNH GIÁ (GỐC)
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const reviewFormMain = document.getElementById('reviewFormMain');
+                        if (reviewFormMain) {
+                            reviewFormMain.addEventListener('submit', function(e) {
+                                e.preventDefault(); // Chặn load lại trang
+                                const submitBtn = reviewFormMain.querySelector('button[type="submit"]');
+                                const originalText = submitBtn.innerHTML;
+                                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang xử lý...';
+                                submitBtn.classList.add('opacity-75'); // Nút mờ đi lúc loading
+                                submitBtn.disabled = true;
+
+                                const formData = new FormData(reviewFormMain);
+                                const searchParams = new URLSearchParams(formData);
+
+                                fetch(reviewFormMain.action, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    },
+                                    body: searchParams.toString()
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.status === 'success') {
+                                        const review = data.review;
+                                        const roleBadge = review.user && review.user.role === 1 ? `<span class="badge bg-warning text-dark" style="font-size: 0.7rem;"><i class="fas fa-shield-alt me-1"></i>Quản trị viên</span>` : '';
+                                        
+                                        // Vì API cho phép đánh giá nghĩa là nó đã pass Validation Check từ Backend (đã mua hàng)
+                                        const verifiedBadge = `<span class="badge bg-success" style="font-size: 0.7rem;"><i class="fas fa-check-circle me-1"></i>Đã mua hàng</span>`;
+                                        
+                                        const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                                        const commentHtml = review.comment ? review.comment.replace(/\n/g, '<br>') : '<em>Không có bình luận</em>';
+                                        const username = review.user ? review.user.fullname : 'Khách';
+
+                                        const html = `
+                                        <div class="border rounded p-3 mb-3 bg-white shadow-sm review-item" style="animation: fadeIn 0.5s;">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                                    <strong class="text-tempi-green">
+                                                        <i class="fas fa-user-circle me-1"></i>
+                                                        ${username}
+                                                    </strong>
+                                                    ${roleBadge} ${verifiedBadge}
+                                                </div>
+                                                <small class="text-muted">${review.createdAt}</small>
+                                            </div>
+                                            <div class="mb-2" style="color:#ffb400;">${stars}</div>
+                                            <p class="mb-2 text-dark">${commentHtml}</p>
+                                        </div>
+                                        `;
+
+                                        const reviewList = document.getElementById('review-list');
+                                        // Nếu đang hiện chữ Chưa có đánh giá nào thì xoá đi
+                                        if (reviewList.innerHTML.includes('Chưa có đánh giá nào') || reviewList.innerHTML.includes('Chưa có đánh giá')) {
+                                            reviewList.innerHTML = '';
+                                        }
+                                        
+                                        reviewList.insertAdjacentHTML('afterbegin', html);
+                                        
+                                        // Add animation CSS dynamically
+                                        if (!document.getElementById('ajaxReviewStyles')) {
+                                            const style = document.createElement('style');
+                                            style.id = 'ajaxReviewStyles';
+                                            style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }`;
+                                            document.head.appendChild(style);
+                                        }
+
+                                        // Reset form and show success toast inside pane
+                                        reviewFormMain.reset();
+                                        
+                                        let alertBox = document.querySelector('.review-alert');
+                                        if(!alertBox) {
+                                            alertBox = document.createElement('div');
+                                            alertBox.className = 'alert alert-success mt-2 review-alert';
+                                            reviewFormMain.parentNode.insertBefore(alertBox, reviewFormMain);
+                                        }
+                                        alertBox.innerText = 'Cảm ơn bạn đã đánh giá! Đánh giá của bạn đã được hiển thị.';
+                                    } else {
+                                        alert(data.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    alert("Đã xảy ra lỗi hệ thống, vui lòng thử lại.");
+                                })
+                                .finally(() => {
+                                    submitBtn.innerHTML = originalText;
+                                    submitBtn.classList.remove('opacity-75');
+                                    submitBtn.disabled = false;
+                                });
+                            });
+                        }
+                    });
+
+                    // 6. ĐĂNG KÝ THÔNG BÁO KHI CÓ HÀNG TRỞ LẠI
+                    function subscribeStock(productId) {
+                        fetch('/api/stock-subscribe', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ product_id: productId })
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('✅ ' + data.message);
+                            } else if (data.status === 'info') {
+                                alert('ℹ️ ' + data.message);
+                            } else {
+                                alert('❌ ' + data.message);
+                            }
+                        })
+                        .catch(() => alert('Lỗi hệ thống, vui lòng thử lại.'));
+                    }
+                </script>
 </body>
+
 </html>

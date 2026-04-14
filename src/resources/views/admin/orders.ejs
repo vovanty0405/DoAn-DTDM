@@ -59,6 +59,51 @@
                     <h2 class="fw-bold">Quản lý Đơn Hàng</h2>
                 </div>
 
+                <!-- Bộ lọc -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <form action="/admin/orders" method="GET" class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">Tìm theo tên KH</label>
+                                <input type="text" name="keyword" class="form-control" placeholder="Nhập tên khách hàng..." value="<%= (typeof query !== 'undefined' && query.keyword) ? query.keyword : '' %>">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-bold">Từ ngày</label>
+                                <input type="date" name="from_date" class="form-control" value="<%= (typeof query !== 'undefined' && query.from_date) ? query.from_date : '' %>">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-bold">Đến ngày</label>
+                                <input type="date" name="to_date" class="form-control" value="<%= (typeof query !== 'undefined' && query.to_date) ? query.to_date : '' %>">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-bold">Trạng thái</label>
+                                <select name="status" class="form-select">
+                                    <option value="">Tất cả</option>
+                                    <option value="0" <%= (typeof query !== 'undefined' && query.status === '0') ? 'selected' : '' %>>Mới đặt</option>
+                                    <option value="1" <%= (typeof query !== 'undefined' && query.status === '1') ? 'selected' : '' %>>Đang xử lý</option>
+                                    <option value="2" <%= (typeof query !== 'undefined' && query.status === '2') ? 'selected' : '' %>>Đang giao</option>
+                                    <option value="3" <%= (typeof query !== 'undefined' && query.status === '3') ? 'selected' : '' %>>Hoàn thành</option>
+                                    <option value="4" <%= (typeof query !== 'undefined' && query.status === '4') ? 'selected' : '' %>>Đã hủy</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label small fw-bold">Sắp xếp</label>
+                                <select name="sort" class="form-select">
+                                    <option value="">Mới nhất</option>
+                                    <option value="money_desc" <%= (typeof query !== 'undefined' && query.sort === 'money_desc') ? 'selected' : '' %>>Tiền ↓</option>
+                                    <option value="money_asc" <%= (typeof query !== 'undefined' && query.sort === 'money_asc') ? 'selected' : '' %>>Tiền ↑</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter"></i></button>
+                            </div>
+                            <div class="col-md-1">
+                                <a href="/admin/orders" class="btn btn-secondary w-100" title="Xóa lọc"><i class="fas fa-times"></i></a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <table class="table table-hover align-middle text-center">
@@ -98,20 +143,11 @@
                                                     <%= order.payment_method %>
                                                 </span></td>
                                             <td>
-                                                <% if(order.status==0) { %><span class="badge bg-secondary">Mới
-                                                        đặt</span>
-                                                    <% } %>
-                                                        <% if(order.status==1) { %><span class="badge bg-primary">Đang
-                                                                xử lý</span>
-                                                            <% } %>
-                                                                <% if(order.status==2) { %><span
-                                                                        class="badge bg-warning text-dark">Đang
-                                                                        giao</span>
-                                                                    <% } %>
-                                                                        <% if(order.status==3) { %><span
-                                                                                class="badge bg-success">Hoàn
-                                                                                thành</span>
-                                                                            <% } %>
+                                                <% if(order.status==0) { %><span class="badge bg-secondary">Mới đặt</span><% } %>
+                                                <% if(order.status==1) { %><span class="badge bg-primary">Đang xử lý</span><% } %>
+                                                <% if(order.status==2) { %><span class="badge bg-warning text-dark">Đang giao</span><% } %>
+                                                <% if(order.status==3) { %><span class="badge bg-success">Hoàn thành</span><% } %>
+                                                <% if(order.status==4) { %><span class="badge bg-danger">Đã hủy</span><% } %>
                                             </td>
                                             <td>
                                                 <a href="/admin/orders/detail/<%= order._id %>"
@@ -126,7 +162,7 @@
                                                 </button>
                                                 <a href="/admin/orders/delete/<%= order._id %>"
                                                     class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này? Việc này không thể hoàn tác!');"
+                                                    onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này?');"
                                                     title="Xóa đơn hàng">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
@@ -147,25 +183,20 @@
                                                         <div class="modal-body">
                                                             <input type="hidden" name="id" value="<%= order._id %>">
                                                             <div class="mb-3">
-                                                                <label class="form-label fw-bold">Chọn trạng thái
-                                                                    mới</label>
+                                                                <label class="form-label fw-bold">Chọn trạng thái mới</label>
                                                                 <select class="form-select" name="status">
-                                                                    <option value="0" <%=order.status==0 ? 'selected'
-                                                                        : '' %>>Mới đặt</option>
-                                                                    <option value="1" <%=order.status==1 ? 'selected'
-                                                                        : '' %>>Đang xử lý</option>
-                                                                    <option value="2" <%=order.status==2 ? 'selected'
-                                                                        : '' %>>Đang giao</option>
-                                                                    <option value="3" <%=order.status==3 ? 'selected'
-                                                                        : '' %>>Hoàn thành</option>
+                                                                    <option value="0" <%=order.status==0 ? 'selected' : '' %>>Mới đặt</option>
+                                                                    <option value="1" <%=order.status==1 ? 'selected' : '' %>>Đang xử lý</option>
+                                                                    <option value="2" <%=order.status==2 ? 'selected' : '' %>>Đang giao</option>
+                                                                    <option value="3" <%=order.status==3 ? 'selected' : '' %>>Hoàn thành</option>
+                                                                    <option value="4" <%=order.status==4 ? 'selected' : '' %>>Đã hủy</option>
                                                                 </select>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary"
                                                                 data-bs-dismiss="modal">Đóng</button>
-                                                            <button type="submit" class="btn btn-warning fw-bold">Cập
-                                                                nhật</button>
+                                                            <button type="submit" class="btn btn-warning fw-bold">Cập nhật</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -176,13 +207,14 @@
                                                 <tr>
                                                     <td colspan="7" class="py-5 text-muted">
                                                         <i class="fas fa-box-open fs-2 mb-3 opacity-50"></i><br>
-                                                        Chưa có đơn hàng nào trong hệ thống.
+                                                        Không tìm thấy dữ liệu phù hợp.
                                                     </td>
                                                 </tr>
                                                 <% } %>
                             </tbody>
                         </table>
                     </div>
+                    <%- include('../partials/pagination', { currentPage, totalPages, query: query || {} }) %>
                 </div>
             </div>
         </div>

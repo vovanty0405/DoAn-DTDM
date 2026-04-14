@@ -233,6 +233,51 @@
                                     </div>
                                 </div>
 
+                                <!-- SLOT 3: Banner Danh Mục -->
+                                <div class="row">
+                                    <div class="col-md-12 mb-4">
+                                        <div class="card promo-card">
+                                            <div class="promo-header bg-dark text-white mb-3">
+                                                <h4 class="mb-0 fw-bold"><i class="fas fa-image me-2"></i> Banner Danh Mục (Hiển thị trang chủ)</h4>
+                                            </div>
+                                            <div class="card-body px-4 pb-4">
+                                                <form action="/admin/promotions/banner" method="POST" enctype="multipart/form-data">
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label fw-bold">Danh mục liên kết khi bấm vào Banner:</label>
+                                                            <select name="banner_category_id" class="form-select border-2" required>
+                                                                <option value="">-- Chọn danh mục --</option>
+                                                                <% categories.forEach(cat=> { %>
+                                                                    <% let isSelected=(config && config.banner_category_id && config.banner_category_id.toString()===cat._id.toString()) ? 'selected' : '' ; %>
+                                                                    <option value="<%= cat._id %>" <%=isSelected %>><%= cat.name %></option>
+                                                                <% }) %>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label fw-bold">Hình ảnh Banner:</label>
+                                                            <input type="file" name="banner_image" class="form-control border-2" accept="image/*">
+                                                            <% if (config && config.banner_image) { %>
+                                                                <div class="mt-2 text-muted small">
+                                                                    <i class="fas fa-check-circle text-success"></i> Đã có banner (Tải lên ảnh mới sẽ ghi đè ảnh cũ)
+                                                                </div>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-dark fw-bold shadow-sm px-4">
+                                                        <i class="fas fa-save me-1"></i> Lưu Banner
+                                                    </button>
+                                                </form>
+                                                <% if (config && config.banner_image) { %>
+                                                    <div class="mt-3">
+                                                        <label class="fw-bold mb-2">Ảnh đang hiển thị:</label><br>
+                                                        <img src="/<%= config.banner_image %>" alt="Banner hiện tại" class="img-thumbnail" style="max-height: 150px;">
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
             </div>
         </div>
     </div>

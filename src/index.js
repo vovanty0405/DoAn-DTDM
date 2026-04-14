@@ -40,6 +40,14 @@ app.use(async function (req, res, next) {
     }
 
     res.locals.cartCount = totalCartCount;
+    const Category = require('./app/models/Category');
+    try {
+        res.locals.categories = await Category.find().lean();
+    } catch(err) {
+        console.log('Lỗi lấy danh mục ở file index:', err);
+        res.locals.categories = [];
+    }
+
     // Đổ flash messages
     res.locals.loginError = req.flash('loginError');
     res.locals.registerError = req.flash('registerError');

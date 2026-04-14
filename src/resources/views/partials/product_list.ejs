@@ -8,8 +8,14 @@
                 </div>
             <% } %>
 
+            <% if (product.stock_quantity <= 0) { %>
+                <div class="position-absolute top-0 start-0 m-2 badge bg-dark text-white px-2 py-1 rounded" style="z-index: 10;">
+                    <i class="fas fa-exclamation-circle me-1"></i>Hết hàng
+                </div>
+            <% } %>
+
             <a href="/product/<%= product._id %>" class="text-decoration-none">
-                <div class="product-img-wrapper">
+                <div class="product-img-wrapper" style="<%= product.stock_quantity <= 0 ? 'opacity: 0.5;' : '' %>">
                     <img src="/<%= product.cover_image %>" alt="<%= product.name %>" class="img-cover p-2">
                 </div>
             </a>
@@ -43,12 +49,18 @@
                 <% } %>
 
                 <div class="d-flex justify-content-center align-items-center gap-3 mt-2">
-                    <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom" title="Thêm vào giỏ hàng">
-                        <i class="fas fa-cart-plus fs-4"></i>
-                    </a>
-                    <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
-                        Mua ngay
-                    </a>
+                    <% if (product.stock_quantity > 0) { %>
+                        <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')" class="text-tempi-green transition-zoom" title="Thêm vào giỏ hàng">
+                            <i class="fas fa-cart-plus fs-4"></i>
+                        </a>
+                        <a href="/cart/buy-now/<%= product._id %>" class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                            Mua ngay
+                        </a>
+                    <% } else { %>
+                        <a href="/product/<%= product._id %>" class="btn btn-secondary flex-grow-1 rounded-pill text-white text-decoration-none text-center fw-bold opacity-75">
+                            <i class="fas fa-clock me-1"></i> Xem chi tiết
+                        </a>
+                    <% } %>
                 </div>
             </div>
         </div>

@@ -1,42 +1,36 @@
-# Kế hoạch Hoàn thiện Chức năng Liên hệ & Đánh Giá
+# Task: Nâng cấp toàn diện Website Bách Hóa Pew V2
 
-## 1. Cơ sở dữ liệu
-- [x] Tạo model `Contact.js`
+## Nhóm 0: Model Changes
+- [x] Product.js - Thêm trường `images: [String]`
+- [x] PromotionConfig.js - Thêm trường `banner_image`, `banner_category_id`
 
-## 2. Phía Người dùng (User)
-- [x] Tạo `about.ejs` (Giới thiệu)
-- [x] Tạo `contact.ejs` (Form liên hệ)
-- [x] Cập nhật `partials/navbar.ejs` (Thêm link)
-- [x] Cập nhật controller `SiteController.js` & `routers/site.js`
+## Nhóm 1: Phân trang Admin (6 trang)
+- [x] BrandController + brand.ejs
+- [x] ProductController + product.ejs
+- [x] CustomerController + customers.ejs
+- [x] OrderController + orders.ejs
+- [x] ReviewController + reviews.ejs
+- [x] ContactController + contacts.ejs
 
-## 3. Quản lý Liên hệ (Admin)
-- [x] Tạo controller `ContactController.js`
-- [x] Tạo view bảng `admin/contacts.ejs`
-- [x] Cập nhật route `admin.js`
+## Nhóm 2: Phân trang Client
+- [x] SiteController.myOrders + my_orders.ejs (3 đơn/trang)
+- [x] SiteController.category + category.ejs (8 SP/trang, giữ filter URL)
+- [x] SiteController.index + home.ejs (Gợi ý 8 SP/trang)
 
-## 4. Quản lý Đánh Giá (Admin)
-- [x] Tạo controller `ReviewController.js`
-- [x] Tạo view bảng `admin/reviews.ejs`
-- [x] Cập nhật route `admin.js`
+## Nhóm 3: Chi tiết Sản phẩm
+- [x] Dynamic Rating Stars (tính trung bình sao)
+- [x] Real Sold Count (aggregate từ orders)
+- [x] Image Slider (Bootstrap Carousel + upload nhiều ảnh)
+- [x] Nâng cấp UI đánh giá (Card, avatar, hover)
 
-## 5. Cập nhật giao diện Admin Sidebar chung
-- [x] Thêm link Liên hệ & Đánh giá vào tất cả các màn hình admin .ejs cũ
+## Nhóm 4: Real-time Validation
+- [x] Email validation on blur
+- [x] Kiểm tra lỗi đăng nhập hiện trong Modal
 
-## 6. Kế Hoạch Cập Nhật Fix Lỗi & Đơn Hàng (Sprint 2)
-### Xử lý lỗi Đăng nhập
-- [x] Sửa `AuthController.js`: Cập nhật `res.redirect` xử lý Referer Header.
-### Giao diện Review (product detail)
-- [x] Cập nhật `product_detail.ejs`: Ẩn bớt review > 5, thêm nút Load More.
-### Quản lý Đơn Hàng (Client)
-- [x] Khai báo route `/orders` vào `routers/site.js`.
-- [x] Tạo hàm `myOrders` trong `SiteController.js`.
-- [x] Tạo giao diện My Orders `my_orders.ejs` hiện đại.
+## Nhóm 5: Nâng cấp Admin
+- [x] Admin Đơn Hàng: Tìm kiếm + Lọc ngày + Lọc trạng thái + Sắp xếp
+- [x] Admin Đánh Giá: Tìm kiếm + Lọc ngày
 
-## 7. Sprint 3: Tính năng Quản Lý Khuyến Mãi (Admin) 
-- [x] Tạo Model `PromotionConfig.js`.
-- [x] Tạo file `PromotionController.js` và code hàm `index`, `updateSlot`.
-- [x] Render file giao diện form Admin `promotions.ejs` và gắn link Sidebar.
-- [x] Khai báo route trong `routers/admin.js`.
-- [x] Cập nhật `SiteController.js` (Hàm index) để Load 2 danh mục động từ config cấu hình.
-- [x] Sửa lại UI `home.ejs` nhận tham số Động.
-- [x] Sửa lại hàm xem thêm `loadMoreProducts` API.
+## Nhóm 6: Dynamic Banner
+- [x] PromotionController + promotions.ejs (upload banner)
+- [x] home.ejs (hiển thị banner động)

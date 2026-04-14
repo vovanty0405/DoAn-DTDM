@@ -143,6 +143,30 @@ class PromotionController {
             res.redirect('/admin/promotions');
         }
     }
+
+    // Cập nhật Banner Danh Mục
+    async updateBanner(req, res) {
+        try {
+            const { banner_category_id } = req.body;
+            let config = await PromotionConfig.findOne();
+            if (!config) config = await PromotionConfig.create({});
+
+            if (req.file) {
+                config.banner_image = 'uploads/' + req.file.filename;
+            }
+            if (banner_category_id) {
+                config.banner_category_id = banner_category_id;
+            }
+            await config.save();
+
+            req.flash('successMsg', 'Đã cập nhật Banner Danh Mục thành công!');
+            res.redirect('/admin/promotions');
+        } catch (error) {
+            console.error(error);
+            req.flash('errorMsg', 'Có lỗi xảy ra khi cập nhật Banner');
+            res.redirect('/admin/promotions');
+        }
+    }
 }
 
 module.exports = new PromotionController();

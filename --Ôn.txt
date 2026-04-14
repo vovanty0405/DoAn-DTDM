@@ -1,0 +1,92 @@
+--Câu4.9
+ALTER PROC sp_ThemNguoilon
+    @ho NVARCHAR(50),
+    @tenlot nvarchar(10),
+    @ten NVARCHAR(50),
+    @NgaySinh SMALLDATETIME,
+    @sonha NVARCHAR(15),
+    @duong NVARCHAR(100),
+    @quan NVARCHAR(2),
+    @dienthoai NVARCHAR(20),
+    @han_sd SMALLDATETIME
+AS
+BEGIN
+    -- [1] Kiểm tra tuổi của độc giả (Phải đủ 18 tuổi)
+    IF DATEDIFF(YEAR, @NgaySinh, GETDATE()) < 18
+    BEGIN
+        PRINT N'Lỗi: Độc giả chưa đủ 18 tuổi!';
+        RETURN;
+    END
+
+    -- [2] Thuật toán nâng cấp: Tìm mã độc giả nhỏ nhất còn trống
+    DECLARE @ma_DocGia INT = 1;
+
+    -- Vòng lặp dò tìm mã chưa tồn tại trong bảng DocGia
+    WHILE EXISTS (SELECT 1 FROM DocGia WHERE ma_docgia = @ma_DocGia)
+    BEGIN
+        SET @ma_DocGia = @ma_DocGia + 1;
+    END
+
+    -- [3] Thực hiện chèn dữ liệu vào các bảng liên quan
+    BEGIN TRANSACTION;
+    
+    BEGIN TRY
+        -- Thêm vào bảng cha: DocGia
+        INSERT INTO DocGia(ma_docgia, ho, tenlot, ten, NgaySinh)
+        VALUES (@ma_DocGia, @ho, @tenlot, @ten, @NgaySinh);
+
+        -- Thêm vào bảng con: NguoiLon
+        INSERT INTO NguoiLon(ma_docgia, sonha, duong, quan, dienthoai, han_sd)
+        VALUES (@ma_DocGia, @sonha, @duong, @quan, @dienthoai, @han_sd);
+
+        COMMIT TRANSACTION;
+        PRINT N'Thêm độc giả người lớn thành công với mã số: ' + CAST(@ma_DocGia AS VARCHAR);
+    END TRY
+    BEGIN CATCH
+        -- Nếu có lỗi xảy ra (ví dụ: lỗi kiểu dữ liệu), hủy bỏ các thay đổi
+        ROLLBACK TRANSACTION;
+        PRINT N'Lỗi hệ thống: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+exec sp_ThemNguoilon @ho = N'Võ', @tenlot = 'V', @ten = N'Quân', @NgaySinh= '04/05/2005',
+					@sonha = N'Số 5', @duong = N'Nguyễn Văn Linh', @quan = N'TD',
+					@dienthoai='0123654789', @han_sd ='12/30/2026'
+
+-- Câu4.10
+ALTER PROC sp_ThemTreEm
+    @ho VARCHAR(50),
+	@tenlot NVARCHAR(1),
+    @ten VARCHAR(50),
+    @ma_docgia_nguoilon SMALLINT
+AS
+BEGIN
+    -- [3] Đếm số trẻ em của độc giả người lớn bảo lãnh trẻ em mới này
+    DECLARE @SoTreEm INT;
+    SELECT @SoTreEm = COUNT(*) FROM TreEm WHERE ma_docgia_nguoilon = @ma_docgia_nguoilon;
+    -- [4] Kiểm tra QĐ-3 (Giả sử tối đa được bảo lãnh 2 trẻ em)
+    IF @SoTreEm >= 2
+    BEGIN
+        -- [4.1] & [4.2] Thông báo lỗi và chấm dứt
+        PRINT N'Lỗi (QĐ-3): Độc giả người lớn này đã bảo lãnh tối đa số lượng trẻ em cho phép!';
+        RETURN;
+    END
+    -- [1] Xác định mã độc giả mới (QĐ-1)
+    DECLARE @ma_DocGia INT = 1;
+
+    -- Vòng lặp dò tìm mã chưa tồn tại trong bảng DocGia
+    WHILE EXISTS (SELECT 1 FROM DocGia WHERE ma_docgia = @ma_DocGia)
+    BEGIN
+        SET @ma_DocGia = @ma_DocGia + 1;
+    END
+    BEGIN TRANSACTION;
+    -- [2] Thêm một bộ dữ liệu vào bảng độc giả
+    INSERT INTO DocGia(ma_docgia, ho, tenlot,ten) 
+    VALUES (@ma_DocGia, @ho, @tenlot,@ten);
+
+    -- [5] & [5.1] Thêm một bộ dữ liệu vào bảng trẻ em
+    INSERT INTO TreEm(ma_docgia, ma_docgia_nguoilon) 
+    VALUES (@ma_DocGia, @ma_docgia_nguoilon);
+    COMMIT TRANSACTION;
+    PRINT N'Thêm độc giả trẻ em thành công!';
+END;
+exec sp_ThemTreEm @ho = 'Tran', @tenlot = 'V', @ten = 'Quan', @ma_docgia_nguoilon = 1

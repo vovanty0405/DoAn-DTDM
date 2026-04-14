@@ -24,8 +24,13 @@ router.get('/search', siteController.search);
 // Route chi tiết sản phẩm và đánh giá
 router.get('/product/:id', siteController.productDetail);
 router.post('/product/:id/review', siteController.submitReview);
+router.post('/product/:id/review/reply', siteController.replyReview);
 
 // Route đơn hàng của tôi
 router.get('/orders', siteController.myOrders);
+
+// Route tài khoản của tôi
+router.get('/profile', siteController.profile);
+router.post('/profile/update', siteController.updateProfile);
 
 module.exports = router;

@@ -11,6 +11,7 @@ const Product = new Schema({
     stock_quantity: { type: Number, default: 0 },
     description: { type: String },
     cover_image: { type: String },
+    images: [{ type: String }], // Mảng ảnh phụ cho Image Slider
     status: { type: Number, default: 1 }
 }, { timestamps: true });
 

@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Cart = require('../models/Cart');
 const bcrypt = require('bcrypt'); // Thư viện mã hóa mật khẩu
+const { sendWelcomeEmail } = require('../../utils/mailer');
 
 class AuthController {
     // [POST] /auth/register
@@ -19,7 +20,12 @@ class AuthController {
             });
 
             await newUser.save();
-            res.redirect('/'); // Đăng ký thành công, đẩy về trang chủ (bạn có thể thêm flash message sau)
+            
+            // Send welcome email
+            sendWelcomeEmail(req.body.email, req.body.fullname);
+            
+            req.flash('loginSuccess', 'Đăng ký thành công! Vui lòng đăng nhập.');
+            res.redirect('/'); 
         } catch (error) {
             req.flash('registerError', 'Lỗi đăng ký (Có thể email đã tồn tại)');
             res.redirect(req.header('Referer') || '/');

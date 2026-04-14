@@ -1,171 +1,568 @@
-<!-- Modal Tìm kiếm -->
-    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header border-0 pb-0">
+<!-- Modal Tìm kiếm Premium -->
+<style>
+    #searchModal .modal-content {
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: none;
+    }
+
+    #searchModal .modal-dialog {
+        max-width: 720px;
+    }
+
+    #searchModal .search-input-lg {
+        font-size: 1.15rem;
+        padding: 14px 22px;
+        border: 2px solid #e0e0e0;
+        border-radius: 50px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    #searchModal .search-input-lg:focus {
+        border-color: #2e8b57;
+        box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.12);
+        outline: none;
+    }
+
+    .search-result-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 16px;
+        text-decoration: none;
+        color: #333;
+        border-radius: 10px;
+        transition: background 0.15s;
+    }
+
+    .search-result-item:hover {
+        background: #f0faf4;
+        color: #333;
+    }
+
+    .search-result-item img {
+        width: 52px;
+        height: 52px;
+        object-fit: contain;
+        border-radius: 8px;
+        border: 1px solid #eee;
+        background: #fafafa;
+        padding: 3px;
+    }
+
+    .suggested-product-card {
+        text-decoration: none;
+        color: #333;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: block;
+        border-radius: 12px;
+        padding: 10px 6px;
+    }
+
+    .suggested-product-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        background: #f8fdf9;
+        color: #333;
+    }
+
+    .suggested-product-card img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+
+    .search-tags a {
+        display: inline-block;
+        padding: 5px 14px;
+        margin: 3px 4px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        background: #f0f0f0;
+        color: #555;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .search-tags a:hover {
+        background: #2e8b57;
+        color: #fff;
+    }
+</style>
+
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 shadow-lg overflow-hidden" style="max-height: 85vh;">
+            <div class="modal-body p-4 p-md-5">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0" style="color: #2e8b57;">
+                        <i class="fas fa-search me-2"></i>Tìm kiếm sản phẩm
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body px-4 pb-5 text-center">
-                    <h5 class="fw-bold mb-4" style="color: var(--tempi-green);">Bạn muốn tìm sản phẩm gì?</h5>
-                    <form action="/search" method="GET" class="d-flex w-100">
-                        <input type="text" name="keyword" class="form-control rounded-start-pill py-3 ps-4 border-success" placeholder="Ví dụ: Mì Hảo Hảo, Sữa tươi..." required autofocus>
-                        <button class="btn btn-warning rounded-end-pill px-4 fw-bold text-dark border-0" type="submit">
-                            <i class="fas fa-search me-1"></i> Tìm
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-<div class="modal fade" id="loginModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-4 border-0 shadow-lg">
-                <div class="modal-header border-0 p-0 mb-3">
-                    <h5 class="modal-title fw-bold">Đăng nhập tài khoản</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="/auth/login" method="POST">
-                    <% if (loginError && loginError.length > 0) { %>
-                        <div class="alert alert-danger p-2 mb-3"><%= loginError %></div>
-                    <% } %>
-                    <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
-                    <input type="password" name="password" class="form-control mb-3" placeholder="Mật khẩu" required>
-                    
-                    <button type="submit" class="btn btn-warning w-100 fw-bold">ĐĂNG NHẬP</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        <% if (typeof loginError !== 'undefined' && loginError && loginError.length > 0) { %>
-            document.addEventListener('DOMContentLoaded', function() {
-                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                loginModal.show();
-            });
-        <% } %>
-    </script>
 
-    <div class="modal fade" id="registerModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-4 border-0 shadow-lg">
-                <div class="modal-header border-0 p-0 mb-3">
-                    <h5 class="modal-title fw-bold">Đăng ký thành viên</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="/auth/register" method="POST">
-                    <% if (registerError && registerError.length > 0) { %>
-                        <div class="alert alert-danger p-2 mb-3"><%= registerError %></div>
-                    <% } %>
-                    <input type="text" name="fullname" class="form-control mb-3" placeholder="Họ và tên" required>
-                    <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
-                    <input type="text" name="phone" class="form-control mb-3" placeholder="Số điện thoại" required>
-                    <div class="address-group">
-                        <div class="row mb-3">
-                            <div class="col-sm-4 mb-2 mb-sm-0">
-                                <select class="form-select province" required>
-                                    <option value="">Tỉnh/Thành phố</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-4 mb-2 mb-sm-0">
-                                <select class="form-select district" required>
-                                    <option value="">Quận/Huyện</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-4">
-                                <select class="form-select ward" required>
-                                    <option value="">Phường/Xã</option>
-                                </select>
-                            </div>
-                        </div>
-                        <input type="text" class="form-control mb-3 street" placeholder="Số nhà, tên đường cụ thể" required>
-                        <input type="hidden" name="address" class="address-hidden">
+                <!-- Search Input -->
+                <form action="/search" method="GET" class="position-relative mb-3" id="searchModalForm">
+                    <input type="text" name="keyword" id="liveSearchInput"
+                        class="form-control search-input-lg w-100 pe-5" placeholder="Nhập tên sản phẩm bạn cần tìm..."
+                        required autofocus autocomplete="off">
+                    <button type="submit"
+                        class="btn position-absolute end-0 top-50 translate-middle-y me-2 text-secondary border-0 bg-transparent"
+                        style="font-size: 1.2rem;">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <!-- Tìm kiếm phổ biến -->
+                <div id="searchTagsSection" class="mb-4">
+                    <p class="text-muted small mb-2 fw-bold"><i class="fas fa-fire text-danger me-1"></i> Tìm kiếm phổ
+                        biến</p>
+                    <div class="search-tags">
+                        <a href="/search?keyword=sữa">Sữa tươi</a>
+                        <a href="/search?keyword=mì">Mì gói</a>
+                        <a href="/search?keyword=nước ngọt">Nước ngọt</a>
+                        <a href="/search?keyword=bánh">Bánh kẹo</a>
+                        <a href="/search?keyword=dầu gội">Dầu gội</a>
+                        <a href="/search?keyword=kem đánh răng">Kem đánh răng</a>
                     </div>
-                    <input type="password" name="password" class="form-control mb-3" placeholder="Mật khẩu" required>
-                    
-                    <button type="submit" class="btn btn-success w-100 fw-bold">ĐĂNG KÝ</button>
-                </form>
+                </div>
+
+                <!-- Live Search Results (ẩn khi chưa gõ) -->
+                <div id="liveSearchResults" style="display: none;">
+                </div>
+
+                <!-- Sản phẩm gợi ý (hiện khi chưa gõ) -->
+                <div id="suggestedProductsSection">
+                    <p class="text-muted small mb-3 fw-bold"><i class="fas fa-lightbulb text-warning me-1"></i> Sản phẩm
+                        gợi ý</p>
+                    <div class="row g-2" id="suggestedGrid">
+                        <div class="col-12 text-center py-3">
+                            <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                            <span class="ms-2 text-muted small">Đang tải...</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        <% if (typeof registerError !== 'undefined' && registerError && registerError.length > 0) { %>
-            document.addEventListener('DOMContentLoaded', function() {
-                var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
-                registerModal.show();
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('liveSearchInput');
+        const searchResults = document.getElementById('liveSearchResults');
+        const suggestedSection = document.getElementById('suggestedProductsSection');
+        const tagsSection = document.getElementById('searchTagsSection');
+        const suggestedGrid = document.getElementById('suggestedGrid');
+        let debounceTimer;
+        let suggestedLoaded = false;
+
+        // Load suggested products khi modal mở
+        const searchModal = document.getElementById('searchModal');
+        if (searchModal) {
+            searchModal.addEventListener('shown.bs.modal', function () {
+                // Auto-focus input
+                if (searchInput) searchInput.focus();
+
+                // Load suggested products (chỉ load 1 lần)
+                if (!suggestedLoaded) {
+                    fetch('/api/search/suggested-products')
+                        .then(r => r.json())
+                        .then(products => {
+                            if (products && products.length > 0) {
+                                let html = '';
+                                products.forEach(p => {
+                                    const price = p.discount_price
+                                        ? `<span class="text-danger fw-bold" style="font-size:0.8rem">${p.discount_price.toLocaleString('vi-VN')}đ</span>`
+                                        : `<span class="text-danger fw-bold" style="font-size:0.8rem">${p.price.toLocaleString('vi-VN')}đ</span>`;
+                                    html += `
+                                            <div class="col-3">
+                                                <a href="/product/${p._id}" class="suggested-product-card">
+                                                    <img src="/${p.cover_image}" alt="${p.name}">
+                                                    <div class="text-truncate fw-bold" style="font-size:0.78rem;">${p.name}</div>
+                                                    <div>${price}</div>
+                                                </a>
+                                            </div>
+                                        `;
+                                });
+                                suggestedGrid.innerHTML = html;
+                            } else {
+                                suggestedGrid.innerHTML = '<div class="col-12 text-center text-muted small py-3">Chưa có sản phẩm gợi ý</div>';
+                            }
+                            suggestedLoaded = true;
+                        })
+                        .catch(() => {
+                            suggestedGrid.innerHTML = '<div class="col-12 text-center text-muted small py-3">Không thể tải gợi ý</div>';
+                        });
+                }
             });
+
+            // Reset khi đóng
+            searchModal.addEventListener('hidden.bs.modal', function () {
+                if (searchInput) searchInput.value = '';
+                if (searchResults) { searchResults.innerHTML = ''; searchResults.style.display = 'none'; }
+                if (suggestedSection) suggestedSection.style.display = '';
+                if (tagsSection) tagsSection.style.display = '';
+            });
+        }
+
+        // Live search logic
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const keyword = this.value.trim();
+                if (keyword.length === 0) {
+                    searchResults.style.display = 'none';
+                    suggestedSection.style.display = '';
+                    tagsSection.style.display = '';
+                    return;
+                }
+
+                // Ẩn gợi ý, hiện kết quả
+                suggestedSection.style.display = 'none';
+                tagsSection.style.display = 'none';
+
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    fetch(`/api/search/suggest?keyword=${encodeURIComponent(keyword)}`)
+                        .then(res => res.json())
+                        .then(products => {
+                            if (products && products.length > 0) {
+                                let html = '';
+                                products.forEach(p => {
+                                    const price = p.discount_price
+                                        ? `<span class="text-danger fw-bold">${p.discount_price.toLocaleString('vi-VN')} đ</span> 
+                                               <span class="text-muted text-decoration-line-through small">${p.price.toLocaleString('vi-VN')} đ</span>`
+                                        : `<span class="text-danger fw-bold">${p.price.toLocaleString('vi-VN')} đ</span>`;
+
+                                    html += `
+                                            <a href="/product/${p._id}" class="search-result-item">
+                                                <img src="/${p.cover_image}" alt="${p.name}">
+                                                <div class="overflow-hidden flex-grow-1">
+                                                    <div class="fw-bold text-truncate" style="font-size: 0.95rem;">${p.name}</div>
+                                                    <div>${price}</div>
+                                                </div>
+                                                <i class="fas fa-chevron-right text-muted" style="font-size: 0.7rem;"></i>
+                                            </a>
+                                        `;
+                                });
+                                searchResults.innerHTML = html;
+                                searchResults.style.display = 'block';
+                            } else {
+                                searchResults.innerHTML = `
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-search fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted mb-0">Không tìm thấy sản phẩm nào cho "<strong>${keyword}</strong>"</p>
+                                        </div>`;
+                                searchResults.style.display = 'block';
+                            }
+                        })
+                        .catch(err => console.error("Lỗi Live Search:", err));
+                }, 350);
+            });
+        }
+    });
+</script>
+
+<div class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4 border-0 shadow-lg">
+            <div class="modal-header border-0 p-0 mb-3">
+                <h5 class="modal-title fw-bold">Đăng nhập tài khoản</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/auth/login" method="POST">
+                <% if (loginError && loginError.length> 0) { %>
+                    <div class="alert alert-danger p-2 mb-3">
+                        <%= loginError %>
+                    </div>
+                    <% } %>
+                        <input type="email" id="loginEmail" name="email" class="form-control mb-3" placeholder="Email"
+                            required>
+                        <div id="loginEmailError" class="text-danger small mb-3 mt-n2"
+                            style="display: none; margin-top:-10px;">Vui lòng nhập đúng định dạng email (vd:
+                            abc@domain.com)</div>
+                        <input type="password" name="password" class="form-control mb-3" placeholder="Mật khẩu"
+                            required>
+
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">ĐĂNG NHẬP</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+        <% if (typeof loginError !== 'undefined' && loginError && loginError.length > 0) { %>
+        document.addEventListener('DOMContentLoaded', function () {
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        });
         <% } %>
+</script>
 
-        // Logic Auto Load Province API
-        document.addEventListener('DOMContentLoaded', function() {
-            const addressGroups = document.querySelectorAll('.address-group');
-            addressGroups.forEach(group => {
-                const provinceSel = group.querySelector('.province');
-                const districtSel = group.querySelector('.district');
-                const wardSel = group.querySelector('.ward');
-                const streetInp = group.querySelector('.street');
-                const hiddenInp = group.querySelector('.address-hidden');
+<div class="modal fade" id="registerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4 border-0 shadow-lg">
+            <div class="modal-header border-0 p-0 mb-3">
+                <h5 class="modal-title fw-bold">Đăng ký thành viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/auth/register" method="POST">
+                <% if (registerError && registerError.length> 0) { %>
+                    <div class="alert alert-danger p-2 mb-3">
+                        <%= registerError %>
+                    </div>
+                    <% } %>
+                        <input type="text" name="fullname" class="form-control mb-3" placeholder="Họ và tên" required>
+                        <input type="email" id="registerEmail" name="email" class="form-control mb-3"
+                            placeholder="Email" required>
+                        <div id="registerEmailError" class="text-danger small mb-3 mt-n2"
+                            style="display: none; margin-top:-10px;">Vui lòng nhập đúng định dạng email (vd:
+                            abc@domain.com)</div>
+                        <input type="text" id="registerPhone" name="phone" class="form-control mb-3"
+                            placeholder="Số điện thoại" required>
+                        <div id="registerPhoneError" class="text-danger small mb-3 mt-n2"
+                            style="display: none; margin-top:-10px;"></div>
+                        <div class="address-group">
+                            <div class="row mb-3">
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <select class="form-select province" required>
+                                        <option value="">Tỉnh/Thành phố</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <select class="form-select district" required>
+                                        <option value="">Quận/Huyện</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select class="form-select ward" required>
+                                        <option value="">Phường/Xã</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="text" class="form-control mb-3 street" placeholder="Số nhà, tên đường cụ thể"
+                                required>
+                            <input type="hidden" name="address" class="address-hidden">
+                        </div>
+                        <input type="password" id="registerPassword" name="password" class="form-control mb-3"
+                            placeholder="Mật khẩu (ít nhất 6 ký tự)" minlength="6" required>
+                        <div id="registerPasswordError" class="text-danger small mb-3 mt-n2"
+                            style="display: none; margin-top:10px;">Mật khẩu phải có ít nhất 6 ký tự.</div>
 
-                // Lấy danh sách tỉnh thành
-                fetch('https://provinces.open-api.vn/api/p/')
+                        <button type="submit" class="btn btn-success w-100 fw-bold">ĐĂNG KÝ</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+        <% if (typeof registerError !== 'undefined' && registerError && registerError.length > 0) { %>
+        document.addEventListener('DOMContentLoaded', function () {
+            var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+            registerModal.show();
+        });
+        <% } %><% // this fixes the extra tag issue %>
+
+        // Real-time Email Validation (blur event)
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
+        }
+
+    const inputs = [
+        { input: document.getElementById('loginEmail'), error: document.getElementById('loginEmailError') },
+        { input: document.getElementById('registerEmail'), error: document.getElementById('registerEmailError') }
+    ];
+
+    inputs.forEach(item => {
+        if (item.input) {
+            item.input.addEventListener('blur', function () {
+                const val = this.value.trim();
+                if (val && !validateEmail(val)) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('mb-3');
+                    item.error.innerText = "Vui lòng nhập đúng định dạng email.";
+                    item.error.style.display = 'block';
+                } else if (val && item.input.id === 'registerEmail') {
+                    // Gọi API check email trùng
+                    fetch(`/api/auth/check?type=email&value=${encodeURIComponent(val)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.exists) {
+                                item.input.classList.add('is-invalid');
+                                //item.input.classList.remove('mb-3');
+                                item.error.innerText = "Email này đã được sử dụng.";
+                                item.error.style.display = 'block';
+                                document.querySelector('#registerModal button[type="submit"]').disabled = true;
+                            } else {
+                                item.input.classList.remove('is-invalid');
+                                item.input.classList.add('mb-3');
+                                item.error.style.display = 'none';
+                                checkRegisterForm();
+                            }
+                        });
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('mb-3');
+                    item.error.style.display = 'none';
+                }
+            });
+            item.input.addEventListener('input', function () {
+                this.classList.remove('is-invalid');
+                this.classList.add('mb-3');
+                item.error.style.display = 'none';
+                checkRegisterForm();
+            });
+        }
+    });
+
+    // Validation Số điện thoại & Mật khẩu
+    const registerPhone = document.getElementById('registerPhone');
+    const registerPhoneError = document.getElementById('registerPhoneError');
+    if (registerPhone) {
+        registerPhone.addEventListener('blur', function () {
+            const val = this.value.trim();
+            const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+            if (val && !phoneRegex.test(val)) {
+                this.classList.add('is-invalid');
+                this.classList.remove('mb-3');
+                registerPhoneError.innerText = "Số điện thoại không hợp lệ.";
+                registerPhoneError.style.display = 'block';
+            } else if (val) {
+                fetch(`/api/auth/check?type=phone&value=${encodeURIComponent(val)}`)
                     .then(res => res.json())
                     .then(data => {
-                        data.forEach(item => {
-                            provinceSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
-                        });
-                    })
-                    .catch(err => console.error("Lấy tỉnh không thành công:", err));
+                        if (data.exists) {
+                            registerPhone.classList.add('is-invalid');
 
-                provinceSel.addEventListener('change', function() {
-                    districtSel.innerHTML = '<option value="">Quận/Huyện</option>';
-                    wardSel.innerHTML = '<option value="">Phường/Xã</option>';
-                    if(this.value) {
-                        fetch(`https://provinces.open-api.vn/api/p/${this.value}?depth=2`)
-                            .then(res => res.json())
-                            .then(data => {
-                                if(data.districts) {
-                                    data.districts.forEach(item => {
-                                        districtSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
-                                    });
-                                }
-                            });
-                    }
-                    updateAddress();
-                });
-
-                districtSel.addEventListener('change', function() {
-                    wardSel.innerHTML = '<option value="">Phường/Xã</option>';
-                    if(this.value) {
-                        fetch(`https://provinces.open-api.vn/api/d/${this.value}?depth=2`)
-                            .then(res => res.json())
-                            .then(data => {
-                                if(data.wards) {
-                                    data.wards.forEach(item => {
-                                        wardSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
-                                    });
-                                }
-                            });
-                    }
-                    updateAddress();
-                });
-
-                wardSel.addEventListener('change', updateAddress);
-                streetInp.addEventListener('input', updateAddress);
-
-                function updateAddress() {
-                    let parts = [];
-                    if(streetInp.value.trim()) parts.push(streetInp.value.trim());
-                    if(wardSel.value) parts.push(wardSel.options[wardSel.selectedIndex].text);
-                    if(districtSel.value) parts.push(districtSel.options[districtSel.selectedIndex].text);
-                    if(provinceSel.value) parts.push(provinceSel.options[provinceSel.selectedIndex].text);
-                    hiddenInp.value = parts.join(', ');
-                }
-                
-                const form = group.closest('form');
-                if(form) {
-                    form.addEventListener('submit', updateAddress);
-                }
-            });
+                            ///registerPhone.classList.remove('mb-3');
+                            registerPhoneError.innerText = "Số điện thoại này đã được sử dụng.";
+                            registerPhoneError.style.display = 'block';
+                            document.querySelector('#registerModal button[type="submit"]').disabled = true;
+                        } else {
+                            registerPhone.classList.remove('is-invalid');
+                            registerPhone.classList.add('mb-3');
+                            registerPhoneError.style.display = 'none';
+                            checkRegisterForm();
+                        }
+                    });
+            }
         });
-    </script>
+        registerPhone.addEventListener('input', function () {
+            this.classList.remove('is-invalid');
+            this.classList.add('mb-3');
+            registerPhoneError.style.display = 'none';
+            checkRegisterForm();
+        });
+    }
+
+    const registerPassword = document.getElementById('registerPassword');
+    const registerPasswordError = document.getElementById('registerPasswordError');
+    if (registerPassword) {
+        registerPassword.addEventListener('blur', function () {
+            if (this.value.length > 0 && this.value.length < 6) {
+                this.classList.add('is-invalid');
+                this.classList.remove('mb-3');
+                registerPasswordError.style.display = 'block';
+            } else {
+                this.classList.remove('is-invalid');
+                this.classList.add('mb-3');
+                registerPasswordError.style.display = 'none';
+                checkRegisterForm();
+            }
+        });
+        registerPassword.addEventListener('input', function () {
+            this.classList.remove('is-invalid');
+            this.classList.add('mb-3');
+            registerPasswordError.style.display = 'none';
+            checkRegisterForm();
+        });
+    }
+
+    function checkRegisterForm() {
+        // Enable lại button nếu không có field nào is-invalid
+        const invalidFields = document.querySelectorAll('#registerModal .is-invalid');
+        const submitBtn = document.querySelector('#registerModal button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = invalidFields.length > 0;
+        }
+    }
+
+    // Logic Auto Load Province API
+    document.addEventListener('DOMContentLoaded', function () {
+        const addressGroups = document.querySelectorAll('.address-group');
+        addressGroups.forEach(group => {
+            const provinceSel = group.querySelector('.province');
+            const districtSel = group.querySelector('.district');
+            const wardSel = group.querySelector('.ward');
+            const streetInp = group.querySelector('.street');
+            const hiddenInp = group.querySelector('.address-hidden');
+
+            // Lấy danh sách tỉnh thành
+            fetch('https://provinces.open-api.vn/api/p/')
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(item => {
+                        provinceSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                    });
+                })
+                .catch(err => console.error("Lấy tỉnh không thành công:", err));
+
+            provinceSel.addEventListener('change', function () {
+                districtSel.innerHTML = '<option value="">Quận/Huyện</option>';
+                wardSel.innerHTML = '<option value="">Phường/Xã</option>';
+                if (this.value) {
+                    fetch(`https://provinces.open-api.vn/api/p/${this.value}?depth=2`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.districts) {
+                                data.districts.forEach(item => {
+                                    districtSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                                });
+                            }
+                        });
+                }
+                updateAddress();
+            });
+
+            districtSel.addEventListener('change', function () {
+                wardSel.innerHTML = '<option value="">Phường/Xã</option>';
+                if (this.value) {
+                    fetch(`https://provinces.open-api.vn/api/d/${this.value}?depth=2`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.wards) {
+                                data.wards.forEach(item => {
+                                    wardSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                                });
+                            }
+                        });
+                }
+                updateAddress();
+            });
+
+            wardSel.addEventListener('change', updateAddress);
+            streetInp.addEventListener('input', updateAddress);
+
+            function updateAddress() {
+                let parts = [];
+                if (streetInp.value.trim()) parts.push(streetInp.value.trim());
+                if (wardSel.value) parts.push(wardSel.options[wardSel.selectedIndex].text);
+                if (districtSel.value) parts.push(districtSel.options[districtSel.selectedIndex].text);
+                if (provinceSel.value) parts.push(provinceSel.options[provinceSel.selectedIndex].text);
+                hiddenInp.value = parts.join(', ');
+            }
+
+            const form = group.closest('form');
+            if (form) {
+                form.addEventListener('submit', updateAddress);
+            }
+        });
+    });
+</script>

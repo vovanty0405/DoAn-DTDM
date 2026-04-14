@@ -168,10 +168,17 @@
                                                                     value="<%= prod.name %>" required>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label">Đổi ảnh (Để trống nếu giữ ảnh
-                                                                    cũ)</label>
+                                                                <label class="form-label">Đổi ảnh đại diện (Để trống nếu
+                                                                    giữ ảnh cũ)</label>
                                                                 <input type="file" class="form-control"
                                                                     name="cover_image" accept="image/*">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Tải lên ảnh phụ mới (Để trống
+                                                                    nếu giữ ảnh cũ, có thể chọn nhiều ảnh để đổi mới
+                                                                    Image Slider)</label>
+                                                                <input type="file" class="form-control" name="images"
+                                                                    accept="image/*" multiple>
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-6 mb-3">
@@ -212,8 +219,9 @@
                                                                     <select class="form-select" name="sub_category_id"
                                                                         id="edit_subcat_<%= prod._id %>">
                                                                         <option value="">-- Chọn (Tùy chọn) --</option>
-                                                                        <% // Lọc thủ công bằng EJS: Chỉ in ra những Thể loại con CÙNG danh mục gốc với sản phẩm này
-                                                                            let filteredSC=subCategories.filter(sc=>
+                                                                        <% /* Lọc thủ công bằng EJS: Chỉ in ra những Thể
+                                                                            loại con CÙNG danh mục gốc với sản phẩm này
+                                                                            */ let filteredSC=subCategories.filter(sc=>
                                                                             prod.category_id && sc.category_id &&
                                                                             sc.category_id._id.toString() ==
                                                                             prod.category_id._id.toString());
@@ -242,6 +250,11 @@
                                                                             </option>
                                                                             <% }) %>
                                                                     </select>
+                                                                </div>
+                                                                <div class="col-12 mb-3">
+                                                                    <label class="form-label">Mô tả sản phẩm</label>
+                                                                    <textarea class="form-control editor"
+                                                                        name="description"><%= prod.description || '' %></textarea>
                                                                 </div>
                                                                 <div class="col-6 mb-3">
                                                                     <label class="form-label">Trạng thái</label>
@@ -273,6 +286,7 @@
                             </tbody>
                         </table>
                     </div>
+                    <%- include('../partials/pagination', { currentPage, totalPages, query: query || {} }) %>
                 </div>
             </div>
         </div>
@@ -292,8 +306,13 @@
                             <input type="text" class="form-control" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Hình ảnh đại diện</label>
+                            <label class="form-label">Hình ảnh đại diện (Ảnh cover)</label>
                             <input type="file" class="form-control" name="cover_image" accept="image/*" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hình ảnh phụ (Có thể chọn nhiều ảnh, để tạo Image Slider cho chi
+                                tiết SP)</label>
+                            <input type="file" class="form-control" name="images" accept="image/*" multiple>
                         </div>
                         <div class="row">
                             <div class="col-6 mb-3">
@@ -341,7 +360,11 @@
                                         <% }) %>
                                 </select>
                             </div>
-                            <div class="col-6 mb-3">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Mô tả sản phẩm</label>
+                                <textarea class="form-control editor" name="description"></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
                                 <label class="form-label">Trạng thái</label>
                                 <select class="form-select" name="status">
                                     <option value="1">Đang bán</option>
@@ -361,7 +384,7 @@
 
     <script>
         // Lấy cục dữ liệu Thể loại con từ Node.js nhét sang Javascript
-        const allSubCats = <%- JSON.stringify(subCategories) %>;
+        const allSubCats = <% - JSON.stringify(subCategories) %>;
 
         // Hàm này sẽ chạy mỗi khi thẻ select Danh Mục Gốc bị thay đổi (onchange)
         function updateSubCatDropdown(catSelectElement, subCatSelectId) {
@@ -384,6 +407,16 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.editor').forEach(el => {
+                ClassicEditor.create(el).catch(err => console.error(err));
+            });
+        });
+    </script>
 </body>
+
 
 </html>
