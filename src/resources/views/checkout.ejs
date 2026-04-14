@@ -77,7 +77,7 @@
                                     </div>
                                 </div>
                                 <input type="text" class="form-control py-2 street"
-                                    placeholder="Số nhà, tên đường cụ thể" required>
+                                    placeholder="Số nhà, tên đường cụ thể">
                                 <input type="hidden" name="address" class="address-hidden"
                                     value="<%= user ? user.address : '' %>">
                             </div>
@@ -221,7 +221,7 @@
                             if (!text) return false;
                             const lowerText = text.toLowerCase();
                             for (let i = 0; i < selectEl.options.length; i++) {
-                                if (selectEl.options[i].text.toLowerCase() === lowerText || 
+                                if (selectEl.options[i].text.toLowerCase() === lowerText ||
                                     selectEl.options[i].text.toLowerCase().includes(lowerText)) {
                                     selectEl.selectedIndex = i;
                                     return true;
@@ -344,7 +344,7 @@
                             const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${amount}&addInfo=${addInfo}&accountName=${encodeURIComponent(accountName)}`;
 
                             // Cập nhật ảnh mã QR
-                            if(qrCodeImage) qrCodeImage.src = qrUrl;
+                            if (qrCodeImage) qrCodeImage.src = qrUrl;
 
                             // Hiển thị Modal
                             qrModal.show();

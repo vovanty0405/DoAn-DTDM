@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,106 +9,396 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
     <link href="http://127.0.0.1:3000/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
-        .nav-pills .nav-link { color: #555; font-weight: 500; border-radius: 0; padding: 15px 20px; transition: 0.3s; }
-        .nav-pills .nav-link.active { background-color: transparent !important; color: #005a3c !important; border-bottom: 3px solid #005a3c; }
-        .nav-pills .nav-link:hover { color: #005a3c; }
-        .order-card { background: #fff; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        .order-header { background-color: #fafafa; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .order-body { padding: 20px; }
-        .order-item { display: flex; align-items: start; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee; }
-        .order-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-        .item-img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; }
-        .item-details { flex-grow: 1; padding-left: 15px; }
-        .order-footer { padding: 15px 20px; background-color: #fafafa; border-top: 1px solid #eee; text-align: right; }
-        .status-badge { padding: 6px 12px; border-radius: 50px; font-weight: 600; font-size: 0.85rem; }
-        .bg-status-0, .bg-status-1 { background-color: #fff3cd; color: #856404; }
-        .bg-status-2 { background-color: #cce5ff; color: #004085; }
-        .bg-status-3 { background-color: #d4edda; color: #155724; }
+        .nav-pills .nav-link {
+            color: #555;
+            font-weight: 500;
+            border-radius: 0;
+            padding: 15px 20px;
+            transition: 0.3s;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: transparent !important;
+            color: #005a3c !important;
+            border-bottom: 3px solid #005a3c;
+        }
+
+        .nav-pills .nav-link:hover {
+            color: #005a3c;
+        }
+
+        .order-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .order-header {
+            background-color: #fafafa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-body {
+            padding: 20px;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .order-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .item-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+
+        .item-details {
+            flex-grow: 1;
+            padding-left: 15px;
+        }
+
+        .order-footer {
+            padding: 15px 20px;
+            background-color: #fafafa;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .bg-status-0,
+        .bg-status-1 {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .bg-status-2 {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .bg-status-3 {
+            background-color: #d4edda;
+            color: #155724;
+        }
     </style>
 </head>
+
 <body class="bg-light">
 
     <!-- Header -->
     <%- include('partials/navbar') %>
 
-    <div class="container my-5">
-        <div class="row">
-            <!-- Sidebar Navigation -->
-            <div class="col-lg-3 mb-4">
-                <div class="card border-0 shadow-sm rounded">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="fas fa-user-circle text-secondary" style="font-size: 4rem;"></i>
+        <div class="container my-5">
+            <div class="row">
+                <!-- Sidebar Navigation -->
+                <div class="col-lg-3 mb-4">
+                    <div class="card border-0 shadow-sm rounded">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-user-circle text-secondary" style="font-size: 4rem;"></i>
+                            </div>
+                            <h5 class="fw-bold">
+                                <%= user ? (user.fullname || user.full_name) : 'Thành viên' %>
+                            </h5>
+                            <p class="text-muted mb-0 small">
+                                <%= user ? user.email : '' %>
+                            </p>
                         </div>
-                        <h5 class="fw-bold"><%= user ? (user.fullname || user.full_name) : 'Thành viên' %></h5>
-                        <p class="text-muted mb-0 small"><%= user ? user.email : '' %></p>
+                        <ul class="list-group list-group-flush border-top">
+                            <a href="#"
+                                class="list-group-item list-group-item-action p-3 fw-bold text-tempi-green border-start border-4 border-success bg-light">
+                                <i class="fas fa-receipt me-2"></i> Đơn hàng của tôi
+                            </a>
+                            <a href="/logout"
+                                class="list-group-item list-group-item-action p-3 text-danger fw-semibold">
+                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                            </a>
+                        </ul>
                     </div>
-                    <ul class="list-group list-group-flush border-top">
-                        <a href="#" class="list-group-item list-group-item-action p-3 fw-bold text-tempi-green border-start border-4 border-success bg-light">
-                            <i class="fas fa-receipt me-2"></i> Đơn hàng của tôi
-                        </a>
-                        <a href="/logout" class="list-group-item list-group-item-action p-3 text-danger fw-semibold">
-                            <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
-                        </a>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Orders Content -->
-            <div class="col-lg-9">
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <!-- Tabs -->
-                    <ul class="nav nav-pills nav-fill bg-white border-bottom" id="orderTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab">Tất cả đơn</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="processing-tab" data-bs-toggle="pill" data-bs-target="#processing" type="button" role="tab">Chờ xử lý</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="shipping-tab" data-bs-toggle="pill" data-bs-target="#shipping" type="button" role="tab">Đang giao</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="completed-tab" data-bs-toggle="pill" data-bs-target="#completed" type="button" role="tab">Hoàn thành</button>
-                        </li>
-                    </ul>
                 </div>
 
-                <div class="tab-content" id="orderTabContent">
-                    <!-- Tab: Tất cả -->
-                    <div class="tab-pane fade show active" id="all" role="tabpanel">
-                        <%- include('partials/order_list', { filterStatus: 'all', orders: orders }) %>
+                <!-- Orders Content -->
+                <div class="col-lg-9">
+                    <div class="card border-0 shadow-sm rounded mb-4">
+                        <!-- Tabs -->
+                        <ul class="nav nav-pills nav-fill bg-white border-bottom" id="orderTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all"
+                                    type="button" role="tab">Tất cả đơn</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="processing-tab" data-bs-toggle="pill"
+                                    data-bs-target="#processing" type="button" role="tab">Chờ xử lý</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="shipping-tab" data-bs-toggle="pill"
+                                    data-bs-target="#shipping" type="button" role="tab">Đang giao</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="completed-tab" data-bs-toggle="pill"
+                                    data-bs-target="#completed" type="button" role="tab">Hoàn thành</button>
+                            </li>
+                        </ul>
                     </div>
-                    
-                    <!-- Tab: Chờ lấy hàng -->
-                    <div class="tab-pane fade" id="processing" role="tabpanel">
-                        <%- include('partials/order_list', { filterStatus: [0, 1], orders: orders }) %>
+
+                    <div class="tab-content" id="orderTabContent">
+                        <!-- Tab: Tất cả -->
+                        <div class="tab-pane fade show active" id="all" role="tabpanel">
+                            <%- include('partials/order_list', { filterStatus: 'all' , orders: orders }) %>
+                        </div>
+
+                        <!-- Tab: Chờ lấy hàng -->
+                        <div class="tab-pane fade" id="processing" role="tabpanel">
+                            <%- include('partials/order_list', { filterStatus: [0, 1], orders: orders }) %>
+                        </div>
+
+                        <!-- Tab: Đang giao -->
+                        <div class="tab-pane fade" id="shipping" role="tabpanel">
+                            <%- include('partials/order_list', { filterStatus: [2], orders: orders }) %>
+                        </div>
+
+                        <!-- Tab: Hoàn thành -->
+                        <div class="tab-pane fade" id="completed" role="tabpanel">
+                            <%- include('partials/order_list', { filterStatus: [3], orders: orders }) %>
+                        </div>
                     </div>
-                    
-                    <!-- Tab: Đang giao -->
-                    <div class="tab-pane fade" id="shipping" role="tabpanel">
-                        <%- include('partials/order_list', { filterStatus: [2], orders: orders }) %>
+                    <div class="mt-4">
+                        <%- include('partials/pagination', { currentPage, totalPages, query: {} }) %>
                     </div>
-                    
-                    <!-- Tab: Hoàn thành -->
-                    <div class="tab-pane fade" id="completed" role="tabpanel">
-                        <%- include('partials/order_list', { filterStatus: [3], orders: orders }) %>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <%- include('partials/pagination', { currentPage, totalPages, query: {} }) %>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <%- include('partials/footer') %>
+        <!-- Footer -->
+        <%- include('partials/footer') %>
 
-    <!-- Modal -->
-    <%- include('partials/modal') %>
+            <!-- Modal -->
+            <%- include('partials/modal') %>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                <!-- Modal Xem Lộ Trình Giao Hàng -->
+                <div class="modal fade" id="deliveryMapModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content overflow-hidden rounded-4 border-0 shadow-lg">
+                            <div class="modal-header bg-info text-dark border-0">
+                                <h5 class="modal-title fw-bold">
+                                    <i class="fas fa-motorcycle me-2"></i> Lộ trình giao hàng
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-0 position-relative">
+
+                                <div id="mapLoadingState"
+                                    class="position-absolute top-50 start-50 translate-middle text-center bg-white p-4 rounded-3 shadow-lg z-3"
+                                    style="display: none;">
+                                    <div class="spinner-border text-info mb-2" role="status"></div>
+                                    <p class="mb-0 fw-bold text-secondary">Đang tải bản đồ và đường đi...</p>
+                                    <small class="text-muted">Vui lòng chờ trong giây lát (Sử dụng
+                                        OpenStreetMap)</small>
+                                </div>
+
+                                <div id="deliveryMap"
+                                    style="width: 100%; height: 60vh; min-height: 400px; background: #e0e6ed;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+                <script>
+                    let deliveryMap = null;
+                    let routingControl = null;
+                    let currentMarker = null;
+
+                    const STORE_ADDRESS = "Đại học An Giang, Long Xuyên, An Giang";
+
+                    const shipperIcon = L.icon({
+                        iconUrl: '/image/busstop.png',
+                        iconSize: [50, 50], // Tăng kích thước lên một chút cho dễ nhìn
+                        iconAnchor: [25, 25], // Căn giữa icon
+                        popupAnchor: [0, -20],
+                        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png', // Thêm bóng cho xe nhìn thực tế hơn
+                        shadowSize: [50, 50],
+                        shadowAnchor: [15, 25]
+                    });
+                    // 2. Tinh chỉnh đường đi (Route) cho đẹp hơn
+                    routingControl = L.Routing.control({
+                        waypoints: [point_A_Leaflet, point_B_Leaflet],
+                        lineOptions: {
+                            styles: [
+                                { color: '#2ecc71', opacity: 0.7, weight: 8 }, // Đường đổ bóng phía dưới
+                                { color: '#27ae60', opacity: 1, weight: 4 }    // Đường chính màu xanh đậm
+                            ]
+                        },
+                        show: false,
+                        addWaypoints: false,
+                        routeWhileDragging: false,
+                        fitSelectedRoutes: true,
+                        createMarker: function () { return null; } // Ẩn các marker mặc định của Leaflet để bản đồ sạch hơn
+                    }).addTo(deliveryMap);
+                    // 3. Thêm điểm bắt đầu và kết thúc bằng icon tùy chỉnh (tùy chọn)
+                    L.marker(point_A_Leaflet).addTo(deliveryMap).bindPopup("<b>Cửa hàng Pew</b>");
+                    L.marker(point_B_Leaflet).addTo(deliveryMap).bindPopup("<b>Điểm nhận hàng</b>");
+
+                    async function geocodeAddress(addressText) {
+                        try {
+                            // 1. Thử tìm kiếm với địa chỉ đầy đủ trước
+                            let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressText)}&limit=1`;
+                            let response = await fetch(url);
+                            let data = await response.json();
+
+                            if (data && data.length > 0) {
+                                return {
+                                    lat: parseFloat(data[0].lat),
+                                    lng: parseFloat(data[0].lon)
+                                };
+                            }
+
+                            // 2. CHIẾN THUẬT FALLBACK: Nếu không tìm thấy, tự động cắt bỏ phần đầu tiên
+                            // Ví dụ: Từ "Xã Bình Thạnh Đông, Huyện Phú Tân, Tỉnh An Giang" 
+                            // Cắt còn -> "Huyện Phú Tân, Tỉnh An Giang"
+                            const addressParts = addressText.split(',');
+                            if (addressParts.length > 1) {
+                                // Bỏ đi phần tử đầu tiên (phần tử chi tiết nhất)
+                                const fallbackAddress = addressParts.slice(1).join(',').trim();
+                                console.log("Không tìm thấy địa chỉ chi tiết. Đang tìm kiếm khu vực rộng hơn:", fallbackAddress);
+
+                                let fallbackUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fallbackAddress)}&limit=1`;
+                                let fallbackResponse = await fetch(fallbackUrl);
+                                let fallbackData = await fallbackResponse.json();
+
+                                if (fallbackData && fallbackData.length > 0) {
+                                    return {
+                                        lat: parseFloat(fallbackData[0].lat),
+                                        lng: parseFloat(fallbackData[0].lon)
+                                    };
+                                }
+                            }
+
+                            // Trả về null nếu đến cả Huyện/Tỉnh cũng không tìm ra
+                            return null;
+                        } catch (error) {
+                            console.error("Lỗi Get Tọa Độ:", error);
+                            return null;
+                        }
+                    }
+
+                    function showDeliveryMap(destinationAddress, orderStatus) {
+                        orderStatus = parseInt(orderStatus);
+
+                        const loadingState = document.getElementById('mapLoadingState');
+                        loadingState.style.display = 'block';
+
+                        const mapModalEl = document.getElementById('deliveryMapModal');
+                        const deliveryModal = new bootstrap.Modal(mapModalEl);
+                        deliveryModal.show();
+
+                        mapModalEl.addEventListener('shown.bs.modal', function () {
+                            buildLeafletMap(destinationAddress, orderStatus, loadingState);
+                        }, { once: true });
+                    }
+
+                    async function buildLeafletMap(destinationAddress, orderStatus, loadingState) {
+                        if (!deliveryMap) {
+                            deliveryMap = L.map('deliveryMap').setView([10.3759, 105.4325], 13);
+
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; OpenStreetMap contributors'
+                            }).addTo(deliveryMap);
+                        }
+
+                        if (routingControl) {
+                            deliveryMap.removeControl(routingControl);
+                            routingControl = null;
+                        }
+                        if (currentMarker) {
+                            deliveryMap.removeLayer(currentMarker);
+                            currentMarker = null;
+                        }
+
+                        const originCoord = await geocodeAddress(STORE_ADDRESS);
+                        const destinationCoord = await geocodeAddress(destinationAddress);
+
+                        loadingState.style.display = 'none';
+
+                        if (!originCoord || !destinationCoord) {
+                            alert(`Xin lỗi! OpenStreetMap không thể tìm thấy toạ độ của địa chỉ: ${!destinationCoord ? destinationAddress : STORE_ADDRESS}. Mẹo: Thử đổi địa chỉ trong database đơn giản hơn như (Phường, Quận, Thành Phố).`);
+                            return;
+                        }
+
+                        const point_A_Leaflet = L.latLng(originCoord.lat, originCoord.lng);
+                        const point_B_Leaflet = L.latLng(destinationCoord.lat, destinationCoord.lng);
+
+                        routingControl = L.Routing.control({
+                            waypoints: [point_A_Leaflet, point_B_Leaflet],
+                            lineOptions: {
+                                styles: [{ color: '#f39c12', opacity: 0.8, weight: 6 }]
+                            },
+                            show: false,
+                            addWaypoints: false,
+                            routeWhileDragging: false,
+                            fitSelectedRoutes: true
+                        }).addTo(deliveryMap);
+
+                        routingControl.on('routesfound', function (e) {
+                            const routes = e.routes;
+                            const routeCoordinates = routes[0].coordinates;
+
+                            let targetCoord = null;
+
+                            if (orderStatus === 0 || orderStatus === 1) {
+                                targetCoord = routeCoordinates[0];
+                            }
+                            else if (orderStatus === 2) {
+                                const midIndex = Math.floor(routeCoordinates.length / 2);
+                                targetCoord = routeCoordinates[midIndex];
+                            }
+                            else if (orderStatus === 3) {
+                                targetCoord = routeCoordinates[routeCoordinates.length - 1];
+                            }
+
+                            if (targetCoord) {
+                                currentMarker = L.marker([targetCoord.lat, targetCoord.lng], {
+                                    icon: shipperIcon,
+                                    zIndexOffset: 1000
+                                }).addTo(deliveryMap)
+                                    .bindPopup("<b>Shipper ở đây</b><br>Đang làm nhiệm vụ")
+                                    .openPopup();
+                            }
+                        });
+                    }
+                </script>
 </body>
+
 </html>

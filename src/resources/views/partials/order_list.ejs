@@ -24,6 +24,9 @@
                     <% } else if (order.status === 3) { %>
                         <span class="status-badge bg-status-3"><i class="fas fa-check-circle me-1"></i> Hoàn thành</span>
                     <% } %>
+                    <button type="button" class="btn btn-sm btn-outline-info border-0 ms-2" onclick="showDeliveryMap('<%= order.address %>', <%= order.status %>)">
+                        <i class="fas fa-map-marked-alt text-info"></i> <span class="fw-medium">Xem lộ trình</span>
+                    </button>
                 </div>
             </div>
             

@@ -9,12 +9,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
     <link href="http://127.0.0.1:3000/css/style.css" rel="stylesheet" />
+    <style>
+        /* Tối ưu Banner cho màn hình Điện Thoại */
+        @media (max-width: 992px) {
+            .hero-wrapper {
+                height: auto !important; /* Xóa chiều cao tĩnh cứng của PC */
+                padding: 10px 12px; /* Lùi ảnh vào 1 khoảng nhỏ để phần bo góc đẹp hơn */
+                background-color: transparent !important;
+            }
+            .hero-wrapper img {
+                border-radius: 16px; /* Bo tròn góc banner */
+                object-fit: contain !important; /* Ép hiển thị trọn vẹn toàn bộ tấm hình (Không xén) */
+                width: 100% !important;
+                height: auto !important; /* Chiều cao tự cân đối theo kích thước thật (vd: 750x422) */
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Đổ bóng nhẹ cho Banner nổi lên */
+            }
+        }
+    </style>
 </head>
 
 <body>
     <!-- Header -->
     <%- include('partials/navbar') %>
-
+        <!-- Hero Carousel -->
         <section id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
                 <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
@@ -23,12 +40,18 @@
             <div class="carousel-inner">
                 <div class="carousel-item active">
                     <div class="hero-wrapper">
-                        <img src="/image/banner_head.webp" alt="Banner 1" class="img-cover">
+                        <picture>
+                            <source media="(max-width: 992px)" srcset="/image/Banner/banner-dau-trang.png.webp">
+                            <img src="/image/banner_head.webp" alt="Banner 1" class="img-cover w-100">
+                        </picture>
                     </div>
                 </div>
                 <div class="carousel-item">
                     <div class="hero-wrapper">
-                        <img src="/image/banner_head2.webp" alt="Banner 2" class="img-cover">
+                        <picture>
+                            <source media="(max-width: 992px)" srcset="/image/Banner/banner-dau-trang2.png.webp">
+                            <img src="/image/banner_head2.webp" alt="Banner 2" class="img-cover w-100">
+                        </picture>
                     </div>
                 </div>
             </div>
@@ -82,7 +105,7 @@
                     <div class="row" id="sale-product-list">
                         <% if (typeof saleProducts !=='undefined' && saleProducts.length> 0) { %>
                             <% saleProducts.forEach(product=> { %>
-                                <div class="col-md-3 col-sm-6 mb-4">
+                                <div class="col-6 col-md-3 mb-4">
                                     <div class="card product-card h-100 border-0 shadow-sm position-relative">
                                         <% let percent=Math.round(((product.price - product.discount_price) /
                                             product.price) * 100); %>
@@ -134,23 +157,23 @@
                                                 </div>
                                                 <div
                                                     class="d-flex justify-content-center align-items-center gap-3 mt-2">
-                                                    <% if (product.stock_quantity > 0) { %>
-                                                    <a href="javascript:void(0);"
-                                                        onclick="addToCart('<%= product._id %>')"
-                                                        class="text-tempi-green transition-zoom"
-                                                        title="Thêm vào giỏ hàng">
-                                                        <i class="fas fa-cart-plus fs-4"></i>
-                                                    </a>
-                                                    <a href="/cart/buy-now/<%= product._id %>"
-                                                        class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
-                                                        Mua ngay
-                                                    </a>
-                                                    <% } else { %>
-                                                    <a href="/product/<%= product._id %>"
-                                                        class="btn btn-secondary flex-grow-1 rounded-pill text-white text-decoration-none text-center fw-bold opacity-75">
-                                                        <i class="fas fa-clock me-1"></i> Hết hàng
-                                                    </a>
-                                                    <% } %>
+                                                    <% if (product.stock_quantity> 0) { %>
+                                                        <a href="javascript:void(0);"
+                                                            onclick="addToCart('<%= product._id %>')"
+                                                            class="text-tempi-green transition-zoom"
+                                                            title="Thêm vào giỏ hàng">
+                                                            <i class="fas fa-cart-plus fs-4"></i>
+                                                        </a>
+                                                        <a href="/cart/buy-now/<%= product._id %>"
+                                                            class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                                                            Mua ngay
+                                                        </a>
+                                                        <% } else { %>
+                                                            <a href="/product/<%= product._id %>"
+                                                                class="btn btn-secondary flex-grow-1 rounded-pill text-white text-decoration-none text-center fw-bold opacity-75">
+                                                                <i class="fas fa-clock me-1"></i> Hết hàng
+                                                            </a>
+                                                            <% } %>
                                                 </div>
                                             </div>
                                     </div>
@@ -221,7 +244,7 @@
                         <div class="row justify-content-start" id="promo2-product-list">
                             <% if (typeof drinkProducts !=='undefined' && drinkProducts.length> 0) { %>
                                 <% drinkProducts.forEach(product=> { %>
-                                    <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="col-6 col-md-4 mb-3">
                                         <div class="card product-card h-100 border-0 shadow-sm position-relative">
                                             <% if (product.discount_price) { %>
                                                 <% let percent=Math.round(((product.price - product.discount_price) /
@@ -275,23 +298,26 @@
                                                                         </div>
                                                                         <div
                                                                             class="d-flex justify-content-center align-items-center gap-3 mt-2">
-                                                                            <% if (product.stock_quantity > 0) { %>
-                                                                            <a href="javascript:void(0);"
-                                                                                onclick="addToCart('<%= product._id %>')"
-                                                                                class="text-tempi-green transition-zoom"
-                                                                                title="Thêm vào giỏ hàng">
-                                                                                <i class="fas fa-cart-plus fs-4"></i>
-                                                                            </a>
-                                                                            <a href="/cart/buy-now/<%= product._id %>"
-                                                                                class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
-                                                                                Mua ngay
-                                                                            </a>
-                                                                            <% } else { %>
-                                                                            <a href="/product/<%= product._id %>"
-                                                                                class="btn btn-secondary flex-grow-1 rounded-pill text-white text-decoration-none text-center fw-bold opacity-75">
-                                                                                <i class="fas fa-clock me-1"></i> Hết hàng
-                                                                            </a>
-                                                                            <% } %>
+                                                                            <% if (product.stock_quantity> 0) { %>
+                                                                                <a href="javascript:void(0);"
+                                                                                    onclick="addToCart('<%= product._id %>')"
+                                                                                    class="text-tempi-green transition-zoom"
+                                                                                    title="Thêm vào giỏ hàng">
+                                                                                    <i
+                                                                                        class="fas fa-cart-plus fs-4"></i>
+                                                                                </a>
+                                                                                <a href="/cart/buy-now/<%= product._id %>"
+                                                                                    class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                                                                                    Mua ngay
+                                                                                </a>
+                                                                                <% } else { %>
+                                                                                    <a href="/product/<%= product._id %>"
+                                                                                        class="btn btn-secondary flex-grow-1 rounded-pill text-white text-decoration-none text-center fw-bold opacity-75">
+                                                                                        <i
+                                                                                            class="fas fa-clock me-1"></i>
+                                                                                        Hết hàng
+                                                                                    </a>
+                                                                                    <% } %>
                                                                         </div>
                                                         </div>
                                         </div>
@@ -324,7 +350,7 @@
                 <div class="row" id="new-product-list">
                     <% if (typeof newProducts !=='undefined' && newProducts.length> 0) { %>
                         <% newProducts.forEach(product=> { %>
-                            <div class="col-md-3 col-sm-6 mb-4">
+                            <div class="col-6 col-md-3 mb-4">
                                 <div class="card product-card h-100 border-0 shadow-sm position-relative">
                                     <% if (product.discount_price) { %>
                                         <% let percent=Math.round(((product.price - product.discount_price) /
@@ -374,23 +400,24 @@
                                                                 </div>
                                                                 <div
                                                                     class="d-flex justify-content-center align-items-center gap-3 mt-2">
-                                                                    <% if (product.stock_quantity > 0) { %>
-                                                                    <a href="javascript:void(0);"
-                                                                        onclick="addToCart('<%= product._id %>')"
-                                                                        class="text-tempi-green transition-zoom"
-                                                                        title="Thêm vào giỏ hàng">
-                                                                        <i class="fas fa-cart-plus fs-4"></i>
-                                                                    </a>
-                                                                    <a href="/cart/buy-now/<%= product._id %>"
-                                                                        class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
-                                                                        Mua ngay
-                                                                    </a>
-                                                                    <% } else { %>
-                                                                    <a href="/product/<%= product._id %>"
-                                                                        class="btn btn-secondary flex-grow-1 rounded-pill text-white text-decoration-none text-center fw-bold opacity-75">
-                                                                        <i class="fas fa-clock me-1"></i> Hết hàng
-                                                                    </a>
-                                                                    <% } %>
+                                                                    <% if (product.stock_quantity> 0) { %>
+                                                                        <a href="javascript:void(0);"
+                                                                            onclick="addToCart('<%= product._id %>')"
+                                                                            class="text-tempi-green transition-zoom"
+                                                                            title="Thêm vào giỏ hàng">
+                                                                            <i class="fas fa-cart-plus fs-4"></i>
+                                                                        </a>
+                                                                        <a href="/cart/buy-now/<%= product._id %>"
+                                                                            class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                                                                            Mua ngay
+                                                                        </a>
+                                                                        <% } else { %>
+                                                                            <a href="/product/<%= product._id %>"
+                                                                                class="btn btn-secondary flex-grow-1 rounded-pill text-white text-decoration-none text-center fw-bold opacity-75">
+                                                                                <i class="fas fa-clock me-1"></i> Hết
+                                                                                hàng
+                                                                            </a>
+                                                                            <% } %>
                                                                 </div>
                                                 </div>
                                 </div>
@@ -420,7 +447,7 @@
             <div class="row">
                 <% if (typeof recommendedProducts !=='undefined' && recommendedProducts.length> 0) { %>
                     <% recommendedProducts.forEach(product=> { %>
-                        <div class="col-md-3 col-sm-6 mb-4">
+                        <div class="col-6 col-md-3 mb-4">
                             <div class="card product-card h-100 border-0 shadow-sm position-relative">
                                 <% if (product.discount_price) { %>
                                     <% let percent=Math.round(((product.price - product.discount_price) / product.price)
@@ -469,23 +496,23 @@
                                                             </div>
                                                             <div
                                                                 class="d-flex justify-content-center align-items-center gap-3 mt-2">
-                                                                <% if (product.stock_quantity > 0) { %>
-                                                                <a href="javascript:void(0);"
-                                                                    onclick="addToCart('<%= product._id %>')"
-                                                                    class="text-tempi-green transition-zoom"
-                                                                    title="Thêm vào giỏ hàng">
-                                                                    <i class="fas fa-cart-plus fs-4"></i>
-                                                                </a>
-                                                                <a href="/cart/buy-now/<%= product._id %>"
-                                                                    class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
-                                                                    Mua ngay
-                                                                </a>
-                                                                <% } else { %>
-                                                                <a href="/product/<%= product._id %>"
-                                                                    class="btn btn-secondary flex-grow-1 rounded-pill text-white text-decoration-none text-center fw-bold opacity-75">
-                                                                    <i class="fas fa-clock me-1"></i> Hết hàng
-                                                                </a>
-                                                                <% } %>
+                                                                <% if (product.stock_quantity> 0) { %>
+                                                                    <a href="javascript:void(0);"
+                                                                        onclick="addToCart('<%= product._id %>')"
+                                                                        class="text-tempi-green transition-zoom"
+                                                                        title="Thêm vào giỏ hàng">
+                                                                        <i class="fas fa-cart-plus fs-4"></i>
+                                                                    </a>
+                                                                    <a href="/cart/buy-now/<%= product._id %>"
+                                                                        class="btn btn-tempi-green flex-grow-1 text-white rounded-pill text-decoration-none text-center fw-bold shadow-sm">
+                                                                        Mua ngay
+                                                                    </a>
+                                                                    <% } else { %>
+                                                                        <a href="/product/<%= product._id %>"
+                                                                            class="btn btn-secondary flex-grow-1 rounded-pill text-white text-decoration-none text-center fw-bold opacity-75">
+                                                                            <i class="fas fa-clock me-1"></i> Hết hàng
+                                                                        </a>
+                                                                        <% } %>
                                                             </div>
                                             </div>
                             </div>
