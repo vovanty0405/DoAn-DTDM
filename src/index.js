@@ -43,7 +43,7 @@ app.use(async function (req, res, next) {
     const Category = require('./app/models/Category');
     try {
         res.locals.categories = await Category.find().lean();
-    } catch(err) {
+    } catch (err) {
         console.log('Lỗi lấy danh mục ở file index:', err);
         res.locals.categories = [];
     }
@@ -65,6 +65,7 @@ const route = require('./routers');
 route(app);
 
 
-app.listen(3000, () => {
-    console.log('Server is running at http://127.0.0.1:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
