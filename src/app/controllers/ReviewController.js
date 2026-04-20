@@ -95,7 +95,12 @@ class ReviewController {
             // Xóa cả đánh giá gốc lẫn replies con
             await Review.deleteMany({ parent_id: req.params.id });
             await Review.findByIdAndDelete(req.params.id);
-            res.redirect('/admin/reviews');
+            const referer = req.get('Referrer');
+            if (referer) {
+                res.redirect(referer);
+            } else {
+                res.redirect('/admin/reviews');
+            }
         } catch (error) {
             console.error(error);
             res.status(500).send('Lỗi khi xóa đánh giá');

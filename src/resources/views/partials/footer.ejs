@@ -1,43 +1,43 @@
- <footer class="footer-bg text-white pt-5 pb-3">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3 mb-4">
-                    <h3 class="fw-bold mb-3">Tempi</h3>
-                    <p class="small">Giải pháp bán hàng trực tuyến toàn diện.</p>
-                    <div class="social-icons">
-                        <i class="fab fa-facebook me-2"></i>
-                        <i class="fab fa-instagram me-2"></i>
-                        <i class="fab fa-tiktok"></i>
-                    </div>
+<footer class="footer-bg text-white pt-5 pb-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <h3 class="fw-bold mb-3">BÁCH HÓA PEW</h3>
+                <p class="small">Giải pháp bán hàng trực tuyến toàn diện.</p>
+                <div class="social-icons">
+                    <i class="fab fa-facebook me-2"></i>
+                    <i class="fab fa-instagram me-2"></i>
+                    <i class="fab fa-tiktok"></i>
                 </div>
-                <div class="col-md-3 mb-4">
-                    <h6 class="fw-bold text-uppercase">Danh mục</h6>
-                    <ul class="list-unstyled small">
-                        <li><a href="#" class="text-white text-decoration-none">Vegetables</a></li>
-                        <li><a href="#" class="text-white text-decoration-none">Meat</a></li>
-                        <li><a href="#" class="text-white text-decoration-none">Drinks</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3 mb-4">
-                    <h6 class="fw-bold text-uppercase">Hỗ trợ</h6>
-                    <ul class="list-unstyled small">
-                        <li><a href="#" class="text-white text-decoration-none">Liên hệ</a></li>
-                        <li><a href="#" class="text-white text-decoration-none">Chính sách bảo mật</a></li>
-                        <li><a href="#" class="text-white text-decoration-none">Điều khoản</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3 mb-4">
-                    <h6 class="fw-bold text-uppercase">NHẬN THÔNG BÁO</h6>
-                    <p class="small">Đăng ký để nhận ưu đãi mới nhất.</p>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Email của bạn">
-                        <button class="btn btn-warning" type="button">Gửi</button>
-                    </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h6 class="fw-bold text-uppercase">Danh mục</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="#" class="text-white text-decoration-none">Vegetables</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Meat</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Drinks</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h6 class="fw-bold text-uppercase">Hỗ trợ</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="#" class="text-white text-decoration-none">Liên hệ</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Chính sách bảo mật</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Điều khoản</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h6 class="fw-bold text-uppercase">NHẬN THÔNG BÁO</h6>
+                <p class="small">Đăng ký để nhận ưu đãi mới nhất.</p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Email của bạn">
+                    <button class="btn btn-warning" type="button">Gửi</button>
                 </div>
             </div>
         </div>
-    </footer>
-    <script>
+    </div>
+</footer>
+<script>
     function addToCart(productId) {
         // Gửi request ngầm lên API đã viết trong ApiController
         fetch(`/api/cart/add?id=${productId}`)
@@ -48,7 +48,7 @@
                     let badge = document.getElementById('cart-badge');
                     if (badge) {
                         badge.innerText = data.cart_count;
-                        
+
                         // Hiệu ứng giật giật nhẹ cho đẹp mắt (tuỳ chọn)
                         badge.style.transform = 'scale(1.5)';
                         setTimeout(() => badge.style.transform = 'scale(1)', 200);

@@ -72,7 +72,8 @@
                         <div class="position-relative border rounded p-3 text-center"
                             style="background-color: #f8f9fa;">
                             <% if (product.discount_price) { %>
-                                <% let percent=Math.round(((product.price - product.discount_price) / product.price) * 100); %>
+                                <% let percent=Math.round(((product.price - product.discount_price) / product.price) *
+                                    100); %>
                                     <div class="badge-discount position-absolute top-0 end-0 m-3 bg-danger text-white px-2 py-1 rounded fs-6"
                                         style="z-index: 10;">-<%= percent %>%</div>
                                     <% } %>
@@ -167,35 +168,38 @@
 
                         <!-- Thông tin tồn kho -->
                         <p class="text-muted mb-2 small">
-                            Tồn kho: 
-                            <% if (product.stock_quantity > 0) { %>
-                                <span class="text-success fw-bold"><%= product.stock_quantity %> sản phẩm</span>
-                            <% } else { %>
-                                <span class="text-danger fw-bold">Hết hàng</span>
-                            <% } %>
+                            Tồn kho:
+                            <% if (product.stock_quantity> 0) { %>
+                                <span class="text-success fw-bold">
+                                    <%= product.stock_quantity %> sản phẩm
+                                </span>
+                                <% } else { %>
+                                    <span class="text-danger fw-bold">Hết hàng</span>
+                                    <% } %>
                         </p>
 
                         <div class="d-flex gap-3 mb-4">
-                            <% if (product.stock_quantity > 0) { %>
+                            <% if (product.stock_quantity> 0) { %>
                                 <a href="javascript:void(0);" onclick="addToCart('<%= product._id %>')"
                                     class="text-tempi-green transition-zoom"><i class="fas fa-cart-plus fs-1"></i></a>
                                 <a href="/cart/buy-now/<%= product._id %>"
                                     class="btn btn-tempi-green flex-grow-1 text-white rounded-pill fw-bold shadow-sm fs-5">Mua
                                     ngay</a>
-                            <% } else { %>
-                                <button class="btn btn-secondary flex-grow-1 rounded-pill fw-bold fs-5 opacity-75" disabled>
-                                    <i class="fas fa-clock me-2"></i>Hết hàng
-                                </button>
-                                <% if (typeof user !== 'undefined' && user) { %>
-                                <button class="btn btn-outline-warning rounded-pill fw-bold px-4" 
-                                    onclick="subscribeStock('<%= product._id %>')">
-                                    <i class="fas fa-bell me-1"></i> Thông báo khi có hàng
-                                </button>
-                                <% } %>
-                            <% } %>
+                                <% } else { %>
+                                    <button class="btn btn-secondary flex-grow-1 rounded-pill fw-bold fs-5 opacity-75"
+                                        disabled>
+                                        <i class="fas fa-clock me-2"></i>Hết hàng
+                                    </button>
+                                    <% if (typeof user !=='undefined' && user) { %>
+                                        <button class="btn btn-outline-warning rounded-pill fw-bold px-4"
+                                            onclick="subscribeStock('<%= product._id %>')">
+                                            <i class="fas fa-bell me-1"></i> Thông báo khi có hàng
+                                        </button>
+                                        <% } %>
+                                            <% } %>
                         </div>
 
-                        
+
                     </div>
                 </div>
             </div>
@@ -207,14 +211,17 @@
                 <div class="col-lg-8 pe-lg-4 mb-4 mb-lg-0">
                     <div class="bg-white p-4 rounded shadow-sm relative position-relative">
                         <h4 class="fw-bold mb-4 text-tempi-green border-bottom pb-2">Mô tả sản phẩm</h4>
-                        <div class="text-dark lh-lg ck-content position-relative overflow-hidden" id="productDescription" style="max-height: 200px; font-size: 1.05rem;">
-                            <%- product.description ? product.description : "Sản phẩm này hiện tại chưa có mô tả chi tiết từ nhà cung cấp." %>
-                            
-                            <!-- Gradient overlay -->
-                            <div class="desc-gradient" id="descGradient"></div>
+                        <div class="text-dark lh-lg ck-content position-relative overflow-hidden"
+                            id="productDescription" style="max-height: 200px; font-size: 1.05rem;">
+                            <%- product.description ? product.description
+                                : "Sản phẩm này hiện tại chưa có mô tả chi tiết từ nhà cung cấp." %>
+
+                                <!-- Gradient overlay -->
+                                <div class="desc-gradient" id="descGradient"></div>
                         </div>
                         <div class="text-center mt-3" id="descBtnContainer">
-                            <button class="btn btn-outline-success rounded-pill px-4" id="toggleDescBtn" onclick="toggleDescription()">
+                            <button class="btn btn-outline-success rounded-pill px-4" id="toggleDescBtn"
+                                onclick="toggleDescription()">
                                 Xem thêm <i class="fas fa-chevron-down ms-1"></i>
                             </button>
                         </div>
@@ -225,143 +232,232 @@
                 <div class="col-lg-4">
                     <div class="bg-white p-4 rounded shadow-sm h-100" id="review-section">
                         <h4 class="fw-bold mb-4 text-dark border-bottom pb-2">Đánh giá sản phẩm</h4>
-                        
-            
-            <% if (typeof reviewSuccess !=='undefined' && reviewSuccess) { %>
-                <div class="alert alert-success mt-2 review-alert">
-                    <%= reviewSuccess %>
-                </div>
-                <% } %>
 
-                    <% if (typeof user !=='undefined' && user) { %>
-                        <form action="/product/<%= product._id %>/review" method="POST" class="mb-4 mt-3" id="reviewFormMain">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold small">Chấm sao</label>
-                                <select name="rating" class="form-select form-select-sm border-warning" required>
-                                    <option value="">Chọn số sao</option>
-                                    <option value="5">★★★★★ (Tuyệt vời)</option>
-                                    <option value="4">★★★★ (Tốt)</option>
-                                    <option value="3">★★★ (Bình thường)</option>
-                                    <option value="2">★★ (Tệ)</option>
-                                    <option value="1">★ (Rất tệ)</option>
-                                </select>
+
+                        <% if (typeof reviewSuccess !=='undefined' && reviewSuccess) { %>
+                            <div class="alert alert-success mt-2 review-alert">
+                                <%= reviewSuccess %>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold small">Bình luận</label>
-                                <textarea name="comment" class="form-control form-control-sm" rows="2"
-                                    placeholder="Chia sẻ cảm nhận..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-success btn-sm w-100 fw-bold">Gửi đánh giá</button>
-                        </form>
-                        <% } else { %>
-                            <div class="alert alert-info mt-3">Vui lòng <a href="#" data-bs-toggle="modal"
-                                    data-bs-target="#loginModal" class="fw-bold text-success">Đăng nhập</a> để đánh giá
-                                sản phẩm.</div>
                             <% } %>
 
-                                <div class="mt-4" id="review-list">
-                                    <% if (reviews && reviews.length > 0) { %>
-                                        <% reviews.forEach((review, index) => { %>
-                                            <div class="border rounded p-3 mb-3 bg-white shadow-sm review-item <%- index >= 5 ? 'd-none' : '' %>">
-                                                <!-- Header: Tên người đánh giá + Badge -->
-                                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                                    <div class="d-flex align-items-center flex-wrap gap-2">
-                                                        <strong class="text-tempi-green">
-                                                            <i class="fas fa-user-circle me-1"></i>
-                                                            <%= review.user_id ? review.user_id.fullname : 'Khách' %>
-                                                        </strong>
-                                                        <% if (review.user_id && review.user_id.role === 1) { %>
-                                                            <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">
-                                                                <i class="fas fa-shield-alt me-1"></i>Quản trị viên
-                                                            </span>
-                                                        <% } %>
-                                                        <% if (review.user_id && typeof verifiedUserIds !== 'undefined' && verifiedUserIds.includes(review.user_id._id.toString())) { %>
-                                                            <span class="badge bg-success" style="font-size: 0.7rem;">
-                                                                <i class="fas fa-check-circle me-1"></i>Đã mua hàng
-                                                            </span>
-                                                        <% } %>
-                                                    </div>
-                                                    <small class="text-muted">
-                                                        <%= review.createdAt.toLocaleString('vi-VN') %>
-                                                    </small>
-                                                </div>
-                                                <!-- Stars -->
-                                                <div class="mb-2" style="color:#ffb400;">
-                                                    <%= '★'.repeat(review.rating || 0) %><%= '☆'.repeat(5 - (review.rating || 0)) %>
-                                                </div>
-                                                <!-- Comment -->
-                                                <p class="mb-2 text-dark"><%- review.comment ? review.comment.replace(/\n/g, '<br>') : '<em>Không có bình luận</em>' %></p>
+                                <% if (typeof user !=='undefined' && user) { %>
+                                    <form action="/product/<%= product._id %>/review" method="POST" class="mb-4 mt-3"
+                                        id="reviewFormMain">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold small">Chấm sao</label>
+                                            <select name="rating" class="form-select form-select-sm border-warning"
+                                                required>
+                                                <option value="">Chọn số sao</option>
+                                                <option value="5">★★★★★ (Tuyệt vời)</option>
+                                                <option value="4">★★★★ (Tốt)</option>
+                                                <option value="3">★★★ (Bình thường)</option>
+                                                <option value="2">★★ (Tệ)</option>
+                                                <option value="1">★ (Rất tệ)</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold small">Bình luận</label>
+                                            <textarea name="comment" class="form-control form-control-sm" rows="2"
+                                                placeholder="Chia sẻ cảm nhận..."></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-success btn-sm w-100 fw-bold">Gửi đánh
+                                            giá</button>
+                                    </form>
+                                    <% } else { %>
+                                        <div class="alert alert-info mt-3">Vui lòng <a href="#" data-bs-toggle="modal"
+                                                data-bs-target="#loginModal" class="fw-bold text-success">Đăng nhập</a>
+                                            để đánh giá
+                                            sản phẩm.</div>
+                                        <% } %>
 
-                                                <!-- === NESTED REPLIES (Phản hồi dạng cây) === -->
-                                                <% if (review.childReplies && review.childReplies.length > 0) { %>
-                                                    <% review.childReplies.forEach(reply => { %>
-                                                        <div class="ms-4 mt-2 p-3 border-start border-3 rounded bg-light" style="border-color: <%= (reply.user_id && reply.user_id.role === 1) ? '#198754' : '#0d6efd' %> !important;">
-                                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                                <div class="d-flex align-items-center gap-2">
-                                                                    <strong style="color: <%= (reply.user_id && reply.user_id.role === 1) ? '#198754' : '#0d6efd' %>;">
-                                                                        <i class="fas fa-reply me-1"></i>
-                                                                        <%= reply.user_id ? reply.user_id.fullname : 'Khách' %>
+                                            <div class="mt-4" id="review-list">
+                                                <% if (reviews && reviews.length> 0) { %>
+                                                    <% reviews.forEach((review, index)=> { %>
+                                                        <div
+                                                            class="border rounded p-3 mb-3 bg-white shadow-sm review-item <%- index >= 3 ? 'd-none' : '' %>">
+                                                            <!-- Header: Tên người đánh giá + Badge -->
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-center mb-1">
+                                                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                                                    <strong class="text-tempi-green">
+                                                                        <i class="fas fa-user-circle me-1"></i>
+                                                                        <%= review.user_id ? review.user_id.fullname
+                                                                            : 'Khách' %>
                                                                     </strong>
-                                                                    <% if (reply.user_id && reply.user_id.role === 1) { %>
-                                                                        <span class="badge bg-success" style="font-size: 0.65rem;">
-                                                                            <i class="fas fa-store me-1"></i>Quản trị viên
+                                                                    <% if (review.user_id && review.user_id.role===1) {
+                                                                        %>
+                                                                        <span class="badge bg-warning text-dark"
+                                                                            style="font-size: 0.7rem;">
+                                                                            <i class="fas fa-shield-alt me-1"></i>Quản
+                                                                            trị viên
                                                                         </span>
-                                                                    <% } %>
-                                                                    <% if (reply.user_id && typeof verifiedUserIds !== 'undefined' && verifiedUserIds.includes(reply.user_id._id.toString())) { %>
-                                                                        <span class="badge bg-success" style="font-size: 0.65rem;">
-                                                                            <i class="fas fa-check-circle me-1"></i>Đã mua hàng
-                                                                        </span>
-                                                                    <% } %>
+                                                                        <% } %>
+                                                                            <% if (review.user_id && typeof
+                                                                                verifiedUserIds !=='undefined' &&
+                                                                                verifiedUserIds.includes(review.user_id._id.toString()))
+                                                                                { %>
+                                                                                <span class="badge bg-success"
+                                                                                    style="font-size: 0.7rem;">
+                                                                                    <i
+                                                                                        class="fas fa-check-circle me-1"></i>Đã
+                                                                                    mua hàng
+                                                                                </span>
+                                                                                <% } %>
                                                                 </div>
-                                                                <small class="text-muted"><%= reply.createdAt.toLocaleString('vi-VN') %></small>
+                                                                <small class="text-muted">
+                                                                    <%= review.createdAt.toLocaleString('vi-VN') %>
+                                                                </small>
                                                             </div>
-                                                            <p class="mb-0 text-dark"><%- reply.comment ? reply.comment.replace(/\n/g, '<br>') : '' %></p>
-                                                        </div>
-                                                    <% }) %>
-                                                <% } %>
+                                                            <!-- Stars -->
+                                                            <div class="mb-2" style="color:#ffb400;">
+                                                                <%= '★' .repeat(review.rating || 0) %>
+                                                                    <%= '☆' .repeat(5 - (review.rating || 0)) %>
+                                                            </div>
+                                                            <!-- Comment -->
+                                                            <p class="mb-2 text-dark"><%- review.comment ?
+                                                                    review.comment.replace(/\n/g, '<br>' )
+                                                                    : '<em>Không có bình luận</em>' %></p>
 
-                                                <!-- Phản hồi cũ từ Admin (trường replies[] cũ) -->
-                                                <% if (review.replies && review.replies.length > 0) { %>
-                                                    <% review.replies.forEach(reply => { %>
-                                                        <div class="ms-4 mt-2 p-3 bg-light border-start border-4 border-success rounded">
-                                                            <h6 class="fw-bold text-success mb-1"><i class="fas fa-store"></i> Phản hồi từ Cửa hàng:</h6>
-                                                            <p class="mb-0 text-dark"><%- reply.comment ? reply.comment.replace(/\n/g, '<br>') : '' %></p>
-                                                            <small class="text-muted"><%= new Date(reply.createdAt).toLocaleString('vi-VN') %></small>
-                                                        </div>
-                                                    <% }) %>
-                                                <% } %>
+                                                            <!-- === NESTED REPLIES (Phản hồi dạng cây) === -->
+                                                            <% if (review.childReplies && review.childReplies.length> 0)
+                                                                { %>
+                                                                <% review.childReplies.forEach(reply=> { %>
+                                                                    <div class="ms-4 mt-2 p-3 border-start border-3 rounded bg-light"
+                                                                        style="border-color: '<%= (reply.user_id && reply.user_id.role === 1) ? '#198754' : '#0d6efd' %> !important;'">
+                                                                        <div
+                                                                            class="d-flex justify-content-between align-items-center mb-1">
+                                                                            <div
+                                                                                class="d-flex align-items-center gap-2">
+                                                                                <strong
+                                                                                    style="color: '<%= (reply.user_id && reply.user_id.role === 1) ? '#198754' : '#0d6efd' %>;'">
+                                                                                    <i class="fas fa-reply me-1"></i>
+                                                                                    <%= reply.user_id ?
+                                                                                        reply.user_id.fullname : 'Khách'
+                                                                                        %>
+                                                                                </strong>
+                                                                                <% if (reply.user_id &&
+                                                                                    reply.user_id.role===1) { %>
+                                                                                    <span class="badge bg-success"
+                                                                                        style="font-size: 0.65rem;">
+                                                                                        <i
+                                                                                            class="fas fa-store me-1"></i>Quản
+                                                                                        trị viên
+                                                                                    </span>
+                                                                                    <% } %>
+                                                                                        <% if (reply.user_id && typeof
+                                                                                            verifiedUserIds
+                                                                                            !=='undefined' &&
+                                                                                            verifiedUserIds.includes(reply.user_id._id.toString()))
+                                                                                            { %>
+                                                                                            <span
+                                                                                                class="badge bg-success"
+                                                                                                style="font-size: 0.65rem;">
+                                                                                                <i
+                                                                                                    class="fas fa-check-circle me-1"></i>Đã
+                                                                                                mua hàng
+                                                                                            </span>
+                                                                                            <% } %>
+                                                                            </div>
+                                                                            <small class="text-muted">
+                                                                                <%= reply.createdAt.toLocaleString('vi-VN')
+                                                                                    %>
+                                                                            </small>
+                                                                        </div>
+                                                                        <p class="mb-0 text-dark"><%- reply.comment ?
+                                                                                reply.comment.replace(/\n/g, '<br>' )
+                                                                                : '' %></p>
+                                                                    </div>
+                                                                    <% }) %>
+                                                                        <% } %>
 
-                                                <!-- Nút Trả lời (cho user đã đăng nhập) -->
-                                                <% if (typeof user !== 'undefined' && user) { %>
-                                                    <div class="mt-2">
-                                                        <a href="javascript:void(0);" class="text-primary small fw-bold text-decoration-none" onclick="toggleReplyForm('<%= review._id %>')">
-                                                            <i class="fas fa-reply me-1"></i>Trả lời
-                                                        </a>
-                                                        <div id="reply-form-<%= review._id %>" style="display: none;" class="mt-2 ms-4">
-                                                            <form action="/product/<%= product._id %>/review/reply" method="POST">
-                                                                <input type="hidden" name="parent_id" value="<%= review._id %>">
-                                                                <div class="input-group">
-                                                                    <input type="text" name="comment" class="form-control form-control-sm" placeholder="Viết phản hồi..." required>
-                                                                    <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-paper-plane"></i></button>
-                                                                </div>
-                                                            </form>
+                                                                            <!-- Phản hồi cũ từ Admin (trường replies[] cũ) -->
+                                                                            <% if (review.replies &&
+                                                                                review.replies.length> 0) { %>
+                                                                                <% review.replies.forEach(reply=> { %>
+                                                                                    <div
+                                                                                        class="ms-4 mt-2 p-3 bg-light border-start border-4 border-success rounded">
+                                                                                        <h6
+                                                                                            class="fw-bold text-success mb-1">
+                                                                                            <i class="fas fa-store"></i>
+                                                                                            Phản hồi từ Cửa hàng:
+                                                                                        </h6>
+                                                                                        <p class="mb-0 text-dark"><%-
+                                                                                                reply.comment ?
+                                                                                                reply.comment.replace(/\n/g, '<br>'
+                                                                                                ) : '' %></p>
+                                                                                        <small class="text-muted">
+                                                                                            <%= new
+                                                                                                Date(reply.createdAt).toLocaleString('vi-VN')
+                                                                                                %>
+                                                                                        </small>
+                                                                                    </div>
+                                                                                    <% }) %>
+                                                                                        <% } %>
+
+                                                                                            <!-- Nút Trả lời (cho user đã đăng nhập) -->
+                                                                                            <% if (typeof user
+                                                                                                !=='undefined' && user)
+                                                                                                { %>
+                                                                                                <div class="mt-2">
+                                                                                                    <a href="javascript:void(0);"
+                                                                                                        class="text-primary small fw-bold text-decoration-none"
+                                                                                                        onclick="toggleReplyForm('<%= review._id %>')">
+                                                                                                        <i
+                                                                                                            class="fas fa-reply me-1"></i>Trả
+                                                                                                        lời
+                                                                                                    </a>
+                                                                                                    <% if
+                                                                                                        (user.role===1)
+                                                                                                        { %> <a
+                                                                                                            href="/admin/reviews/delete/<%= review._id %>"
+                                                                                                            class="text-danger small fw-bold text-decoration-none ms-3"
+                                                                                                            onclick="return confirm('B?n c� ch?c ch?n mu?n x�a d�nh gi� n�y?');"><i
+                                                                                                                class="fas fa-trash-alt me-1"></i>X�a</a>
+                                                                                                        <% } %>
+                                                                                                            <div id="reply-form-<%= review._id %>"
+                                                                                                                style="display: none;"
+                                                                                                                class="mt-2 ms-4">
+                                                                                                                <form
+                                                                                                                    action="/product/<%= product._id %>/review/reply"
+                                                                                                                    method="POST">
+                                                                                                                    <input
+                                                                                                                        type="hidden"
+                                                                                                                        name="parent_id"
+                                                                                                                        value="<%= review._id %>">
+                                                                                                                    <div
+                                                                                                                        class="input-group">
+                                                                                                                        <input
+                                                                                                                            type="text"
+                                                                                                                            name="comment"
+                                                                                                                            class="form-control form-control-sm"
+                                                                                                                            placeholder="Viết phản hồi..."
+                                                                                                                            required>
+                                                                                                                        <button
+                                                                                                                            type="submit"
+                                                                                                                            class="btn btn-sm btn-primary"><i
+                                                                                                                                class="fas fa-paper-plane"></i></button>
+                                                                                                                    </div>
+                                                                                                                </form>
+                                                                                                            </div>
+                                                                                                </div>
+                                                                                                <% } %>
                                                         </div>
-                                                    </div>
-                                                <% } %>
+                                                        <% }) %>
+                                                            <% } else { %>
+                                                                <p class="text-muted">Chưa có đánh giá nào được duyệt.
+                                                                </p>
+                                                                <% } %>
                                             </div>
-                                            <% }) %>
-                                                <% } else { %>
-                                                    <p class="text-muted">Chưa có đánh giá nào được duyệt.</p>
-                                                    <% } %>
-                                </div>
 
-                        <% if (reviews && reviews.length > 5) { %>
-                            <div class="text-center my-3">
-                                <button id="btn-load-more-reviews" class="btn btn-outline-success btn-sm rounded-pill px-3 py-1 fw-bold" onclick="loadMoreReviews()">
-                                    Xem thêm <i class="fas fa-chevron-down ms-1"></i>
-                                </button>
-                            </div>
-                        <% } %>
+                                            <% if (reviews && reviews.length> 3) { %>
+                                                <div class="text-center my-3">
+                                                    <button id="btn-load-more-reviews"
+                                                        class="btn btn-outline-success btn-sm rounded-pill px-3 py-1 fw-bold"
+                                                        onclick="toggleReviews()" data-expanded="false">
+                                                        Xem thêm <i class="fas fa-chevron-down ms-1"></i>
+                                                    </button>
+                                                </div>
+                                                <% } %>
                     </div>
                 </div>
             </div>
@@ -449,153 +545,163 @@
                 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
                 <%- include('partials/javascript')%>
 
-                <!-- Script & Styles for Details -->
-                <style>
-                    .desc-gradient {
-                        position: absolute;
-                        bottom: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 80px;
-                        background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
-                        pointer-events: none;
-                    }
-                    .desc-expanded #productDescription {
-                        max-height: none !important;
-                    }
-                    .desc-expanded .desc-gradient {
-                        display: none;
-                    }
-                </style>
-
-                <script>
-                    // 7. TOGGLE XEM THÊM CHI TIẾT SẢN PHẨM
-                    function toggleDescription() {
-                        const descDiv = document.getElementById('productDescription').parentNode;
-                        const btn = document.getElementById('toggleDescBtn');
-                        
-                        if (descDiv.classList.contains('desc-expanded')) {
-                            descDiv.classList.remove('desc-expanded');
-                            btn.innerHTML = 'Xem thêm <i class="fas fa-chevron-down ms-1"></i>';
-                            // Scroll lên phần mô tả
-                            descDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        } else {
-                            descDiv.classList.add('desc-expanded');
-                            btn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-1"></i>';
+                    <!-- Script & Styles for Details -->
+                    <style>
+                        .desc-gradient {
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 80px;
+                            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+                            pointer-events: none;
                         }
-                    }
 
-                    // Xử lý ẩn nút nếu nội dung quá ngắn
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const descElem = document.getElementById('productDescription');
-                        // Nếu thẻ mô tả < 200px (chiều cao max-height) thì ẩn luôn nút xem thêm
-                        if (descElem && descElem.scrollHeight <= 200) {
-                            document.getElementById('descBtnContainer').style.display = 'none';
-                            document.getElementById('descGradient').style.display = 'none';
+                        .desc-expanded #productDescription {
+                            max-height: none !important;
                         }
-                    });
 
-                    // 1. TỰ ĐỘNG ẨN THÔNG BÁO ĐÁNH GIÁ SAU 3 GIÂY
-                    setTimeout(function () {
-                        let alerts = document.querySelectorAll('.review-alert');
-                        alerts.forEach(function (alert) {
-                            alert.style.transition = 'opacity 0.5s ease';
-                            alert.style.opacity = '0';
-                            setTimeout(() => alert.remove(), 500);
-                        });
-                    }, 3000);
-
-                    // 2. HÀM MỞ RỘNG SẢN PHẨM LIÊN QUAN NHƯ PHP CŨ
-                    function toggleRelatedProducts() {
-                        let items = document.querySelectorAll('.related-item');
-                        let btn = document.getElementById('btn-load-more');
-                        let isExpanded = btn.getAttribute('data-expanded') === 'true';
-
-                        if (!isExpanded) {
-                            items.forEach(item => item.style.display = 'block');
-                            btn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-1"></i>';
-                            btn.classList.replace('btn-outline-success', 'btn-secondary');
-                            btn.setAttribute('data-expanded', 'true');
-                        } else {
-                            items.forEach((item, index) => {
-                                if (index > 7) item.style.display = 'none';
-                            });
-                            btn.innerHTML = 'Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>';
-                            btn.classList.replace('btn-secondary', 'btn-outline-success');
-                            btn.setAttribute('data-expanded', 'false');
-                            document.getElementById('related-product-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        .desc-expanded .desc-gradient {
+                            display: none;
                         }
-                    }
+                    </style>
 
-                    // 3. TẢI THÊM ĐÁNH GIÁ (5 MÓT)
-                    function loadMoreReviews() {
-                        let hiddenItems = document.querySelectorAll('.review-item.d-none');
-                        // Mở giới hạn 5 thẻ đang ẩn
-                        for (let i = 0; i < 5; i++) {
-                            if (hiddenItems[i]) {
-                                hiddenItems[i].classList.remove('d-none');
-                            }
-                        }
-                        // Kiểm tra xem còn thẻ nào ẩn không, nếu không thì vứt luôn nút load hơn
-                        if (document.querySelectorAll('.review-item.d-none').length === 0) {
-                            let btn = document.getElementById('btn-load-more-reviews');
-                            if (btn) btn.style.display = 'none';
-                        }
-                    }
+                    <script>
+                        // 7. TOGGLE XEM THÊM CHI TIẾT SẢN PHẨM
+                        function toggleDescription() {
+                            const descDiv = document.getElementById('productDescription').parentNode;
+                            const btn = document.getElementById('toggleDescBtn');
 
-                    // 4. TOGGLE FORM TRẢ LỜI BÌNH LUẬN
-                    function toggleReplyForm(reviewId) {
-                        const form = document.getElementById('reply-form-' + reviewId);
-                        if (form) {
-                            if (form.style.display === 'none') {
-                                // Đóng tất cả form khác trước
-                                document.querySelectorAll('[id^="reply-form-"]').forEach(f => f.style.display = 'none');
-                                form.style.display = 'block';
-                                form.querySelector('input[name="comment"]').focus();
+                            if (descDiv.classList.contains('desc-expanded')) {
+                                descDiv.classList.remove('desc-expanded');
+                                btn.innerHTML = 'Xem thêm <i class="fas fa-chevron-down ms-1"></i>';
+                                // Scroll lên phần mô tả
+                                descDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
                             } else {
-                                form.style.display = 'none';
+                                descDiv.classList.add('desc-expanded');
+                                btn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-1"></i>';
                             }
                         }
-                    }
 
-                    // 5. AJAX SUBMIT ĐÁNH GIÁ (GỐC)
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const reviewFormMain = document.getElementById('reviewFormMain');
-                        if (reviewFormMain) {
-                            reviewFormMain.addEventListener('submit', function(e) {
-                                e.preventDefault(); // Chặn load lại trang
-                                const submitBtn = reviewFormMain.querySelector('button[type="submit"]');
-                                const originalText = submitBtn.innerHTML;
-                                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang xử lý...';
-                                submitBtn.classList.add('opacity-75'); // Nút mờ đi lúc loading
-                                submitBtn.disabled = true;
+                        // Xử lý ẩn nút nếu nội dung quá ngắn
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const descElem = document.getElementById('productDescription');
+                            // Nếu thẻ mô tả < 200px (chiều cao max-height) thì ẩn luôn nút xem thêm
+                            if (descElem && descElem.scrollHeight <= 200) {
+                                document.getElementById('descBtnContainer').style.display = 'none';
+                                document.getElementById('descGradient').style.display = 'none';
+                            }
+                        });
 
-                                const formData = new FormData(reviewFormMain);
-                                const searchParams = new URLSearchParams(formData);
+                        // 1. TỰ ĐỘNG ẨN THÔNG BÁO ĐÁNH GIÁ SAU 3 GIÂY
+                        setTimeout(function () {
+                            let alerts = document.querySelectorAll('.review-alert');
+                            alerts.forEach(function (alert) {
+                                alert.style.transition = 'opacity 0.5s ease';
+                                alert.style.opacity = '0';
+                                setTimeout(() => alert.remove(), 500);
+                            });
+                        }, 3000);
 
-                                fetch(reviewFormMain.action, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                        'Accept': 'application/json',
-                                        'X-Requested-With': 'XMLHttpRequest'
-                                    },
-                                    body: searchParams.toString()
-                                })
-                                .then(res => res.json())
-                                .then(data => {
-                                    if (data.status === 'success') {
-                                        const review = data.review;
-                                        const roleBadge = review.user && review.user.role === 1 ? `<span class="badge bg-warning text-dark" style="font-size: 0.7rem;"><i class="fas fa-shield-alt me-1"></i>Quản trị viên</span>` : '';
-                                        
-                                        // Vì API cho phép đánh giá nghĩa là nó đã pass Validation Check từ Backend (đã mua hàng)
-                                        const verifiedBadge = `<span class="badge bg-success" style="font-size: 0.7rem;"><i class="fas fa-check-circle me-1"></i>Đã mua hàng</span>`;
-                                        
-                                        const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-                                        const commentHtml = review.comment ? review.comment.replace(/\n/g, '<br>') : '<em>Không có bình luận</em>';
-                                        const username = review.user ? review.user.fullname : 'Khách';
+                        // 2. HÀM MỞ RỘNG SẢN PHẨM LIÊN QUAN NHƯ PHP CŨ
+                        function toggleRelatedProducts() {
+                            let items = document.querySelectorAll('.related-item');
+                            let btn = document.getElementById('btn-load-more');
+                            let isExpanded = btn.getAttribute('data-expanded') === 'true';
 
-                                        const html = `
+                            if (!isExpanded) {
+                                items.forEach(item => item.style.display = 'block');
+                                btn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-1"></i>';
+                                btn.classList.replace('btn-outline-success', 'btn-secondary');
+                                btn.setAttribute('data-expanded', 'true');
+                            } else {
+                                items.forEach((item, index) => {
+                                    if (index > 7) item.style.display = 'none';
+                                });
+                                btn.innerHTML = 'Xem thêm sản phẩm <i class="fas fa-chevron-down ms-1"></i>';
+                                btn.classList.replace('btn-secondary', 'btn-outline-success');
+                                btn.setAttribute('data-expanded', 'false');
+                                document.getElementById('related-product-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }
+
+                        // 3. TOGGLE ĐÁNH GIÁ (XEM THÊM / THU GỌN)
+                        function toggleReviews() {
+                            let items = document.querySelectorAll('.review-item');
+                            let btn = document.getElementById('btn-load-more-reviews');
+                            let isExpanded = btn.getAttribute('data-expanded') === 'true';
+
+                            if (!isExpanded) {
+                                // Xem thêm: Hiển thị tất cả
+                                items.forEach(item => item.classList.remove('d-none'));
+                                btn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-1"></i>';
+                                btn.classList.replace('btn-outline-success', 'btn-secondary');
+                                btn.setAttribute('data-expanded', 'true');
+                            } else {
+                                // Thu gọn: Chỉ hiển thị 3 cái đầu tiên
+                                items.forEach((item, index) => {
+                                    if (index >= 3) item.classList.add('d-none');
+                                });
+                                btn.innerHTML = 'Xem thêm <i class="fas fa-chevron-down ms-1"></i>';
+                                btn.classList.replace('btn-secondary', 'btn-outline-success');
+                                btn.setAttribute('data-expanded', 'false');
+                                document.getElementById('review-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }
+
+                        // 4. TOGGLE FORM TRẢ LỜI BÌNH LUẬN
+                        function toggleReplyForm(reviewId) {
+                            const form = document.getElementById('reply-form-' + reviewId);
+                            if (form) {
+                                if (form.style.display === 'none') {
+                                    // Đóng tất cả form khác trước
+                                    document.querySelectorAll('[id^="reply-form-"]').forEach(f => f.style.display = 'none');
+                                    form.style.display = 'block';
+                                    form.querySelector('input[name="comment"]').focus();
+                                } else {
+                                    form.style.display = 'none';
+                                }
+                            }
+                        }
+
+                        // 5. AJAX SUBMIT ĐÁNH GIÁ (GỐC)
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const reviewFormMain = document.getElementById('reviewFormMain');
+                            if (reviewFormMain) {
+                                reviewFormMain.addEventListener('submit', function (e) {
+                                    e.preventDefault(); // Chặn load lại trang
+                                    const submitBtn = reviewFormMain.querySelector('button[type="submit"]');
+                                    const originalText = submitBtn.innerHTML;
+                                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang xử lý...';
+                                    submitBtn.classList.add('opacity-75'); // Nút mờ đi lúc loading
+                                    submitBtn.disabled = true;
+
+                                    const formData = new FormData(reviewFormMain);
+                                    const searchParams = new URLSearchParams(formData);
+
+                                    fetch(reviewFormMain.action, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        },
+                                        body: searchParams.toString()
+                                    })
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            if (data.status === 'success') {
+                                                const review = data.review;
+                                                const roleBadge = review.user && review.user.role === 1 ? `<span class="badge bg-warning text-dark" style="font-size: 0.7rem;"><i class="fas fa-shield-alt me-1"></i>Quản trị viên</span>` : '';
+
+                                                // Vì API cho phép đánh giá nghĩa là nó đã pass Validation Check từ Backend (đã mua hàng)
+                                                const verifiedBadge = `<span class="badge bg-success" style="font-size: 0.7rem;"><i class="fas fa-check-circle me-1"></i>Đã mua hàng</span>`;
+
+                                                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                                                const commentHtml = review.comment ? review.comment.replace(/\n/g, '<br>') : '<em>Không có bình luận</em>';
+                                                const username = review.user ? review.user.fullname : 'Khách';
+
+                                                const html = `
                                         <div class="border rounded p-3 mb-3 bg-white shadow-sm review-item" style="animation: fadeIn 0.5s;">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <div class="d-flex align-items-center flex-wrap gap-2">
@@ -612,69 +718,69 @@
                                         </div>
                                         `;
 
-                                        const reviewList = document.getElementById('review-list');
-                                        // Nếu đang hiện chữ Chưa có đánh giá nào thì xoá đi
-                                        if (reviewList.innerHTML.includes('Chưa có đánh giá nào') || reviewList.innerHTML.includes('Chưa có đánh giá')) {
-                                            reviewList.innerHTML = '';
-                                        }
-                                        
-                                        reviewList.insertAdjacentHTML('afterbegin', html);
-                                        
-                                        // Add animation CSS dynamically
-                                        if (!document.getElementById('ajaxReviewStyles')) {
-                                            const style = document.createElement('style');
-                                            style.id = 'ajaxReviewStyles';
-                                            style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }`;
-                                            document.head.appendChild(style);
-                                        }
+                                                const reviewList = document.getElementById('review-list');
+                                                // Nếu đang hiện chữ Chưa có đánh giá nào thì xoá đi
+                                                if (reviewList.innerHTML.includes('Chưa có đánh giá nào') || reviewList.innerHTML.includes('Chưa có đánh giá')) {
+                                                    reviewList.innerHTML = '';
+                                                }
 
-                                        // Reset form and show success toast inside pane
-                                        reviewFormMain.reset();
-                                        
-                                        let alertBox = document.querySelector('.review-alert');
-                                        if(!alertBox) {
-                                            alertBox = document.createElement('div');
-                                            alertBox.className = 'alert alert-success mt-2 review-alert';
-                                            reviewFormMain.parentNode.insertBefore(alertBox, reviewFormMain);
-                                        }
-                                        alertBox.innerText = 'Cảm ơn bạn đã đánh giá! Đánh giá của bạn đã được hiển thị.';
+                                                reviewList.insertAdjacentHTML('afterbegin', html);
+
+                                                // Add animation CSS dynamically
+                                                if (!document.getElementById('ajaxReviewStyles')) {
+                                                    const style = document.createElement('style');
+                                                    style.id = 'ajaxReviewStyles';
+                                                    style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }`;
+                                                    document.head.appendChild(style);
+                                                }
+
+                                                // Reset form and show success toast inside pane
+                                                reviewFormMain.reset();
+
+                                                let alertBox = document.querySelector('.review-alert');
+                                                if (!alertBox) {
+                                                    alertBox = document.createElement('div');
+                                                    alertBox.className = 'alert alert-success mt-2 review-alert';
+                                                    reviewFormMain.parentNode.insertBefore(alertBox, reviewFormMain);
+                                                }
+                                                alertBox.innerText = 'Cảm ơn bạn đã đánh giá! Đánh giá của bạn đã được hiển thị.';
+                                            } else {
+                                                alert(data.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+                                            }
+                                        })
+                                        .catch(err => {
+                                            console.error(err);
+                                            alert("Đã xảy ra lỗi hệ thống, vui lòng thử lại.");
+                                        })
+                                        .finally(() => {
+                                            submitBtn.innerHTML = originalText;
+                                            submitBtn.classList.remove('opacity-75');
+                                            submitBtn.disabled = false;
+                                        });
+                                });
+                            }
+                        });
+
+                        // 6. ĐĂNG KÝ THÔNG BÁO KHI CÓ HÀNG TRỞ LẠI
+                        function subscribeStock(productId) {
+                            fetch('/api/stock-subscribe', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ product_id: productId })
+                            })
+                                .then(r => r.json())
+                                .then(data => {
+                                    if (data.status === 'success') {
+                                        alert('✅ ' + data.message);
+                                    } else if (data.status === 'info') {
+                                        alert('ℹ️ ' + data.message);
                                     } else {
-                                        alert(data.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+                                        alert('❌ ' + data.message);
                                     }
                                 })
-                                .catch(err => {
-                                    console.error(err);
-                                    alert("Đã xảy ra lỗi hệ thống, vui lòng thử lại.");
-                                })
-                                .finally(() => {
-                                    submitBtn.innerHTML = originalText;
-                                    submitBtn.classList.remove('opacity-75');
-                                    submitBtn.disabled = false;
-                                });
-                            });
+                                .catch(() => alert('Lỗi hệ thống, vui lòng thử lại.'));
                         }
-                    });
-
-                    // 6. ĐĂNG KÝ THÔNG BÁO KHI CÓ HÀNG TRỞ LẠI
-                    function subscribeStock(productId) {
-                        fetch('/api/stock-subscribe', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ product_id: productId })
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.status === 'success') {
-                                alert('✅ ' + data.message);
-                            } else if (data.status === 'info') {
-                                alert('ℹ️ ' + data.message);
-                            } else {
-                                alert('❌ ' + data.message);
-                            }
-                        })
-                        .catch(() => alert('Lỗi hệ thống, vui lòng thử lại.'));
-                    }
-                </script>
+                    </script>
 </body>
 
 </html>

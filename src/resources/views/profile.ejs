@@ -65,11 +65,33 @@
                                                     <small class="text-muted">Số điện thoại không thể thay đổi.</small>
                                                 </div>
 
-                                                <div class="mb-4">
+                                                <!-- <div class="mb-4">
                                                     <label class="form-label fw-bold">Địa chỉ giao hàng</label>
                                                     <input type="text" name="address"
                                                         class="form-control form-control-lg bg-light"
                                                         value="<%= user.address || '' %>" required>
+                                                </div> -->
+                                                <div class="mb-4 address-group">
+                                                    <label class="form-label fw-bold">Địa chỉ giao hàng</label>
+                                                    <div class="row mb-2">
+                                                        <div class="col-sm-3 mb-2 mb-sm-0">
+                                                            <select class="form-select form-select-lg bg-light province" required>
+                                                                <option value="">Tỉnh/Thành phố</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-sm-5 mb-2 mb-sm-0">
+                                                            <select class="form-select form-select-lg bg-light district" required>
+                                                                <option value="">Quận/Huyện</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <select class="form-select form-select-lg bg-light ward" required>
+                                                                <option value="">Phường/Xã</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" class="form-control form-control-lg bg-light street" placeholder="Số nhà, tên đường cụ thể">
+                                                    <input type="hidden" name="address" class="address-hidden" value="<%= user.address || '' %>">
                                                 </div>
 
                                                 <hr class="my-4">
@@ -120,6 +142,132 @@
             <%- include('partials/modal') %>
 
                 <%- include('partials/javascript') %>
+                <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addressGroups = document.querySelectorAll('.address-group');
+        addressGroups.forEach(group => {
+            const provinceSel = group.querySelector('.province');
+            const districtSel = group.querySelector('.district');
+            const wardSel = group.querySelector('.ward');
+            const streetInp = group.querySelector('.street');
+            const hiddenInp = group.querySelector('.address-hidden');
+
+            // Lấy dữ liệu địa chỉ cũ để auto fill
+            const fullAddress = hiddenInp.value;
+            let defaultProv = '', defaultDist = '', defaultWard = '', defaultStreet = '';
+
+            if (fullAddress) {
+                const parts = fullAddress.split(',').map(s => s.trim());
+                const len = parts.length;
+                
+                // Nếu có từ 3 phần trở lên (Tối thiểu phải có: Phường/Xã, Quận/Huyện, Tỉnh/Thành)
+                if (len >= 3) {
+                    defaultProv = parts[len - 1]; 
+                    defaultDist = parts[len - 2]; 
+                    defaultWard = parts[len - 3]; 
+                    
+                    if (len > 3) {
+                        defaultStreet = parts.slice(0, len - 3).join(', ');
+                    }
+                } else {
+                    defaultStreet = fullAddress; 
+                }
+            }
+
+            // Hàm hỗ trợ chọn option theo text
+            function selectOptionByText(selectEl, text) {
+                if (!text) return false;
+                const lowerText = text.toLowerCase();
+                for (let i = 0; i < selectEl.options.length; i++) {
+                    if (selectEl.options[i].text.toLowerCase() === lowerText ||
+                        selectEl.options[i].text.toLowerCase().includes(lowerText)) {
+                        selectEl.selectedIndex = i;
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // Điền sẵn số nhà
+            if (defaultStreet) streetInp.value = defaultStreet;
+
+            // Lấy danh sách tỉnh thành
+            fetch('https://provinces.open-api.vn/api/p/')
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(item => {
+                        provinceSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                    });
+                    // Tự động chọn Tỉnh
+                    if (defaultProv && selectOptionByText(provinceSel, defaultProv)) {
+                        provinceSel.dispatchEvent(new Event('change')); // Trigger load Huyện
+                    }
+                })
+                .catch(err => console.error("Lỗi lấy tỉnh thành:", err));
+
+            provinceSel.addEventListener('change', function () {
+                districtSel.innerHTML = '<option value="">Quận/Huyện</option>';
+                wardSel.innerHTML = '<option value="">Phường/Xã</option>';
+                if (this.value) {
+                    fetch(`https://provinces.open-api.vn/api/p/${this.value}?depth=2`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.districts) {
+                                data.districts.forEach(item => {
+                                    districtSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                                });
+                                // Tự động chọn Huyện 
+                                if (defaultDist && selectOptionByText(districtSel, defaultDist)) {
+                                    defaultDist = ''; // Xóa để không auto fill nếu user tự đổi
+                                    districtSel.dispatchEvent(new Event('change'));
+                                }
+                            }
+                        });
+                }
+                updateAddress();
+            });
+
+            districtSel.addEventListener('change', function () {
+                wardSel.innerHTML = '<option value="">Phường/Xã</option>';
+                if (this.value) {
+                    fetch(`https://provinces.open-api.vn/api/d/${this.value}?depth=2`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.wards) {
+                                data.wards.forEach(item => {
+                                    wardSel.innerHTML += `<option value="${item.code}">${item.name}</option>`;
+                                });
+                                // Tự động chọn Phường
+                                if (defaultWard && selectOptionByText(wardSel, defaultWard)) {
+                                    defaultWard = '';
+                                }
+                            }
+                        });
+                }
+                updateAddress();
+            });
+
+            wardSel.addEventListener('change', updateAddress);
+            streetInp.addEventListener('input', updateAddress);
+
+            // Hàm ghép chuỗi cập nhật vào input ẩn
+            function updateAddress() {
+                let parts = [];
+                if (streetInp.value.trim()) parts.push(streetInp.value.trim());
+                if (wardSel.value) parts.push(wardSel.options[wardSel.selectedIndex].text);
+                if (districtSel.value) parts.push(districtSel.options[districtSel.selectedIndex].text);
+                if (provinceSel.value) parts.push(provinceSel.options[provinceSel.selectedIndex].text);
+                hiddenInp.value = parts.join(', ');
+            }
+
+            // Đảm bảo update lại địa chỉ lần cuối trước khi submit form
+            const form = group.closest('form');
+            if (form) {
+                form.addEventListener('submit', updateAddress);
+            }
+        });
+    });
+</script>
 </body>
 
 </html>
