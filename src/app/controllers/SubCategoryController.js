@@ -1,5 +1,7 @@
 const SubCategory = require('../models/SubCategory');
 const Category = require('../models/Category'); // Phải gọi thêm Category model để lấy danh sách thẻ <select>
+const fs = require('fs');
+const xlsx = require('xlsx');
 
 class SubCategoryController {
     // 1. [GET] /admin/sub_categories (Hiển thị danh sách)
@@ -63,6 +65,72 @@ class SubCategoryController {
         } catch (error) {
             console.log(error);
             res.status(500).send('Lỗi khi xóa thể loại con');
+        }
+    }
+
+    // 5. [GET] /admin/sub_categories/export
+    async exportExcel(req, res) {
+        try {
+            const sub_categories = await SubCategory.find({}).populate('category_id').lean();
+            const data = sub_categories.map((sc, index) => ({
+                STT: index + 1,
+                Name: sc.name,
+                Category: sc.category_id ? sc.category_id.name : '',
+                Status: sc.status === 1 ? 'Hiển thị' : 'Ẩn'
+            }));
+
+            const ws = xlsx.utils.json_to_sheet(data);
+            const wb = xlsx.utils.book_new();
+            xlsx.utils.book_append_sheet(wb, ws, "SubCategories");
+
+            const buffer = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            res.setHeader('Content-Disposition', 'attachment; filename="sub_categories.xlsx"');
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.send(buffer);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send('Lỗi xuất file Excel');
+        }
+    }
+
+    // 6. [POST] /admin/sub_categories/import
+    async importExcel(req, res) {
+        try {
+            if (!req.file) {
+                return res.status(400).send('<script>alert("Vui lòng chọn file Excel"); window.location.href="/admin/sub_categories";</script>');
+            }
+
+            const workbook = xlsx.read(req.file.path, { type: 'file' });
+            const sheetName = workbook.SheetNames[0];
+            const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+            let successCount = 0;
+            let skipCount = 0;
+
+            for (const item of data) {
+                if (!item.Name) continue;
+                
+                const existing = await SubCategory.findOne({ name: item.Name });
+                if (existing) {
+                    skipCount++;
+                    continue;
+                }
+                
+                const newSubCategory = new SubCategory({
+                    name: item.Name,
+                    status: item.Status === 'Ẩn' ? 0 : 1,
+                });
+                
+                await newSubCategory.save();
+                successCount++;
+            }
+
+            fs.unlinkSync(req.file.path);
+
+            res.send(`<script>alert("Nhập file thành công! Thêm mới: ${successCount}, Bỏ qua trùng lặp: ${skipCount}"); window.location.href="/admin/sub_categories";</script>`);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send('<script>alert("Lỗi nhập file Excel"); window.location.href="/admin/sub_categories";</script>');
         }
     }
 }

@@ -8,6 +8,7 @@ const User = require('../models/User');
 const { sendBackInStockEmail } = require('../../utils/mailer');
 const fs = require('fs');
 const path = require('path');
+const xlsx = require('xlsx');
 
 class ProductController {
     // [GET] /admin/products (Phân trang 8 SP/trang)
@@ -156,6 +157,82 @@ class ProductController {
             res.redirect('/admin/products');
         } catch (error) {
             res.status(500).send('Lỗi khi xóa');
+        }
+    }
+
+    // [GET] /admin/products/export
+    async exportExcel(req, res) {
+        try {
+            const products = await Product.find({}).populate('category_id').populate('sub_category_id').populate('brand_id').lean();
+            
+            const data = products.map((p, index) => ({
+                STT: index + 1,
+                Name: p.name,
+                Price: p.price,
+                DiscountPrice: p.discount_price || 0,
+                Stock: p.stock_quantity,
+                Category: p.category_id ? p.category_id.name : '',
+                SubCategory: p.sub_category_id ? p.sub_category_id.name : '',
+                Brand: p.brand_id ? p.brand_id.name : '',
+                Status: p.status === 1 ? 'Đang bán' : 'Ngừng bán'
+            }));
+
+            const ws = xlsx.utils.json_to_sheet(data);
+            const wb = xlsx.utils.book_new();
+            xlsx.utils.book_append_sheet(wb, ws, "Products");
+
+            const buffer = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            
+            res.setHeader('Content-Disposition', 'attachment; filename="products.xlsx"');
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.send(buffer);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send('Lỗi xuất file Excel');
+        }
+    }
+
+    // [POST] /admin/products/import
+    async importExcel(req, res) {
+        try {
+            if (!req.file) {
+                return res.status(400).send('<script>alert("Vui lòng chọn file Excel"); window.location.href="/admin/products";</script>');
+            }
+
+            const workbook = xlsx.read(req.file.path, { type: 'file' });
+            const sheetName = workbook.SheetNames[0];
+            const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+            let successCount = 0;
+            let skipCount = 0;
+
+            for (const item of data) {
+                if (!item.Name) continue;
+                
+                const existing = await Product.findOne({ name: item.Name });
+                if (existing) {
+                    skipCount++;
+                    continue;
+                }
+                
+                const newProduct = new Product({
+                    name: item.Name,
+                    price: item.Price || 0,
+                    discount_price: item.DiscountPrice || null,
+                    stock_quantity: item.Stock || 0,
+                    status: item.Status === 'Ngừng bán' ? 0 : 1,
+                });
+                
+                await newProduct.save();
+                successCount++;
+            }
+
+            fs.unlinkSync(req.file.path);
+
+            res.send(`<script>alert("Nhập file thành công! Thêm mới: ${successCount}, Bỏ qua trùng lặp: ${skipCount}"); window.location.href="/admin/products";</script>`);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send('<script>alert("Lỗi nhập file Excel"); window.location.href="/admin/products";</script>');
         }
     }
 }

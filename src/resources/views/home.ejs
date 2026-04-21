@@ -71,7 +71,7 @@
         </section>
 
         <!-- Danh mục -->
-        <section class="container my-5 bg-light rounded">
+        <section class="container my-5 rounded-4" style="background-color: white;">
             <h2 class="text-center mb-4 fw-bold">Danh mục</h2>
             <div class="row text-center category-row justify-content-center">
                 <% const catImages={ 'do-hop' : '/image/do-hop.png' , 'rau-cu' : '/image/raucai.webp' , 'banh-mi'
@@ -105,9 +105,10 @@
             </div>
         </section>
         <!-- Best Seller -->
-        <section class="container my-5 bg-danger" style="border-radius: 30px;">
+        <section class="container my-5 bg-danger border-1" style="border-radius: 30px;">
             <div style="padding: 20px;">
-                <h2 class="text-start mb-4 fw-bold"><i class="fas fa-bolt text-warning me-2"></i> KHUYẾN MÃI SỐC</h3>
+                <h2 class="text-start mb-4 fw-bold text-light">
+                    <i class="fas fa-bolt text-warning me-2"></i> KHUYẾN MÃI SỐC</h3>
                     <div class="row" id="sale-product-list">
                         <% if (typeof saleProducts !=='undefined' && saleProducts.length> 0) { %>
                             <% saleProducts.forEach(product=> { %>
@@ -135,7 +136,6 @@
                                                         <%= product.name %>
                                                     </h6>
                                                 </a>
-
                                                 <div class="text-muted text-decoration-line-through small">
                                                     <%= product.price.toLocaleString('vi-VN') %> đ
                                                 </div>
@@ -152,8 +152,7 @@
                                                         style="height: 22px; border-radius: 50px; background-color: #fef0cd;">
                                                         <% let stock=product.stock_quantity; let stockPercent=(stock
                                                             <=100) ? stock : 50; %>
-                                                            <div class="progress-bar bg-warning" role="progressbar"
-                                                                style="width: <%= stockPercent %>%; border-radius: 50px;">
+                                                            <div class="progress-bar bg-warning" role="progressbar"style="width: <%= stockPercent %>%; border-radius: 50px;">
                                                             </div>
                                                     </div>
                                                     <div class="position-absolute top-50 start-50 translate-middle w-100 text-center"
@@ -204,27 +203,44 @@
             </div>
         </section>
         <!-- Sale Cuối Tuần 40% -->
+        
         <section class="container-fluid banner-mid p-0 my-5">
-            <% let slot1Title="Siêu sale cuối tuần" ; let slot1Percent="GIẢM ĐẾN 40%" ; let
-                slot1CategoryName="THỰC PHẨM TƯƠI SỐNG" ; let slot1Link="#" ; if (typeof promoConfig !=='undefined' &&
-                promoConfig && promoConfig.promo1_category_id) { slot1Percent="GIẢM ĐẾN " + promoConfig.promo1_percent
-                + "%" ; slot1CategoryName=promoConfig.promo1_category_id.name.toUpperCase(); slot1Link="/category/" +
-                promoConfig.promo1_category_id.slug; } %>
-                <div class="mid-banner-wrapper">
-                    <div class="mid-banner-overlay"></div>
-                    <img src="https://via.placeholder.com/1920x300?text=Banner+Deal" alt="Deal of the week"
-                        class="img-cover position-absolute top-0 start-0 w-100 h-100" style="z-index: 0;">
-                    <div class="mid-banner-content text-center text-white">
-                        <h4 class="text-uppercase mb-2">
-                            <%= slot1Title %>
-                        </h4>
-                        <h1 class="display-5 fw-bold mb-4">
-                            <%= slot1Percent %><br>
-                                <%= slot1CategoryName %>
-                        </h1>
-                        <a href="<%= slot1Link %>" class="btn btn-warning rounded-pill px-4 py-2 fw-bold">Mua ngay</a>
-                    </div>
+            <% 
+                let slot1Title = "Siêu sale cuối tuần"; 
+                let slot1Percent = "GIẢM ĐẾN 40%"; 
+                let slot1CategoryName = "THỰC PHẨM TƯƠI SỐNG"; 
+                let slot1Link = "#"; 
+
+                if (typeof promoConfig !== 'undefined' && promoConfig && promoConfig.promo1_category_id) { 
+                    slot1Percent = "GIẢM ĐẾN " + promoConfig.promo1_percent + "%"; 
+                    slot1CategoryName = promoConfig.promo1_category_id.name.toUpperCase(); 
+                    slot1Link = "/category/" + promoConfig.promo1_category_id.slug; 
+                } 
+            %>
+            
+            <div class="mid-banner-wrapper">
+                <div class="mid-banner-overlay"></div>
+                
+                <img src="/image/Banner/freecompress-trang-chu-moi-pc_202511132219189171.jpg" 
+                    alt="Deal of the week"
+                    class="img-cover position-absolute top-0 start-0 w-100 h-100" 
+                    style="z-index: 0;">
+                    
+                <div class="mid-banner-content text-center text-white">
+                    <h4 class="text-uppercase mb-2">
+                        <%= slot1Title %>
+                    </h4>
+                    
+                    <h1 class="display-5 fw-bold mb-4">
+                        <%= slot1Percent %><br>
+                        <%= slot1CategoryName %>
+                    </h1>
+                    
+                    <a href="<%= slot1Link %>" class="btn btn-warning rounded-pill px-4 py-2 fw-bold">
+                        Mua ngay
+                    </a>
                 </div>
+            </div>
         </section>
         <!-- Ưu đãi độc quyền 30% -->
         <section class="container my-5 py-4 bg-light rounded shadow-sm">

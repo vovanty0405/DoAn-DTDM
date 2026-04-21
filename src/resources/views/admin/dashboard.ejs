@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Thống Kê - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Thư viện Chart.js cho biểu đồ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Thư viện xuất PDF và Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #005a3c;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #00452d;
+            border-left: 4px solid #f9b612;
+        }
+
+        .stat-card {
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .table-responsive {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 p-0 sidebar text-white">
+                <div class="p-4 text-center border-bottom border-secondary">
+                    <h4 class="fw-bold text-warning mb-0">BÁCH HÓA PEW</h4>
+                    <div class="mt-2 small opacity-75">
+                        <i class="fas fa-user-shield"></i>Quản trị viên<br>
+                        <span style="font-size: 0.8em;">ID: ADMIN</span>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="/admin/dashboard" class="active"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
+                    <a href="/admin/categories"><i class="fas fa-list me-2"></i> Danh Mục Gốc</a>
+                    <a href="/admin/sub_categories"><i class="fas fa-tags me-2"></i> Thể Loại Con</a>
+                    <a href="/admin/brands"><i class="fas fa-copyright me-2"></i> Hãng Sản Xuất</a>
+                    <a href="/admin/products"><i class="fas fa-box me-2"></i> Sản Phẩm</a>
+                    <a href="/admin/customers"><i class="fas fa-users me-2"></i> Khách Hàng</a>
+                    <a href="/admin/orders"><i class="fas fa-file-invoice-dollar me-2"></i> Đơn Hàng</a>
+                    <a href="/admin/reviews"><i class="fas fa-star me-2"></i> Đánh Giá</a>
+                    <a href="/admin/contacts"><i class="fas fa-envelope me-2"></i> Liên Hệ</a>
+                    <a href="/admin/promotions"><i class="fas fa-percent me-2"></i> Khuyến Mãi</a>
+                    <a href="/logout" class="text-danger mt-5"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a>
+                </div>
+            </div>
+
+            <div class="col-md-10 p-4" id="dashboard-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold text-dark">Thống Kê Báo Cáo</h2>
+                    <div>
+                        <button class="btn btn-outline-success fw-bold me-2" onclick="exportDashboardExcel()">
+                            <i class="fas fa-file-excel"></i> Xuất Excel
+                        </button>
+                        <button class="btn btn-outline-danger fw-bold me-2" onclick="exportPDF()">
+                            <i class="fas fa-file-pdf"></i> Xuất PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Thống kê tổng quan -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card stat-card border-0 shadow-sm bg-success text-white">
+                            <div class="card-body">
+                                <h6><i class="fas fa-money-bill-wave me-2"></i>Tổng Doanh Thu</h6>
+                                <h3 class="fw-bold">
+                                    <%=totalRevenue.toLocaleString('vi-VN')%> đ
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stat-card border-0 shadow-sm bg-primary text-white">
+                            <div class="card-body">
+                                <h6><i class="fas fa-shopping-cart me-2"></i>Giá Trị Đơn Trung Bình</h6>
+                                <h3 class="fw-bold">
+                                    <%=averageOrderValue.toLocaleString('vi-VN')%> đ
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stat-card border-0 shadow-sm bg-warning text-dark">
+                            <div class="card-body">
+                                <h6><i class="fas fa-user-plus me-2"></i>Khách Hàng Mới (Tháng Này)</h6>
+                                <h3 class="fw-bold">
+                                    <%=newCustomersCount%>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Biểu đồ -->
+                    <div class="col-md-12 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white fw-bold">
+                                Biểu Đồ Doanh Thu 7 Ngày Gần Nhất
+                            </div>
+                            <div class="card-body">
+                                <canvas id="revenueChart" 
+                                style="max-height: 300px;">
+                                data-labels="<%= JSON.stringify(revenueLabels || []) %>"
+                                data-revenue="<%= JSON.stringify(revenueData || []) %>">
+                                </canvas>
+                                <div id="exportData" 
+                                    data-lowstock="<%= JSON.stringify(lowStockProducts || []) %>" 
+                                    hidden>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Bảng doanh thu chi tiết -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white fw-bold">
+                                <i class="fas fa-table me-2"></i>Doanh Thu Chi Tiết 7 Ngày
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle text-center mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Ngày</th>
+                                                <th>Số Đơn</th>
+                                                <th>Tổng Tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <%if(revenueByDate && revenueByDate.length > 0){%>
+                                                <%revenueByDate.forEach(item => {%>
+                                                    <tr>
+                                                        <td class="small"><%=item.date%></td>
+                                                        <td><%=item.orderCount%></td>
+                                                        <td class="fw-bold text-success"><%=item.totalAmount.toLocaleString('vi-VN')%> đ</td>
+                                                    </tr>
+                                                <%})%>
+                                            <%}else{%>
+                                                <tr><td colspan="3" class="text-muted">Không có dữ liệu</td></tr>
+                                            <%}%>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cảnh báo tồn kho -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-danger text-white fw-bold">
+                                <i class="fas fa-exclamation-triangle"></i> Cảnh Báo Tồn Kho Thấp (< 5)
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle text-center mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Sản phẩm</th>
+                                                <th>Tồn kho</th>
+                                                <th>Giá</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <%if(lowStockProducts && lowStockProducts.length > 0){%>
+                                                <%lowStockProducts.forEach(prod => {%>
+                                                    <tr>
+                                                        <td class="text-start small"><%=prod.name%></td>
+                                                        <td><span class="badge bg-danger rounded-pill"><%=prod.stock_quantity%></span></td>
+                                                        <td class="small"><%=prod.price.toLocaleString('vi-VN')%> đ</td>
+                                                    </tr>
+                                                <%})%>
+                                            <%}else{%>
+                                                <tr><td colspan="3" class="text-muted">Không có sản phẩm nào sắp hết hàng.</td></tr>
+                                            <%}%>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // --- 1. Init Chart ---
+    const canvas = document.getElementById('revenueChart');
+    const ctx = canvas.getContext('2d');
+    
+    // Parse chuỗi JSON từ thuộc tính data-* thành mảng/object JavaScript
+    const revenueLabels = JSON.parse(canvas.dataset.labels);
+    const revenueData = JSON.parse(canvas.dataset.revenue);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: revenueLabels,
+            datasets: [{
+                label: 'Doanh thu (VNĐ)',
+                data: revenueData,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // --- 2. Export PDF (Giữ nguyên) ---
+    function exportPDF() {
+        const element = document.getElementById('dashboard-content');
+        const opt = {
+            margin: 0.5,
+            filename: 'BaoCao_Dashboard.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // --- 3. Export Excel ---
+    function exportDashboardExcel() {
+        const data = [
+            ["Thống Kê Tổng Quan", ""],
+            ["Tổng Doanh Thu", "<%=totalRevenue.toLocaleString('vi-VN')%> VNĐ"], 
+            ["Giá Trị Đơn Trung Bình", "<%=averageOrderValue.toLocaleString('vi-VN')%> VNĐ"],
+            ["Khách Hàng Mới", "<%=newCustomersCount%>"],
+            ["", ""],
+            ["Sản Phẩm Tồn Kho Thấp (< 5)", "Số lượng"]
+        ];
+
+        // Lấy dữ liệu lowStockProducts đã được gán vào div ẩn
+        const exportDataEl = document.getElementById('exportData');
+        const lowStockProducts = JSON.parse(exportDataEl.dataset.lowstock);
+
+        // Xử lý logic hoàn toàn bằng JavaScript thuần
+        if (lowStockProducts && lowStockProducts.length > 0) {
+            lowStockProducts.forEach(prod => {
+                data.push([prod.name, prod.stock_quantity]);
+            });
+        } else {
+            data.push(["Không có", ""]);
+        }
+
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "BaoCao");
+        XLSX.writeFile(wb, "BaoCao_Dashboard.xlsx");
+    }
+</script>
+</body>
+
+</html>

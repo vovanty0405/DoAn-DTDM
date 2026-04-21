@@ -2,9 +2,11 @@ var express = require('express');
 var router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const dashboardController = require('../app/controllers/DashboardController');
 
-
-// 1. Cấu hình Multer để lưu ảnh vào thư mục public/uploads
+// Mặc định /admin redirect về dashboard
+router.get('/', (req, res) => res.redirect('/admin/dashboard'));
+router.get('/dashboard', dashboardController.index);
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'src/public/uploads/') // Thư mục lưu file
@@ -29,12 +31,16 @@ router.get('/categories/delete/:id', categoryController.destroy);  // Bấm nút
 // Product routes (hỗ trợ multi-image upload)
 const productUpload = upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'images', maxCount: 10 }]);
 router.get('/products', productController.index);
+router.get('/products/export', productController.exportExcel);
+router.post('/products/import', upload.single('excel_file'), productController.importExcel);
 router.post('/products/store', productUpload, productController.store);
 router.post('/products/update', productUpload, productController.update);
 router.get('/products/delete/:id', productController.destroy);
 
 // sub_categories
 router.get('/sub_categories', subCategoryController.index);
+router.get('/sub_categories/export', subCategoryController.exportExcel);
+router.post('/sub_categories/import', upload.single('excel_file'), subCategoryController.importExcel);
 // Thêm upload.single('image') vào để hứng file ảnh
 router.post('/sub_categories/store', upload.single('image'), subCategoryController.store);
 router.post('/sub_categories/update', upload.single('image'), subCategoryController.update);
@@ -43,6 +49,8 @@ router.get('/sub_categories/delete/:id', subCategoryController.destroy);
 // Brand routes
 const brandController = require('../app/controllers/BrandController');
 router.get('/brands', brandController.index);
+router.get('/brands/export', brandController.exportExcel);
+router.post('/brands/import', upload.single('excel_file'), brandController.importExcel);
 router.post('/brands/store', brandController.store);
 router.post('/brands/update', brandController.update);
 router.get('/brands/delete/:id', brandController.delete);

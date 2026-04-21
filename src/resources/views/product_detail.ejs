@@ -199,6 +199,45 @@
                                             <% } %>
                         </div>
 
+                        <!-- Vận chuyển & Cam kết -->
+                        <div class="border rounded p-3 mb-4 bg-white shadow-sm">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-truck text-primary me-2"></i>Thông tin vận chuyển</h6>
+                            <div class="d-flex flex-column gap-2 mb-3">
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>Giao đến:</span>
+                                    <span id="delivery-address" class="fw-bold text-dark text-end" style="max-width: 60%; cursor: pointer;" onclick="toggleAddressInput()">
+                                        <i class="fas fa-spinner fa-spin"></i> Đang định vị...
+                                    </span>
+                                </div>
+                                <div id="address-input-wrapper" style="display: none;" class="mt-2">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" id="manual-address-input" class="form-control" placeholder="Nhập địa chỉ để tính phí..." list="address-suggestions">
+                                        <button class="btn btn-primary" onclick="searchManualAddress()"><i class="fas fa-search"></i></button>
+                                    </div>
+                                    <datalist id="address-suggestions"></datalist>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>Phí vận chuyển:</span>
+                                    <span id="shipping-fee" class="fw-bold text-dark">--</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>Thời gian giao hàng:</span>
+                                    <span id="lead-time" class="fw-bold text-success">--</span>
+                                </div>
+                            </div>
+                            <span class="text-warning">*Lưu ý: Tính năng chỉ mang tính chất demo</span>
+
+                            <hr>
+
+                            <h6 class="fw-bold mb-3"><i class="fas fa-shield-alt text-success me-2"></i>Cam kết bán hàng</h6>
+                            <div class="d-flex flex-column gap-2 small text-muted">
+                                <div><i class="fas fa-check-circle text-success me-2"></i>100% hàng chính hãng, nguồn gốc rõ ràng.</div>
+                                <div><i class="fas fa-hand-holding-usd text-warning me-2"></i>Hoàn tiền 200% nếu phát hiện hàng giả/nhái.</div>
+                                <div><i class="fas fa-exchange-alt text-primary me-2"></i>Miễn phí đổi trả trong vòng 7 ngày nếu lỗi.</div>
+                            </div>
+                            
+                        </div>
+
 
                     </div>
                 </div>
@@ -411,8 +450,8 @@
                                                                                                         { %> <a
                                                                                                             href="/admin/reviews/delete/<%= review._id %>"
                                                                                                             class="text-danger small fw-bold text-decoration-none ms-3"
-                                                                                                            onclick="return confirm('B?n c� ch?c ch?n mu?n x�a d�nh gi� n�y?');"><i
-                                                                                                                class="fas fa-trash-alt me-1"></i>X�a</a>
+                                                                                                            onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không?');"><i
+                                                                                                                class="fas fa-trash-alt me-1"></i>Xóa</a>
                                                                                                         <% } %>
                                                                                                             <div id="reply-form-<%= review._id %>"
                                                                                                                 style="display: none;"
@@ -468,8 +507,7 @@
             <div class="row" id="related-product-list">
                 <% if (relatedProducts && relatedProducts.length> 0) { %>
                     <% relatedProducts.forEach((item, index)=> { %>
-                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 related-item"
-                            style="<%= index > 7 ? 'display: none;' : '' %>">
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 related-item"style="<%= index > 7 ? 'display: none;' : '' %>">
                             <div class="card product-card h-100 border-0 shadow-sm position-relative">
                                 <% if (item.discount_price) { %>
                                     <% let pPercent=Math.round(((item.price - item.discount_price) / item.price) * 100);
@@ -780,6 +818,164 @@
                                 })
                                 .catch(() => alert('Lỗi hệ thống, vui lòng thử lại.'));
                         }
+
+                        // 7. TÍNH TOÁN PHÍ GIAO HÀNG & THỜI GIAN
+                        const storeLat = 10.3783695;
+                        const storeLon = 105.439578;
+
+                        function formatCurrency(amount) {
+                            return amount.toLocaleString('vi-VN') + ' đ';
+                        }
+
+                        function updateShippingInfo(distanceKm) {
+                            const feeEl = document.getElementById('shipping-fee');
+                            const timeEl = document.getElementById('lead-time');
+                            let fee = 20000;
+                            if (distanceKm < 50) {
+                                fee = 10000;
+                                if (timeEl) timeEl.innerText = 'Dự kiến giao trong 1 ngày';
+                            } else if (distanceKm <= 100) {
+                                fee = 15000;
+                                if (timeEl) timeEl.innerText = 'Dự kiến giao trong 2 ngày';
+                            } else {
+                                if (timeEl) timeEl.innerText = 'Dự kiến giao trong 3 ngày';
+                            }
+                            if (feeEl) feeEl.innerText = formatCurrency(fee);
+                            localStorage.setItem('shipping_fee', fee);
+                        }
+
+                        function calculateDistance(lat, lon, displayName) {
+                            const addressEl = document.getElementById('delivery-address');
+                            const manualInp = document.getElementById('manual-address-input');
+                            if (addressEl) addressEl.innerText = displayName;
+                            if (manualInp) manualInp.value = displayName;
+                            
+                            fetch(`https://router.project-osrm.org/route/v1/driving/${storeLon},${storeLat};${lon},${lat}?overview=false`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.routes && data.routes.length > 0) {
+                                        const distanceKm = data.routes[0].distance / 1000;
+                                        updateShippingInfo(distanceKm);
+                                    } else {
+                                        const feeEl = document.getElementById('shipping-fee');
+                                        const timeEl = document.getElementById('lead-time');
+                                        if (feeEl) feeEl.innerText = "Không tính được";
+                                        if (timeEl) timeEl.innerText = "--";
+                                    }
+                                }).catch(() => {
+                                    const feeEl = document.getElementById('shipping-fee');
+                                    if (feeEl) feeEl.innerText = "Lỗi kết nối";
+                                });
+                        }
+
+                        window.toggleAddressInput = function() {
+                            const wrapper = document.getElementById('address-input-wrapper');
+                            const manualInp = document.getElementById('manual-address-input');
+                            if (wrapper) {
+                                wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none';
+                                if (wrapper.style.display === 'block' && manualInp) manualInp.focus();
+                            }
+                        };
+
+                        window.searchManualAddress = function() {
+                            const manualInp = document.getElementById('manual-address-input');
+                            const addressEl = document.getElementById('delivery-address');
+                            const addr = manualInp ? manualInp.value : '';
+                            if (!addr) return;
+                            if (addressEl) addressEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tìm...';
+                            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}&limit=1&accept-language=vi`)
+                                .then(r => r.json())
+                                .then(data => {
+                                    if (data.length > 0) {
+                                        calculateDistance(data[0].lat, data[0].lon, data[0].display_name);
+                                        const wrapper = document.getElementById('address-input-wrapper');
+                                        if (wrapper) wrapper.style.display = 'none';
+                                    } else {
+                                        alert("Không tìm thấy địa chỉ này. Vui lòng nhập chi tiết hơn.");
+                                        if (addressEl) addressEl.innerHTML = '<span class="text-primary text-decoration-underline">Nhập lại địa chỉ</span>';
+                                    }
+                                });
+                        };
+
+                        function initGeolocation() {
+                            const addressEl = document.getElementById('delivery-address');
+                            if ("geolocation" in navigator) {
+                                navigator.geolocation.getCurrentPosition(function (position) {
+                                    const userLat = position.coords.latitude;
+                                    const userLon = position.coords.longitude;
+                                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLon}&accept-language=vi`)
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            calculateDistance(userLat, userLon, data.display_name || 'Vị trí hiện tại');
+                                        }).catch(() => {
+                                            calculateDistance(userLat, userLon, 'Vị trí hiện tại');
+                                        });
+                                }, function (error) {
+                                    if (addressEl) addressEl.innerHTML = '<span class="text-primary text-decoration-underline">Nhập địa chỉ giao hàng</span>';
+                                });
+                            } else {
+                                if (addressEl) addressEl.innerHTML = '<span class="text-primary text-decoration-underline">Nhập địa chỉ giao hàng</span>';
+                            }
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const userAddress = "<%= (typeof user !== 'undefined' && user && user.address) ? user.address : '' %>";
+                            const addressEl = document.getElementById('delivery-address');
+
+                            // Ưu tiên dùng địa chỉ đã lưu nếu có
+                            if (userAddress && userAddress.trim() !== '') {
+                                if (addressEl) addressEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tính phí từ địa chỉ cũ...';
+                                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(userAddress)}&limit=1&accept-language=vi`)
+                                    .then(r => r.json())
+                                    .then(data => {
+                                        if (data.length > 0) {
+                                            calculateDistance(data[0].lat, data[0].lon, userAddress);
+                                        } else {
+                                            // Fallback: Address found but can't be geocoded by Nominatim
+                                            // Just display it and set a default fee so the user doesn't have to re-enter it.
+                                            if (addressEl) addressEl.innerText = userAddress;
+                                            const feeEl = document.getElementById('shipping-fee');
+                                            const timeEl = document.getElementById('lead-time');
+                                            if (feeEl) feeEl.innerText = formatCurrency(20000);
+                                            if (timeEl) timeEl.innerText = 'Dự kiến giao trong 3-4 ngày';
+                                            localStorage.setItem('shipping_fee', 20000);
+                                        }
+                                    }).catch(() => {
+                                        if (addressEl) addressEl.innerText = userAddress;
+                                        const feeEl = document.getElementById('shipping-fee');
+                                        const timeEl = document.getElementById('lead-time');
+                                        if (feeEl) feeEl.innerText = formatCurrency(20000);
+                                        if (timeEl) timeEl.innerText = 'Dự kiến giao trong 3-4 ngày';
+                                        localStorage.setItem('shipping_fee', 20000);
+                                    });
+                            } else {
+                                initGeolocation();
+                            }
+
+                            // Autocomplete suggestion logic
+                            const manualInp = document.getElementById('manual-address-input');
+                            const suggestionList = document.getElementById('address-suggestions');
+                            if (manualInp && suggestionList) {
+                                let debounceTimer;
+                                manualInp.addEventListener('input', function() {
+                                    clearTimeout(debounceTimer);
+                                    const query = this.value;
+                                    if (query.length < 3) return;
+                                    debounceTimer = setTimeout(() => {
+                                        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&accept-language=vi`)
+                                            .then(r => r.json())
+                                            .then(data => {
+                                                suggestionList.innerHTML = '';
+                                                data.forEach(item => {
+                                                    const option = document.createElement('option');
+                                                    option.value = item.display_name;
+                                                    suggestionList.appendChild(option);
+                                                });
+                                            });
+                                    }, 500);
+                                });
+                            }
+                        });
                     </script>
 </body>
 

@@ -54,7 +54,8 @@ class CheckoutController {
     async placeOrder(req, res) {
         try {
             const userId = req.session.user._id;
-            const { fullname, phone, address, payment_method, order_id } = req.body;
+            const { fullname, phone, address, payment_method, order_id, shipping_fee } = req.body;
+            const shipFee = parseInt(shipping_fee) || 0;
 
             // 1. Lấy lại giỏ hàng để kiểm tra sản phẩm
             const carts = await Cart.find({ user_id: userId }).populate('product_id').lean();
@@ -83,13 +84,13 @@ class CheckoutController {
                 `);
             }
 
-            let totalMoney = 0;
+            let subTotal = 0;
             let orderItems = [];
 
             // 3. Chuyển đổi dữ liệu giỏ hàng sang định dạng đơn hàng
             carts.forEach(item => {
                 const price = item.product_id.discount_price || item.product_id.price;
-                totalMoney += price * item.quantity;
+                subTotal += price * item.quantity;
                 
                 orderItems.push({
                     product_id: item.product_id._id,
@@ -97,6 +98,8 @@ class CheckoutController {
                     quantity: item.quantity
                 });
             });
+
+            const totalMoney = subTotal + shipFee;
 
             // 4. Tạo Document đơn hàng mới
             const orderDoc = {
@@ -106,6 +109,7 @@ class CheckoutController {
                 address,
                 payment_method,
                 total_money: totalMoney,
+                shipping_fee: shipFee,
                 status: (payment_method === 'VietQR') ? 1 : 0, // VietQR cho lên Đang xử lý
                 items: orderItems
             };

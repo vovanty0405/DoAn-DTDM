@@ -32,6 +32,7 @@
                             <h4 class="fw-bold mb-4"><i class="fas fa-truck me-2 text-success"></i>Thông tin giao hàng
                             </h4>
 
+                            <input type="hidden" name="shipping_fee" id="shippingFeeInput" value="0">
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Họ và tên người nhận</label>
                                 <input type="text" name="fullname" class="form-control py-2"
@@ -120,7 +121,7 @@
                             </div>
                             <div class="d-flex justify-content-between mb-4">
                                 <span class="text-muted">Phí vận chuyển:</span>
-                                <span class="text-success fw-bold">Miễn phí</span>
+                                <span class="text-success fw-bold" id="shippingFeeDisplay">0 đ</span>
                             </div>
 
                             <hr>
@@ -313,6 +314,30 @@
                             form.addEventListener('submit', updateAddress);
                         }
                     });
+                });
+
+                // Logic Xử lý phí vận chuyển từ Product Detail
+                document.addEventListener('DOMContentLoaded', function () {
+                    const savedFee = localStorage.getItem('shipping_fee');
+                    if (savedFee) {
+                        const fee = parseInt(savedFee) || 0;
+                        const shippingFeeDisplay = document.getElementById('shippingFeeDisplay');
+                        const shippingFeeInput = document.getElementById('shippingFeeInput');
+                        const totalMoneyDisplay = document.getElementById('totalMoneyDisplay');
+                        
+                        if (shippingFeeDisplay) shippingFeeDisplay.innerText = fee.toLocaleString('vi-VN') + ' đ';
+                        if (shippingFeeInput) shippingFeeInput.value = fee;
+                        
+                        if (totalMoneyDisplay) {
+                            const subTotal = parseInt(totalMoneyDisplay.dataset.value) || 0;
+                            const finalTotal = subTotal + fee;
+                            totalMoneyDisplay.innerText = finalTotal.toLocaleString('vi-VN') + ' đ';
+                            totalMoneyDisplay.dataset.value = finalTotal;
+                        }
+                        
+                        // Xóa sau khi dùng để tránh nhầm lẫn cho đơn sau
+                        localStorage.removeItem('shipping_fee');
+                    }
                 });
 
                 // Logic Xử lý Modal Thanh toán VietQR

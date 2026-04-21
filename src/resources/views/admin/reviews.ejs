@@ -50,6 +50,7 @@
                     <a href="/admin/contacts"><i class="fas fa-envelope me-2"></i> Liên Hệ</a>
                     <a href="/admin/reviews" class="active"><i class="fas fa-star me-2"></i> Đánh Giá</a>
                     <a href="/admin/promotions"><i class="fas fa-percent me-2"></i> Khuyến Mãi</a>
+                    <a href="/admin/dashboard"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
                     <a href="/logout" class="text-danger mt-5"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a>
                 </div>
             </div>
@@ -65,21 +66,27 @@
                         <form action="/admin/reviews" method="GET" class="row g-2 align-items-end">
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold">Tìm kiếm (Người đánh giá / Sản phẩm)</label>
-                                <input type="text" name="keyword" class="form-control" placeholder="Nhập tên người dùng hoặc sản phẩm..." value="<%= (typeof query !== 'undefined' && query.keyword) ? query.keyword : '' %>">
+                                <input type="text" name="keyword" class="form-control"
+                                    placeholder="Nhập tên người dùng hoặc sản phẩm..."
+                                    value="<%= (typeof query !== 'undefined' && query.keyword) ? query.keyword : '' %>">
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold">Từ ngày</label>
-                                <input type="date" name="from_date" class="form-control" value="<%= (typeof query !== 'undefined' && query.from_date) ? query.from_date : '' %>">
+                                <input type="date" name="from_date" class="form-control"
+                                    value="<%= (typeof query !== 'undefined' && query.from_date) ? query.from_date : '' %>">
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold">Đến ngày</label>
-                                <input type="date" name="to_date" class="form-control" value="<%= (typeof query !== 'undefined' && query.to_date) ? query.to_date : '' %>">
+                                <input type="date" name="to_date" class="form-control"
+                                    value="<%= (typeof query !== 'undefined' && query.to_date) ? query.to_date : '' %>">
                             </div>
                             <div class="col-md-1">
-                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i></button>
+                                <button type="submit" class="btn btn-primary w-100"><i
+                                        class="fas fa-search"></i></button>
                             </div>
                             <div class="col-md-1">
-                                <a href="/admin/reviews" class="btn btn-secondary w-100" title="Xóa lọc"><i class="fas fa-times"></i></a>
+                                <a href="/admin/reviews" class="btn btn-secondary w-100" title="Xóa lọc"><i
+                                        class="fas fa-times"></i></a>
                             </div>
                         </form>
                     </div>
@@ -101,8 +108,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% if (typeof reviews !=='undefined' && reviews.length > 0) { %>
-                                    <% reviews.forEach(review => { %>
+                                <% if (typeof reviews !=='undefined' && reviews.length> 0) { %>
+                                    <% reviews.forEach(review=> { %>
                                         <tr>
                                             <td><small>
                                                     <%= new Date(review.createdAt).toLocaleString('vi-VN') %>
@@ -111,37 +118,42 @@
                                                 <strong>
                                                     <%= review.user_id ? review.user_id.fullname : 'Khách ẩn danh' %>
                                                 </strong>
-                                                <% if (review.user_id && review.user_id.role === 1) { %>
-                                                    <br><span class="badge bg-warning text-dark" style="font-size: 0.65rem;"><i class="fas fa-shield-alt me-1"></i>Admin</span>
-                                                <% } %>
+                                                <% if (review.user_id && review.user_id.role===1) { %>
+                                                    <br><span class="badge bg-warning text-dark"
+                                                        style="font-size: 0.65rem;"><i
+                                                            class="fas fa-shield-alt me-1"></i>Admin</span>
+                                                    <% } %>
                                             </td>
                                             <td>
                                                 <a href="/product/<%= review.product_id ? review.product_id._id : '' %>"
                                                     target="_blank" class="text-decoration-none">
-                                                    <%= review.product_id ? review.product_id.name : 'Sản phẩm đã xóa' %>
+                                                    <%= review.product_id ? review.product_id.name : 'Sản phẩm đã xóa'
+                                                        %>
                                                 </a>
                                             </td>
                                             <td class="text-warning">
-                                                <% for(let i=0; i < (review.rating || 0); i++) { %><i class="fas fa-star"></i>
+                                                <% for(let i=0; i < (review.rating || 0); i++) { %><i
+                                                        class="fas fa-star"></i>
                                                     <% } %>
-                                                <% for(let i=0; i < (5 - (review.rating || 0)); i++) { %><i class="far fa-star text-muted"></i>
-                                                    <% } %>
+                                                        <% for(let i=0; i < (5 - (review.rating || 0)); i++) { %><i
+                                                                class="far fa-star text-muted"></i>
+                                                            <% } %>
                                             </td>
                                             <td style="max-width: 200px;" class="text-truncate"
                                                 title="<%= review.comment %>">
                                                 <%= review.comment %>
                                             </td>
                                             <td>
-                                                <% 
-                                                    let replyCount = 0;
-                                                    if (review.childReplies) replyCount += review.childReplies.length;
-                                                    if (review.replies) replyCount += review.replies.length;
-                                                %>
-                                                <% if (replyCount > 0) { %>
-                                                    <span class="badge bg-info"><%= replyCount %> phản hồi</span>
-                                                <% } else { %>
-                                                    <span class="text-muted small">—</span>
-                                                <% } %>
+                                                <% let replyCount=0; if (review.childReplies) replyCount
+                                                    +=review.childReplies.length; if (review.replies) replyCount
+                                                    +=review.replies.length; %>
+                                                    <% if (replyCount> 0) { %>
+                                                        <span class="badge bg-info">
+                                                            <%= replyCount %> phản hồi
+                                                        </span>
+                                                        <% } else { %>
+                                                            <span class="text-muted small">—</span>
+                                                            <% } %>
                                             </td>
                                             <td>
                                                 <form action="/admin/reviews/update" method="POST" class="d-inline">
@@ -149,90 +161,140 @@
                                                     <select name="status"
                                                         class="form-select form-select-sm d-inline w-auto"
                                                         onchange="this.form.submit()">
-                                                        <option value="1" <%=review.status===1 ? 'selected' : '' %>>Đã duyệt</option>
-                                                        <option value="2" <%=review.status===2 ? 'selected' : '' %>>Từ chối</option>
+                                                        <option value="1" <%=review.status===1 ? 'selected' : '' %>>Đã
+                                                            duyệt</option>
+                                                        <option value="2" <%=review.status===2 ? 'selected' : '' %>>Từ
+                                                            chối</option>
                                                     </select>
                                                 </form>
                                             </td>
                                             <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-info text-white me-1" data-bs-toggle="modal" data-bs-target="#replyModal<%= review._id %>" title="Xem & Phản hồi">
+                                                <button type="button" class="btn btn-sm btn-info text-white me-1"
+                                                    data-bs-toggle="modal" data-bs-target="#replyModal<%= review._id %>"
+                                                    title="Xem & Phản hồi">
                                                     <i class="fas fa-reply"></i>
                                                 </button>
                                                 <a href="/admin/reviews/delete/<%= review._id %>"
                                                     class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Xóa đánh giá này và tất cả phản hồi?');" title="Xóa">
+                                                    onclick="return confirm('Xóa đánh giá này và tất cả phản hồi?');"
+                                                    title="Xóa">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
 
                                                 <!-- Modal Phản hồi (Nâng cấp) -->
-                                                <div class="modal fade text-start" id="replyModal<%= review._id %>" tabindex="-1" aria-hidden="true">
+                                                <div class="modal fade text-start" id="replyModal<%= review._id %>"
+                                                    tabindex="-1" aria-hidden="true">
                                                     <div class="modal-dialog modal-lg">
                                                         <div class="modal-content">
                                                             <div class="modal-header bg-light">
                                                                 <h5 class="modal-title">
                                                                     <i class="fas fa-comments me-2 text-primary"></i>
-                                                                    Đánh giá của <%= review.user_id ? review.user_id.fullname : 'Khách' %>
+                                                                    Đánh giá của <%= review.user_id ?
+                                                                        review.user_id.fullname : 'Khách' %>
                                                                 </h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
                                                             </div>
                                                             <div class="modal-body">
                                                                 <!-- Đánh giá gốc -->
                                                                 <div class="p-3 bg-light rounded border mb-3">
-                                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                    <div
+                                                                        class="d-flex justify-content-between align-items-center mb-2">
                                                                         <strong class="text-dark">
-                                                                            <i class="fas fa-user-circle me-1 text-success"></i>
-                                                                            <%= review.user_id ? review.user_id.fullname : 'Khách' %>
+                                                                            <i
+                                                                                class="fas fa-user-circle me-1 text-success"></i>
+                                                                            <%= review.user_id ? review.user_id.fullname
+                                                                                : 'Khách' %>
                                                                         </strong>
-                                                                        <small class="text-muted"><%= new Date(review.createdAt).toLocaleString('vi-VN') %></small>
+                                                                        <small class="text-muted">
+                                                                            <%= new
+                                                                                Date(review.createdAt).toLocaleString('vi-VN')
+                                                                                %>
+                                                                        </small>
                                                                     </div>
                                                                     <div class="text-warning mb-2">
-                                                                        <% for(let i=0; i < (review.rating || 0); i++) { %><i class="fas fa-star"></i><% } %>
+                                                                        <% for(let i=0; i < (review.rating || 0); i++) {
+                                                                            %><i class="fas fa-star"></i>
+                                                                            <% } %>
                                                                     </div>
-                                                                    <p class="mb-0"><%= review.comment || '(Không có bình luận)' %></p>
+                                                                    <p class="mb-0">
+                                                                        <%= review.comment || '(Không có bình luận)' %>
+                                                                    </p>
                                                                 </div>
 
                                                                 <!-- Danh sách phản hồi hiện có -->
-                                                                <% 
-                                                                    let allExistingReplies = [];
-                                                                    if (review.childReplies) { 
-                                                                        review.childReplies.forEach(r => allExistingReplies.push(r));
+                                                                <% let allExistingReplies=[]; if (review.childReplies) {
+                                                                    review.childReplies.forEach(r=>
+                                                                    allExistingReplies.push(r));
                                                                     }
-                                                                %>
-                                                                <% if (allExistingReplies.length > 0) { %>
-                                                                    <h6 class="fw-bold text-muted mb-2"><i class="fas fa-stream me-1"></i> Phản hồi (<%= allExistingReplies.length %>)</h6>
-                                                                    <% allExistingReplies.forEach(reply => { %>
-                                                                        <div class="ms-3 mb-2 p-2 border-start border-3 rounded bg-white" style="border-color: <%= (reply.user_id && reply.user_id.role === 1) ? '#198754' : '#0d6efd' %> !important;">
-                                                                            <div class="d-flex justify-content-between align-items-center">
-                                                                                <div>
-                                                                                    <strong style="color: <%= (reply.user_id && reply.user_id.role === 1) ? '#198754' : '#0d6efd' %>;">
-                                                                                        <i class="fas fa-reply me-1"></i>
-                                                                                        <%= reply.user_id ? reply.user_id.fullname : 'Khách' %>
-                                                                                    </strong>
-                                                                                    <% if (reply.user_id && reply.user_id.role === 1) { %>
-                                                                                        <span class="badge bg-success ms-1" style="font-size: 0.6rem;">Quản trị viên</span>
-                                                                                    <% } %>
+                                                                    %>
+                                                                    <% if (allExistingReplies.length> 0) { %>
+                                                                        <h6 class="fw-bold text-muted mb-2"><i
+                                                                                class="fas fa-stream me-1"></i> Phản hồi
+                                                                            (<%= allExistingReplies.length %>)</h6>
+                                                                        <% allExistingReplies.forEach(reply=> { %>
+                                                                            <div class="ms-3 mb-2 p-2 border-start border-3 rounded bg-white <%= (reply.user_id && reply.user_id.role === 1) ? 'border-success' : 'border-primary' %>">
+                                                                                <div
+                                                                                    class="d-flex justify-content-between align-items-center">
+                                                                                    <div>
+                                                                                        <strong class="<%= (reply.user_id && reply.user_id.role === 1) ? 'text-success' : 'text-primary' %>">
+                                                                                            <i
+                                                                                                class="fas fa-reply me-1"></i>
+                                                                                            <%= reply.user_id ?
+                                                                                                reply.user_id.fullname
+                                                                                                : 'Khách' %>
+                                                                                        </strong>
+                                                                                        <% if (reply.user_id &&
+                                                                                            reply.user_id.role===1) { %>
+                                                                                            <span
+                                                                                                class="badge bg-success ms-1"
+                                                                                                style="font-size: 0.6rem;">Quản
+                                                                                                trị viên</span>
+                                                                                            <% } %>
+                                                                                    </div>
+                                                                                    <small class="text-muted">
+                                                                                        <%= new
+                                                                                            Date(reply.createdAt).toLocaleString('vi-VN')
+                                                                                            %>
+                                                                                    </small>
                                                                                 </div>
-                                                                                <small class="text-muted"><%= new Date(reply.createdAt).toLocaleString('vi-VN') %></small>
+                                                                                <p class="mb-0 mt-1 small">
+                                                                                    <%= reply.comment %>
+                                                                                </p>
                                                                             </div>
-                                                                            <p class="mb-0 mt-1 small"><%= reply.comment %></p>
-                                                                        </div>
-                                                                    <% }) %>
-                                                                <% } %>
+                                                                            <% }) %>
+                                                                                <% } %>
 
-                                                                <!-- Form gửi phản hồi từ Admin -->
-                                                                <hr>
-                                                                <form action="/admin/reviews/reply/<%= review._id %>" method="POST">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label fw-bold">
-                                                                            <i class="fas fa-pen-fancy me-1 text-primary"></i> Phản hồi từ Quản trị viên
-                                                                        </label>
-                                                                        <textarea name="reply_comment" class="form-control" rows="3" required placeholder="Nhập câu trả lời cho khách hàng..."></textarea>
-                                                                    </div>
-                                                                    <div class="d-flex justify-content-end gap-2">
-                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                                        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-1"></i> Gửi phản hồi</button>
-                                                                    </div>
-                                                                </form>
+                                                                                    <!-- Form gửi phản hồi từ Admin -->
+                                                                                    <hr>
+                                                                                    <form
+                                                                                        action="/admin/reviews/reply/<%= review._id %>"
+                                                                                        method="POST">
+                                                                                        <div class="mb-3">
+                                                                                            <label
+                                                                                                class="form-label fw-bold">
+                                                                                                <i
+                                                                                                    class="fas fa-pen-fancy me-1 text-primary"></i>
+                                                                                                Phản hồi từ Quản trị
+                                                                                                viên
+                                                                                            </label>
+                                                                                            <textarea
+                                                                                                name="reply_comment"
+                                                                                                class="form-control"
+                                                                                                rows="3" required
+                                                                                                placeholder="Nhập câu trả lời cho khách hàng..."></textarea>
+                                                                                        </div>
+                                                                                        <div
+                                                                                            class="d-flex justify-content-end gap-2">
+                                                                                            <button type="button"
+                                                                                                class="btn btn-secondary"
+                                                                                                data-bs-dismiss="modal">Đóng</button>
+                                                                                            <button type="submit"
+                                                                                                class="btn btn-primary"><i
+                                                                                                    class="fas fa-paper-plane me-1"></i>
+                                                                                                Gửi phản hồi</button>
+                                                                                        </div>
+                                                                                    </form>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -242,7 +304,8 @@
                                         <% }) %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="8" class="text-center py-4 text-muted">Không tìm thấy dữ liệu phù hợp.</td>
+                                                    <td colspan="8" class="text-center py-4 text-muted">Không tìm thấy
+                                                        dữ liệu phù hợp.</td>
                                                 </tr>
                                                 <% } %>
                             </tbody>
