@@ -89,12 +89,24 @@
     <!-- Header -->
     <%- include('partials/navbar') %>
 
-        <div class="container my-3">
+        <div class="container my-3" id="category-filter-area">
+            <% 
+                // Tạo object query để giữ các filter khi chuyển trang hoặc đổi filter khác
+                let query = {};
+                if (typeof activeSubcat !== 'undefined' && activeSubcat) query.subcat = activeSubcat;
+                if (typeof activeBrand !== 'undefined' && activeBrand) query.brand = activeBrand;
+                if (typeof activeMinPrice !== 'undefined' && activeMinPrice) query.minPrice = activeMinPrice;
+                if (typeof activeMaxPrice !== 'undefined' && activeMaxPrice) query.maxPrice = activeMaxPrice;
+                if (typeof activeSort !== 'undefined' && activeSort) query.sort = activeSort;
+            %>
+            <div id="filter-loading-overlay" class="d-none position-absolute top-0 start-0 w-100 h-100 bg-white opacity-50 d-flex justify-content-center align-items-center" style="z-index: 1000; min-height: 500px;">
+                <div class="spinner-border text-tempi-green" role="status"></div>
+            </div>
             <% if (subCategories && subCategories.length> 0) { %>
-                <div class="scroll-horizontal mb-4 mt-3">
-                    <a href="/category/<%= currentCategory.slug %>" class="text-decoration-none">
+                <div class="scroll-horizontal mb-4 mt-3 filter-scroll-area">
+                    <a href="/category/<%= currentCategory.slug %>?<%= new URLSearchParams({...query, subcat: '', page: 1}).toString() %>" class="text-decoration-none ajax-filter-link">
                         <div
-                            class="subcat-item <%= !typeof activeSubcat !== 'undefined' && !activeSubcat ? 'active' : '' %>">
+                            class="subcat-item <%= !activeSubcat ? 'active' : '' %>">
                             <div class="subcat-img-wrapper">
                                 <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" alt="Tất cả">
                             </div>
@@ -103,10 +115,10 @@
                     </a>
 
                     <% subCategories.forEach(sc=> { %>
-                        <a href="/category/<%= currentCategory.slug %>?subcat=<%= sc._id %>"
-                            class="text-decoration-none">
+                        <a href="/category/<%= currentCategory.slug %>?<%= new URLSearchParams({...query, subcat: sc._id, page: 1}).toString() %>"
+                            class="text-decoration-none ajax-filter-link">
                             <div
-                                class="subcat-item <%= (typeof activeSubcat !== 'undefined' && activeSubcat == sc._id) ? 'active' : '' %>">
+                                class="subcat-item <%= (activeSubcat == sc._id) ? 'active' : '' %>">
                                 <div class="subcat-img-wrapper">
                                     <img src="<%= sc.image ? '/' + sc.image : 'https://cdn-icons-png.flaticon.com/512/679/679821.png' %>"
                                         alt="<%= sc.name %>">
@@ -120,20 +132,22 @@
                 </div>
                 <% } %>
                     <% if (brands && brands.length> 0) { %>
-                        <div class="d-flex align-items-center mb-4">
+                        <div class="d-flex align-items-center mb-3">
                             <i class="fas fa-filter text-muted me-3"></i>
-                            <div class="scroll-horizontal flex-grow-1" style="padding-bottom: 0;">
-                                <a href="/category/<%= currentCategory.slug %>" class="text-decoration-none">
+                            <div class="scroll-horizontal flex-grow-1 filter-scroll-area" style="padding-bottom: 0;">
+                                <!-- Nút tất cả hãng -->
+                                <a href="?<%= new URLSearchParams({...query, brand: '', page: 1}).toString() %>" class="text-decoration-none ajax-filter-link">
                                     <button
-                                        class="btn rounded-pill px-4 py-1 brand-btn fw-semibold shadow-sm <%= !typeof activeBrand !== 'undefined' && !activeBrand ? 'active' : '' %>">Tất
-                                        cả</button>
+                                        class="btn rounded-pill px-4 py-1 brand-btn fw-semibold shadow-sm <%= !activeBrand ? 'active' : '' %>">
+                                        Tất cả hãng
+                                    </button>
                                 </a>
 
                                 <% brands.forEach(b=> { %>
-                                    <a href="/category/<%= currentCategory.slug %>?brand=<%= b._id %>"
-                                        class="text-decoration-none">
+                                    <a href="?<%= new URLSearchParams({...query, brand: b._id, page: 1}).toString() %>"
+                                        class="text-decoration-none ajax-filter-link">
                                         <button
-                                            class="btn rounded-pill px-4 py-1 brand-btn fw-semibold shadow-sm <%= (typeof activeBrand !== 'undefined' && activeBrand == b._id) ? 'active' : '' %>">
+                                            class="btn rounded-pill px-4 py-1 brand-btn fw-semibold shadow-sm <%= (activeBrand == b._id) ? 'active' : '' %>">
                                             <%= b.name %>
                                         </button>
                                     </a>
@@ -142,7 +156,30 @@
                         </div>
                         <% } %>
 
-                            <!-- <% 
+                            <!-- Lọc theo giá -->
+                            <div class="d-flex align-items-center mb-4">
+                                <i class="fas fa-coins text-muted me-3"></i>
+                                <div class="scroll-horizontal flex-grow-1 filter-scroll-area" style="padding-bottom: 5px;">
+                                    <% 
+                                        const priceRanges = [
+                                            { label: 'Tất cả giá', min: '', max: '' },
+                                            { label: 'Dưới 100k', min: 0, max: 100000 },
+                                            { label: '100k - 500k', min: 100000, max: 500000 },
+                                            { label: '500k - 1tr', min: 500000, max: 1000000 },
+                                            { label: 'Trên 1tr', min: 1000000, max: 99999999 }
+                                        ];
+                                    %>
+                                    <% priceRanges.forEach(range => { %>
+                                        <a href="?<%= new URLSearchParams({...query, minPrice: range.min, maxPrice: range.max, page: 1}).toString() %>" class="text-decoration-none ajax-filter-link">
+                                            <button class="btn rounded-pill px-3 py-1 brand-btn fw-semibold shadow-sm <%= (activeMinPrice == range.min && activeMaxPrice == range.max) ? 'active' : '' %>">
+                                                <%= range.label %>
+                                            </button>
+                                        </a>
+                                    <% }) %>
+                                </div>
+                            </div>
+
+                            <% 
             // KHAI BÁO ẢNH BANNER THEO SLUG
             const catBanners = {
                 'rau-cu': '/image/Banner/freecompress-trang-cate-pc_phieugiamgia.jpg',
@@ -154,7 +191,7 @@
             };
             // Nếu không có banner riêng, dùng banner mặc định này
             let bannerSrc = catBanners[currentCategory.slug] || 'https://via.placeholder.com/1200x200?text=Banner+Sieu+Giam+Gia';
-        %> -->
+        %>
 
                             <div class="mb-2 text-center">
                                 <img src="<%= bannerSrc %>" alt="Banner <%= currentCategory.name %>"
@@ -171,7 +208,7 @@
 
                                     <div class="row">
                                         <% saleProducts.forEach(product=> { %>
-                                            <div class="col-md-3 col-sm-6 mb-3">
+                                            <div class="col-6 col-md-3 mb-4">
                                                 <div
                                                     class="card product-card h-100 border-0 shadow-sm position-relative">
                                                     <% let percent=Math.round(((product.price - product.discount_price)
@@ -234,17 +271,37 @@
                                             style="object-fit: cover; max-height: 250px;">
                                     </section>
 
-                                    <section class="container bg-light rounded-4 p-4">
-                                        <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <section class="container bg-light rounded-4 p-4" id="main-product-section">
+                                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                                             <h4 class="fw-bold text-uppercase m-0">Dành cho bạn</h4>
-                                            <span class="text-muted">
+                                            
+                                            <div class="d-flex align-items-center gap-2 overflow-auto pb-2 pb-md-0 sort-container">
+                                                <span class="text-muted small fw-bold text-nowrap"><i class="fas fa-sort me-1"></i>Sắp xếp:</span>
+                                                <% 
+                                                    const sortOptions = [
+                                                        { label: 'Bán chạy', val: 'selling' },
+                                                        { label: 'Mới nhất', val: 'newest' },
+                                                        { label: 'Giá thấp', val: 'price-asc' },
+                                                        { label: 'Giá cao', val: 'price-desc' }
+                                                    ];
+                                                %>
+                                                <% sortOptions.forEach(opt => { %>
+                                                    <a href="?<%= new URLSearchParams({...query, sort: opt.val, page: 1}).toString() %>" class="text-decoration-none ajax-filter-link">
+                                                        <button class="btn btn-sm rounded-pill px-3 py-1 fw-semibold <%= activeSort === opt.val ? 'btn-tempi-green text-white' : 'btn-outline-secondary bg-white' %>" style="font-size: 0.8rem; white-space: nowrap;">
+                                                            <%= opt.label %>
+                                                        </button>
+                                                    </a>
+                                                <% }) %>
+                                            </div>
+
+                                            <span class="text-muted small">
                                                 <%= products.length %> sản phẩm
                                             </span>
                                         </div>
                                         <div class="row bg-light rounded-4" id="product-list">
                                             <% if (products && products.length> 0) { %>
                                                 <% products.forEach(product=> { %>
-                                                    <div class="col-md-3 col-sm-6 mb-4 p-3">
+                                                    <div class="col-6 col-md-3 mb-4 p-3">
                                                         <div
                                                             class="card product-card h-100 border-1 shadow-md position-relative">
                                                             <% if (product.discount_price) { %>
@@ -328,11 +385,8 @@
                                         </div>
                                     </section>
 
-                                    <div class="text-center mt-4">
-                                        <% let q={}; if (typeof activeSubcat !=='undefined' && activeSubcat)
-                                            q.subcat=activeSubcat; if (typeof activeBrand !=='undefined' && activeBrand)
-                                            q.brand=activeBrand; %>
-                                            <%- include('partials/pagination', { currentPage, totalPages, query: q }) %>
+                                    <div class="text-center mt-4 ajax-pagination">
+                                        <%- include('partials/pagination', { currentPage, totalPages, query: query }) %>
                                     </div>
         </div>
         <!-- Nội dung kết thúc --></div>
@@ -346,8 +400,75 @@
                     <script>
                         let currentOffset = 8;
 
+                        // PJAX-like filtering
+                        function handleAjaxFilter() {
+                            document.querySelectorAll('.ajax-filter-link, .ajax-pagination a').forEach(link => {
+                                link.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    const url = this.getAttribute('href');
+                                    if (!url || url === '#') return;
+
+                                    applyFilter(url);
+                                });
+                            });
+                        }
+
+                        function applyFilter(url) {
+                            const container = document.getElementById('category-filter-area');
+                            const overlay = document.getElementById('filter-loading-overlay');
+                            
+                            // Hiển thị overlay loading
+                            overlay.classList.remove('d-none');
+                            container.style.opacity = '0.7';
+
+                            // Lưu lại vị trí cuộn của các thanh filter nằm ngang
+                            const scrollPositions = Array.from(document.querySelectorAll('.filter-scroll-area')).map(el => el.scrollLeft);
+
+                            fetch(url)
+                                .then(response => response.text())
+                                .then(html => {
+                                    const parser = new DOMParser();
+                                    const doc = parser.parseFromString(html, 'text/html');
+                                    const newContent = doc.getElementById('category-filter-area').innerHTML;
+                                    
+                                    container.innerHTML = newContent;
+                                    container.style.opacity = '1';
+                                    
+                                    // Cập nhật URL trình duyệt mà không load lại trang
+                                    window.history.pushState({}, '', url);
+
+                                    // Khôi phục vị trí cuộn của filter
+                                    const newScrollAreas = document.querySelectorAll('.filter-scroll-area');
+                                    scrollPositions.forEach((pos, i) => {
+                                        if (newScrollAreas[i]) newScrollAreas[i].scrollLeft = pos;
+                                    });
+
+                                    // Gắn lại sự kiện cho các link mới
+                                    handleAjaxFilter();
+                                    
+                                    // Reset offset cho load more
+                                    currentOffset = 8;
+
+                                    // Cuộn nhẹ xuống phần sản phẩm nếu ở mobile
+                                    if (window.innerWidth < 768) {
+                                        document.getElementById('main-product-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error('Lỗi lọc AJAX:', err);
+                                    window.location.href = url; // Fallback nếu lỗi
+                                });
+                        }
+
+                        // Xử lý nút back/forward của trình duyệt
+                        window.addEventListener('popstate', function() {
+                            window.location.reload();
+                        });
+
                         function loadMoreCategory() {
                             const btn = document.getElementById('btn-load-more');
+                            if (!btn) return;
+
                             const originalText = btn.innerHTML;
                             btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang tải...';
                             btn.disabled = true;
@@ -355,9 +476,12 @@
                             const urlParams = new URLSearchParams(window.location.search);
                             const subcatId = urlParams.get('subcat') || '';
                             const brandId = urlParams.get('brand') || '';
+                            const minPrice = urlParams.get('minPrice') || '';
+                            const maxPrice = urlParams.get('maxPrice') || '';
+                            const sort = urlParams.get('sort') || '';
                             const categorySlug = '<%= currentCategory.slug %>';
 
-                            fetch(`/api/products/load-more?type=category&offset=${currentOffset}&categorySlug=${categorySlug}&subcat=${subcatId}&brand=${brandId}`)
+                            fetch(`/api/products/load-more?type=category&offset=${currentOffset}&categorySlug=${categorySlug}&subcat=${subcatId}&brand=${brandId}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`)
                                 .then(response => response.text())
                                 .then(html => {
                                     if (html.trim() === '') {
@@ -377,6 +501,8 @@
                                     btn.disabled = false;
                                 });
                         }
+
+                        document.addEventListener('DOMContentLoaded', handleAjaxFilter);
                     </script>
 </body>
 

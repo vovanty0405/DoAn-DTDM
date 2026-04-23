@@ -74,7 +74,7 @@ async function sendBackInStockEmail(toEmail, fullname, productName, productId) {
                             Sản phẩm <strong>"${productName}"</strong> mà bạn đã đăng ký theo dõi giờ đã có hàng trở lại! 🎉
                         </p>
                         <div style="text-align: center; margin: 25px 0;">
-                            <a href="${process.env.BASE_URL || 'http://localhost:3000'}/product/${productId}" 
+                            <a href="${process.env.BASE_URL || 'https://doan-dtdm.onrender.com'}/product/${productId}" 
                                style="display: inline-block; background: #2e8b57; color: #fff; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 16px;">
                                 Mua ngay →
                             </a>
@@ -116,7 +116,7 @@ async function sendWelcomeEmail(toEmail, fullname) {
                             Chúc mừng bạn đã trở thành thành viên của gia đình <strong>Bách Hóa Pew</strong>! Chúng tôi rất vui mừng khi có bạn đồng hành.
                         </p>
                         <div style="text-align: center; margin: 25px 0;">
-                            <a href="${process.env.BASE_URL || 'http://localhost:3000'}" 
+                            <a href="${process.env.BASE_URL || 'https://doan-dtdm.onrender.com'}" 
                                style="display: inline-block; background: #2e8b57; color: #fff; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 16px;">
                                 Mua sắm ngay →
                             </a>

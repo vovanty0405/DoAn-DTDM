@@ -335,3 +335,152 @@ body {
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
+
+/* --- MOBILE UI OPTIMIZATION --- */
+
+/* Mobile Navbar Styling */
+.mobile-navbar {
+    background-color: var(--tempi-green);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+.mobile-navbar .form-control::placeholder {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+/* Offcanvas Menu Styling */
+.mobile-offcanvas {
+    width: 280px !important;
+    border: none !important;
+}
+
+.mobile-offcanvas .user-header {
+    background-color: #1a94ff; /* Blue like Tiki */
+    padding: 20px 15px;
+    min-height: 100px;
+}
+
+.avatar-circle {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-offcanvas .list-group-item {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.mobile-offcanvas .list-group-item i {
+    width: 25px;
+}
+
+.divider-mobile {
+    height: 8px;
+    background-color: #f5f5fa;
+}
+
+/* Centered Voucher Modal */
+.voucher-modal .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+}
+
+@media (min-width: 576px) {
+    .voucher-modal .modal-dialog {
+        min-height: calc(100% - 3.5rem);
+        max-width: 450px;
+    }
+}
+
+.voucher-card {
+    border: 1px dashed var(--tempi-green);
+    border-left: 5px solid var(--tempi-green);
+    background-color: #fff;
+    transition: all 0.2s;
+}
+
+.voucher-card:hover {
+    background-color: #f8fdfb;
+}
+
+/* Category Icons on Mobile */
+@media (max-width: 768px) {
+    .category-item {
+        padding: 5px;
+    }
+    
+    .category-wrapper {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .category-item span {
+        font-size: 0.75rem !important;
+    }
+}
+
+/* Product Card Improvements */
+@media (max-width: 576px) {
+    .product-card .card-body {
+        padding: 10px;
+    }
+    
+    .product-card .card-title {
+        font-size: 0.85rem !important;
+        min-height: 35px !important;
+    }
+    
+    .product-card .fw-bold.text-dark {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Custom 5-column grid for Mobile Category */
+@media (max-width: 768px) {
+    .col-custom-5 {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+    
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}
+
+/* Mobile Ticker/Marquee */
+.mobile-ticker-container {
+    white-space: nowrap;
+    background: #f0faf4;
+    border-top: 1px solid #e5f5eb;
+}
+
+.mobile-ticker-content {
+    display: inline-flex;
+    animation: ticker-scroll 25s linear infinite;
+}
+
+.ticker-item {
+    display: inline-block;
+    padding: 0 25px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #2e8b57;
+}
+
+@keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}

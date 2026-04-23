@@ -2,22 +2,6 @@
 
                 <!-- Load thêm sản phẩm -->
                 <script>
-                    function addToCart(productId) {
-                        // Thay đổi đường dẫn fetch API cho khớp với Node.js Router của bạn
-                        fetch(`/api/cart/add?id=${productId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.status === 'success') {
-                                    let badge = document.getElementById('cart-badge');
-                                    badge.innerText = data.cart_count;
-                                    badge.classList.add('animate__animated', 'animate__rubberBand');
-                                    setTimeout(() => {
-                                        badge.classList.remove('animate__animated', 'animate__rubberBand');
-                                    }, 1000);
-                                }
-                            })
-                            .catch(error => console.error('Lỗi thêm giỏ hàng:', error));
-                    }
 
                     const originalContent = {};
 

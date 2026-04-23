@@ -7,6 +7,7 @@ const Review = require('../models/Review');
 const Contact = require('../models/Contact');
 const Order = require('../models/Order');
 const PromotionConfig = require('../models/PromotionConfig');
+const Voucher = require('../models/Voucher');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
@@ -128,6 +129,9 @@ class SiteController {
             const slug = req.params.slug; 
             const subcatId = req.query.subcat;
             const brandId = req.query.brand;
+            const minPrice = req.query.minPrice;
+            const maxPrice = req.query.maxPrice;
+            const sort = req.query.sort || 'newest';
             const page = parseInt(req.query.page) || 1;
             const limit = 8;
             const skip = (page - 1) * limit;
@@ -142,14 +146,27 @@ class SiteController {
             if (subcatId) filter.sub_category_id = subcatId;
             if (brandId) filter.brand_id = brandId;
 
+            // Lọc theo giá
+            if (minPrice || maxPrice) {
+                filter.price = {};
+                if (minPrice) filter.price.$gte = parseInt(minPrice);
+                if (maxPrice) filter.price.$lte = parseInt(maxPrice);
+            }
+
+            // Sắp xếp
+            let sortQuery = { createdAt: -1 };
+            if (sort === 'price-asc') sortQuery = { price: 1 };
+            else if (sort === 'price-desc') sortQuery = { price: -1 };
+            else if (sort === 'selling') sortQuery = { createdAt: -1 }; // Giả lập bán chạy bằng mới nhất
+
             // Đếm tổng và phân trang
             const totalItems = await Product.countDocuments(filter);
             const totalPages = Math.ceil(totalItems / limit);
-            const products = await Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+            const products = await Product.find(filter).sort(sortQuery).skip(skip).limit(limit).lean();
 
-            // Lấy danh sách Hãng
-            const allProducts = await Product.find({ category_id: currentCategory._id, status: 1 }).lean();
-            const brandIds = [...new Set(allProducts.map(p => p.brand_id && p.brand_id.toString()).filter(Boolean))];
+            // Lấy danh sách Hãng (để hiển thị filter)
+            const allProductsInCat = await Product.find({ category_id: currentCategory._id, status: 1 }).lean();
+            const brandIds = [...new Set(allProductsInCat.map(p => p.brand_id && p.brand_id.toString()).filter(Boolean))];
             const brands = await Brand.find({ _id: { $in: brandIds } }).lean();
 
             // Khuyến mãi sốc
@@ -169,6 +186,9 @@ class SiteController {
                 products, 
                 activeSubcat: subcatId,
                 activeBrand: brandId,
+                activeMinPrice: minPrice,
+                activeMaxPrice: maxPrice,
+                activeSort: sort,
                 currentPage: page,
                 totalPages,
             });
@@ -277,6 +297,26 @@ class SiteController {
                 { $limit: 50 }
             ]);
 
+            // === VOUCHERS ===
+            // Lấy các mã giảm giá đang hoạt động, chưa hết hạn, và áp dụng cho toàn sàn hoặc đúng danh mục này
+            const activeVouchers = await Voucher.find({
+                status: true,
+                expiry_date: { $gte: new Date() },
+                $or: [
+                    { category_id: null },
+                    { category_id: product.category_id._id }
+                ]
+            }).lean();
+
+            // Lấy danh sách mã user đã lưu để disable nút Lưu
+            let savedVoucherIds = [];
+            if (req.session && req.session.user) {
+                const currentUser = await User.findById(req.session.user._id).lean();
+                if (currentUser && currentUser.saved_vouchers) {
+                    savedVoucherIds = currentUser.saved_vouchers.map(v => v.toString());
+                }
+            }
+
             const reviewSuccess = req.session ? req.session.reviewSuccess : null;
             if (req.session) req.session.reviewSuccess = null;
 
@@ -288,6 +328,8 @@ class SiteController {
                 avgRating,
                 soldCount,
                 verifiedUserIds,
+                activeVouchers,
+                savedVoucherIds,
             });
         } catch (error) {
             console.log(error);

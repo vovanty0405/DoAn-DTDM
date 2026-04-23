@@ -2,6 +2,7 @@ const Cart = require('../models/Cart');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const mongoose = require('mongoose');
+const Voucher = require('../models/Voucher');
 
 class CheckoutController {
     // [GET] /checkout
@@ -54,7 +55,7 @@ class CheckoutController {
     async placeOrder(req, res) {
         try {
             const userId = req.session.user._id;
-            const { fullname, phone, address, payment_method, order_id, shipping_fee } = req.body;
+            const { fullname, phone, address, payment_method, order_id, shipping_fee, voucher_code } = req.body;
             const shipFee = parseInt(shipping_fee) || 0;
 
             // 1. Lấy lại giỏ hàng để kiểm tra sản phẩm
@@ -99,7 +100,41 @@ class CheckoutController {
                 });
             });
 
-            const totalMoney = subTotal + shipFee;
+            let totalMoney = subTotal + shipFee;
+            let finalDiscountAmount = 0;
+
+            // 3.5 Xác thực voucher trên server
+            if (voucher_code) {
+                const voucher = await Voucher.findOne({ code: voucher_code.toUpperCase(), status: true });
+                if (voucher && new Date() <= voucher.expiry_date && (voucher.usage_limit === 0 || voucher.used_count < voucher.usage_limit) && subTotal >= voucher.min_order_value) {
+                    
+                    let isValidCategory = true;
+                    if (voucher.category_id) {
+                        isValidCategory = carts.some(item => 
+                            item.product_id && 
+                            item.product_id.category_id && 
+                            item.product_id.category_id.toString() === voucher.category_id.toString()
+                        );
+                    }
+
+                    if (isValidCategory) {
+                        if (voucher.discount_type === 'fixed') {
+                            finalDiscountAmount = voucher.discount_value;
+                        } else if (voucher.discount_type === 'percent') {
+                            finalDiscountAmount = (subTotal * voucher.discount_value) / 100;
+                            if (voucher.max_discount_amount > 0 && finalDiscountAmount > voucher.max_discount_amount) {
+                                finalDiscountAmount = voucher.max_discount_amount;
+                            }
+                        }
+                        totalMoney -= finalDiscountAmount;
+                        if (totalMoney < 0) totalMoney = 0;
+
+                        // Tăng số lượt sử dụng voucher
+                        voucher.used_count += 1;
+                        await voucher.save();
+                    }
+                }
+            }
 
             // 4. Tạo Document đơn hàng mới
             const orderDoc = {
@@ -110,6 +145,8 @@ class CheckoutController {
                 payment_method,
                 total_money: totalMoney,
                 shipping_fee: shipFee,
+                voucher_code: voucher_code ? voucher_code.toUpperCase() : null,
+                discount_amount: finalDiscountAmount,
                 status: (payment_method === 'VietQR') ? 1 : 0, // VietQR cho lên Đang xử lý
                 items: orderItems
             };

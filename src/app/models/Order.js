@@ -9,6 +9,8 @@ const Order = new Schema({
     payment_method: { type: String, required: true },
     total_money: { type: Number, required: true },
     shipping_fee: { type: Number, default: 0 },
+    voucher_code: { type: String, default: null }, // Mă giảm giá đã dùng
+    discount_amount: { type: Number, default: 0 }, // Số tiền được giảm
     status: { type: Number, default: 0 }, // 0: Mới đặt, 1: Đang xử lý, 2: Đang giao, 3: Hoàn thành
     // Lưu thẳng danh sách món hàng vào bên trong đơn hàng này (Thay thế cho bảng order_details cũ)
     items: [{

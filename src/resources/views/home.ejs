@@ -70,6 +70,44 @@
             </button>
         </section>
 
+        <!-- Hot Coupons Section (Tiki Style) -->
+        <section class="container mt-3 mb-4 d-lg-none">
+            <div class="row g-2 text-center">
+                <div class="col-3">
+                    <a href="javascript:void(0);" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#voucherModal">
+                        <div class="p-2 bg-white rounded-3 shadow-sm mb-1 mx-auto" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-ticket-alt text-danger fs-4"></i>
+                        </div>
+                        <div class="small text-dark fw-semibold" style="font-size: 0.7rem;">Mã giảm giá</div>
+                    </a>
+                </div>
+                <div class="col-3">
+                    <a href="/" class="text-decoration-none">
+                        <div class="p-2 bg-white rounded-3 shadow-sm mb-1 mx-auto" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-bolt text-warning fs-4"></i>
+                        </div>
+                        <div class="small text-dark fw-semibold" style="font-size: 0.7rem;">Giá sốc</div>
+                    </a>
+                </div>
+                <div class="col-3">
+                    <a href="/orders" class="text-decoration-none">
+                        <div class="p-2 bg-white rounded-3 shadow-sm mb-1 mx-auto" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-box text-primary fs-4"></i>
+                        </div>
+                        <div class="small text-dark fw-semibold" style="font-size: 0.7rem;">Đơn hàng</div>
+                    </a>
+                </div>
+                <div class="col-3">
+                    <a href="/profile" class="text-decoration-none">
+                        <div class="p-2 bg-white rounded-3 shadow-sm mb-1 mx-auto" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user text-success fs-4"></i>
+                        </div>
+                        <div class="small text-dark fw-semibold" style="font-size: 0.7rem;">Tài khoản</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
         <!-- Danh mục -->
         <section class="container my-5 rounded-4" style="background-color: white;">
             <h2 class="text-center mb-4 fw-bold">Danh mục</h2>
@@ -85,14 +123,13 @@
                         <% categories.forEach(cat=> { %>
                             <% let imgSrc=catImages[cat.slug] ? catImages[cat.slug]
                                 : 'https://cdn-icons-png.flaticon.com/512/679/679821.png' ; %>
-                                <div class="col-6 col-md-2 mb-3">
+                                <div class="col-custom-5 col-md-2 mb-3">
                                     <a href="/category/<%= cat.slug %>" class="text-decoration-none text-dark">
                                         <div class="category-item">
                                             <div class="category-wrapper mb-2">
                                                 <img src="<%= imgSrc %>" alt="<%= cat.name %>" class="img-cover p-2">
                                             </div>
-                                            <span class="small fw-semibold"
-                                                style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp:2;-webkit-box-orient: vertical; overflow: hidden;">
+                                            <span class="small fw-semibold text-truncate-2">
                                                 <%= cat.name %>
                                             </span>
                                         </div>
@@ -104,6 +141,21 @@
                                         <% } %>
             </div>
         </section>
+
+        <!-- Marquee Ticker (Tiki Style) -->
+        <div class="mobile-ticker-container d-lg-none overflow-hidden py-2 border-bottom shadow-sm">
+            <div class="mobile-ticker-content d-flex align-items-center">
+                <div class="ticker-item"><i class="fas fa-shipping-fast text-primary me-1"></i> Giao hàng nhanh chóng</div>
+                <div class="ticker-item"><i class="fas fa-shield-alt text-success me-1"></i> Hàng chính hãng 100%</div>
+                <div class="ticker-item"><i class="fas fa-undo text-warning me-1"></i> Đổi trả dễ dàng</div>
+                <div class="ticker-item"><i class="fas fa-headset text-info me-1"></i> Hỗ trợ 24/7</div>
+                <!-- Duplicate for seamless loop -->
+                <div class="ticker-item"><i class="fas fa-shipping-fast text-primary me-1"></i> Giao hàng nhanh chóng</div>
+                <div class="ticker-item"><i class="fas fa-shield-alt text-success me-1"></i> Hàng chính hãng 100%</div>
+                <div class="ticker-item"><i class="fas fa-undo text-warning me-1"></i> Đổi trả dễ dàng</div>
+                <div class="ticker-item"><i class="fas fa-headset text-info me-1"></i> Hỗ trợ 24/7</div>
+            </div>
+        </div>
         <!-- Best Seller -->
         <section class="container my-5 bg-danger border-1" style="border-radius: 30px;">
             <div style="padding: 20px;">

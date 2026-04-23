@@ -19,4 +19,10 @@ router.post('/notifications/mark-read', apiController.markNotificationsRead);
 // Stock Subscription
 router.post('/stock-subscribe', apiController.stockSubscribe);
 
+// Voucher
+router.post('/voucher/validate', apiController.validateVoucher);
+router.post('/voucher/save', apiController.saveVoucher);
+router.get('/voucher/my-vouchers', apiController.getMyVouchers);
+router.get('/vouchers/public', apiController.getAllPublicVouchers);
+
 module.exports = router;

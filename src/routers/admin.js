@@ -93,4 +93,11 @@ router.post('/promotions/slot1', promotionController.updateSlot1);
 router.post('/promotions/slot2', promotionController.updateSlot2);
 router.post('/promotions/banner', upload.single('banner_image'), promotionController.updateBanner);
 
+// Quản lý Mã Giảm Giá (Voucher)
+const voucherController = require('../app/controllers/VoucherController');
+router.get('/vouchers', voucherController.index);
+router.post('/vouchers/store', voucherController.store);
+router.post('/vouchers/update', voucherController.update);
+router.get('/vouchers/delete/:id', voucherController.destroy);
+
 module.exports = router;

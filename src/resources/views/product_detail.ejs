@@ -199,43 +199,129 @@
                                             <% } %>
                         </div>
 
-                        <!-- Vận chuyển & Cam kết -->
-                        <div class="border rounded p-3 mb-4 bg-white shadow-sm">
-                            <h6 class="fw-bold mb-3"><i class="fas fa-truck text-primary me-2"></i>Thông tin vận chuyển</h6>
-                            <div class="d-flex flex-column gap-2 mb-3">
-                                <div class="d-flex justify-content-between text-muted small">
-                                    <span>Giao đến:</span>
-                                    <span id="delivery-address" class="fw-bold text-dark text-end" style="max-width: 60%; cursor: pointer;" onclick="toggleAddressInput()">
+                        <!-- Vận chuyển -->
+                        <div class="border rounded p-3 mb-3 bg-white shadow-sm">
+                            <h6 class="fw-bold mb-3 text-dark">Thông tin vận chuyển</h6>
+                            <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
+                                <div>
+                                    <span class="text-muted small d-block mb-1">Giao đến</span>
+                                    <span id="delivery-address" class="fw-semibold text-dark d-block">
                                         <i class="fas fa-spinner fa-spin"></i> Đang định vị...
                                     </span>
                                 </div>
-                                <div id="address-input-wrapper" style="display: none;" class="mt-2">
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" id="manual-address-input" class="form-control" placeholder="Nhập địa chỉ để tính phí..." list="address-suggestions">
-                                        <button class="btn btn-primary" onclick="searchManualAddress()"><i class="fas fa-search"></i></button>
+                                <a href="javascript:void(0);" onclick="toggleAddressInput()" class="text-primary text-decoration-none small fw-bold mt-4">Đổi</a>
+                            </div>
+
+                            <div id="address-input-wrapper" style="display: none;" class="mb-3">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" id="manual-address-input" class="form-control" placeholder="Nhập địa chỉ..." list="address-suggestions">
+                                    <button class="btn btn-outline-primary fw-bold" onclick="searchManualAddress()">Tìm</button>
+                                </div>
+                                <datalist id="address-suggestions"></datalist>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="https://salt.tikicdn.com/ts/upload/67/e4/c2/02b5400b39bb3371e06d33c1e9f4d854.png" alt="truck" width="24" height="24" class="me-2">
+                                <span class="fw-bold text-dark" id="lead-time">Giao tiêu chuẩn</span>
+                            </div>
+                            <div class="ms-4 ps-2 border-start border-2 border-success">
+                                <div class="d-flex align-items-center">
+                                    <span class="text-success fw-bold me-2" id="shipping-fee">Miễn phí</span>
+                                    <span class="text-muted text-decoration-line-through small" id="original-shipping-fee">32.200đ</span>
+                                </div>
+                                <div class="small mt-1 text-muted d-flex align-items-center">
+                                    <img src="https://salt.tikicdn.com/ts/upload/df/e2/b4/063c4d55ca380f818547f00f5175d39f.png" width="20" height="20" alt="freeship" class="me-1">
+                                    Freeship 10k đơn từ 45k, Freeship 25k đơn từ 100k
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ưu đãi (Vouchers) -->
+                        <div class="border rounded p-3 mb-3 bg-white shadow-sm" style="cursor: pointer;" data-bs-toggle="offcanvas" data-bs-target="#voucherOffcanvas">
+                            <h6 class="fw-bold mb-3 text-dark">Ưu đãi khác</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small">Mã Giảm Giá</span>
+                                <div class="d-flex gap-2 text-truncate" style="max-width: 70%;">
+                                    <% if (activeVouchers && activeVouchers.length > 0) { %>
+                                        <% activeVouchers.slice(0, 2).forEach(v => { %>
+                                            <span class="badge border border-primary text-primary bg-white rounded-pill px-2 py-1 text-truncate">
+                                                <%= v.title %>
+                                            </span>
+                                        <% }) %>
+                                        <% if (activeVouchers.length > 2) { %>
+                                            <span class="badge border border-primary text-primary bg-white rounded-pill px-2 py-1">...</span>
+                                        <% } %>
+                                    <% } else { %>
+                                        <span class="text-muted small">Không có mã nào</span>
+                                    <% } %>
+                                    <i class="fas fa-chevron-right text-muted ms-1 mt-1"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Voucher Offcanvas -->
+                        <div class="offcanvas offcanvas-end" tabindex="-1" id="voucherOffcanvas" aria-labelledby="voucherOffcanvasLabel">
+                            <div class="offcanvas-header border-bottom">
+                                <h5 class="offcanvas-title fw-bold" id="voucherOffcanvasLabel">Khuyến mãi dành cho bạn</h5>
+                                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                            </div>
+                            <div class="offcanvas-body bg-light">
+                                <% if (activeVouchers && activeVouchers.length > 0) { %>
+                                    <% activeVouchers.forEach(v => { %>
+                                        <% const isSaved = savedVoucherIds && savedVoucherIds.includes(v._id.toString()); %>
+                                        <div class="card mb-3 border-0 shadow-sm">
+                                            <div class="row g-0">
+                                                <div class="col-4 bg-primary text-white d-flex align-items-center justify-content-center flex-column p-2 rounded-start">
+                                                    <div class="fw-bold fs-4"><%= v.discount_type === 'percent' ? v.discount_value + '%' : (v.discount_value / 1000) + 'K' %></div>
+                                                    <div class="small text-center">Giảm</div>
+                                                </div>
+                                                <div class="col-8">
+                                                    <div class="card-body p-2 d-flex flex-column h-100 justify-content-between">
+                                                        <div>
+                                                            <h6 class="card-title fw-bold mb-1 fs-6"><%= v.title %></h6>
+                                                            <p class="card-text small text-muted mb-1">Đơn tối thiểu <%= v.min_order_value.toLocaleString('vi-VN') %>đ</p>
+                                                            <p class="card-text small text-danger mb-2">HSD: <%= new Date(v.expiry_date).toLocaleDateString('vi-VN') %></p>
+                                                        </div>
+                                                        <div class="text-end mt-auto">
+                                                            <% if (isSaved) { %>
+                                                                <button class="btn btn-sm btn-secondary" disabled>Đã lưu</button>
+                                                            <% } else { %>
+                                                                <button class="btn btn-sm btn-outline-primary fw-bold btn-save-voucher" data-id="<%= v._id %>">Lưu</button>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                <% } else { %>
+                                    <div class="text-center mt-5">
+                                        <p class="text-muted">Hiện chưa có mã giảm giá nào phù hợp.</p>
                                     </div>
-                                    <datalist id="address-suggestions"></datalist>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Cam kết bán hàng -->
+                        <div class="border rounded p-3 mb-4 bg-white shadow-sm">
+                            <h6 class="fw-bold mb-3 text-dark d-flex justify-content-between align-items-center">
+                                An tâm mua sắm 
+                                <i class="fas fa-chevron-right text-muted small"></i>
+                            </h6>
+                            <div class="d-flex flex-column gap-3 small text-dark">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-box-open text-primary fs-5 mt-1 me-3" style="width: 24px; text-align: center;"></i>
+                                    <div>Được đồng kiểm khi nhận hàng</div>
                                 </div>
-                                <div class="d-flex justify-content-between text-muted small">
-                                    <span>Phí vận chuyển:</span>
-                                    <span id="shipping-fee" class="fw-bold text-dark">--</span>
+                                <div class="d-flex align-items-start border-top pt-2">
+                                    <i class="fas fa-undo text-primary fs-5 mt-1 me-3" style="width: 24px; text-align: center;"></i>
+                                    <div><strong>Được hoàn tiền 200%</strong> nếu là hàng giả.</div>
                                 </div>
-                                <div class="d-flex justify-content-between text-muted small">
-                                    <span>Thời gian giao hàng:</span>
-                                    <span id="lead-time" class="fw-bold text-success">--</span>
+                                <div class="d-flex align-items-start border-top pt-2">
+                                    <i class="fas fa-cube text-primary fs-5 mt-1 me-3" style="width: 24px; text-align: center;"></i>
+                                    <div>Đổi trả miễn phí trong 30 ngày. Được đổi ý. <br> <a href="#" class="text-primary text-decoration-none mt-1 d-inline-block">Chi tiết</a></div>
                                 </div>
                             </div>
-                            <span class="text-warning">*Lưu ý: Tính năng chỉ mang tính chất demo</span>
-
-                            <hr>
-
-                            <h6 class="fw-bold mb-3"><i class="fas fa-shield-alt text-success me-2"></i>Cam kết bán hàng</h6>
-                            <div class="d-flex flex-column gap-2 small text-muted">
-                                <div><i class="fas fa-check-circle text-success me-2"></i>100% hàng chính hãng, nguồn gốc rõ ràng.</div>
-                                <div><i class="fas fa-hand-holding-usd text-warning me-2"></i>Hoàn tiền 200% nếu phát hiện hàng giả/nhái.</div>
-                                <div><i class="fas fa-exchange-alt text-primary me-2"></i>Miễn phí đổi trả trong vòng 7 ngày nếu lỗi.</div>
-                            </div>
-                            
                         </div>
 
 
@@ -507,7 +593,7 @@
             <div class="row" id="related-product-list">
                 <% if (relatedProducts && relatedProducts.length> 0) { %>
                     <% relatedProducts.forEach((item, index)=> { %>
-                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 related-item"style="<%= index > 7 ? 'display: none;' : '' %>">
+                        <div class="col-6 col-md-3 mb-4 related-item"style="<%= index > 7 ? 'display: none;' : '' %>">
                             <div class="card product-card h-100 border-0 shadow-sm position-relative">
                                 <% if (item.discount_price) { %>
                                     <% let pPercent=Math.round(((item.price - item.discount_price) / item.price) * 100);
@@ -975,6 +1061,44 @@
                                     }, 500);
                                 });
                             }
+                        });
+
+                        // Logic Lưu Mã Giảm Giá
+                        document.querySelectorAll('.btn-save-voucher').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const voucherId = this.dataset.id;
+                                const _this = this;
+
+                                _this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                                _this.disabled = true;
+
+                                fetch('/api/voucher/save', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ voucher_id: voucherId })
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.status === 'success') {
+                                        _this.className = 'btn btn-sm btn-secondary';
+                                        _this.innerText = 'Đã lưu';
+                                        // Keep disabled
+                                    } else {
+                                        alert(data.message);
+                                        _this.innerHTML = 'Lưu';
+                                        _this.disabled = false;
+                                        if (data.message.includes('đăng nhập')) {
+                                            window.location.href = '/#loginModal';
+                                        }
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    alert('Có lỗi xảy ra, vui lòng thử lại!');
+                                    _this.innerHTML = 'Lưu';
+                                    _this.disabled = false;
+                                });
+                            });
                         });
                     </script>
 </body>

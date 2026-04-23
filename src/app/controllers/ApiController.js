@@ -4,6 +4,7 @@ const Category = require('../models/Category');
 const Notification = require('../models/Notification');
 const StockSubscription = require('../models/StockSubscription');
 const User = require('../models/User');
+const Voucher = require('../models/Voucher');
 
 class ApiController {
     // [GET] /api/auth/check
@@ -80,15 +81,29 @@ class ApiController {
                 const categorySlug = req.query.categorySlug;
                 const subcatId = req.query.subcat;
                 const brandId = req.query.brand;
+                const minPrice = req.query.minPrice;
+                const maxPrice = req.query.maxPrice;
+                const sort = req.query.sort || 'newest';
                 
                 const currentCategory = await Category.findOne({ slug: categorySlug, status: 1 }).lean();
                 if (currentCategory) {
                     let filter = { category_id: currentCategory._id, status: 1 };
                     if (subcatId) filter.sub_category_id = subcatId;
                     if (brandId) filter.brand_id = brandId;
+                    
+                    if (minPrice || maxPrice) {
+                        filter.price = {};
+                        if (minPrice) filter.price.$gte = parseInt(minPrice);
+                        if (maxPrice) filter.price.$lte = parseInt(maxPrice);
+                    }
+
+                    let sortQuery = { createdAt: -1 };
+                    if (sort === 'price-asc') sortQuery = { price: 1 };
+                    else if (sort === 'price-desc') sortQuery = { price: -1 };
+                    else if (sort === 'selling') sortQuery = { createdAt: -1 };
 
                     products = await Product.find(filter)
-                        .sort({ createdAt: -1 })
+                        .sort(sortQuery)
                         .skip(offset)
                         .limit(limit)
                         .lean();
@@ -291,6 +306,169 @@ class ApiController {
         } catch (error) {
             console.error(error);
             res.json({ status: 'error', message: 'Lỗi hệ thống.' });
+        }
+    }
+
+    // [POST] /api/voucher/save
+    async saveVoucher(req, res) {
+        try {
+            if (!req.session.user) {
+                return res.json({ status: 'error', message: 'Vui lòng đăng nhập để lưu mã giảm giá' });
+            }
+
+            const { voucher_id } = req.body;
+            if (!voucher_id) return res.json({ status: 'error', message: 'Thiếu thông tin voucher' });
+
+            const user = await User.findById(req.session.user._id);
+            if (!user) return res.json({ status: 'error', message: 'Người dùng không tồn tại' });
+
+            // Initialize saved_vouchers if it doesn't exist
+            if (!user.saved_vouchers) {
+                user.saved_vouchers = [];
+            }
+
+            // Check if already saved
+            if (user.saved_vouchers.includes(voucher_id)) {
+                return res.json({ status: 'error', message: 'Bạn đã lưu mã giảm giá này rồi' });
+            }
+
+            // Optional: check voucher validity and usage limit
+            const voucher = await Voucher.findById(voucher_id);
+            if (!voucher || !voucher.status) {
+                return res.json({ status: 'error', message: 'Mã giảm giá không hợp lệ' });
+            }
+
+            if (new Date() > voucher.expiry_date) {
+                return res.json({ status: 'error', message: 'Mã giảm giá đã hết hạn' });
+            }
+
+            // Usage limit conceptually refers to how many times it can be *used*. 
+            // If we also want to limit how many people can *save* it, we'd need a saved_count field.
+            // For now, we just save it.
+
+            user.saved_vouchers.push(voucher_id);
+            await user.save();
+
+            // Update session so user data is fresh
+            req.session.user = user;
+
+            res.json({ status: 'success', message: 'Lưu mã thành công!' });
+
+        } catch (error) {
+            console.error(error);
+            res.json({ status: 'error', message: 'Lỗi hệ thống khi lưu mã' });
+        }
+    }
+
+    // [GET] /api/voucher/my-vouchers
+    async getMyVouchers(req, res) {
+        try {
+            if (!req.session.user) {
+                return res.json({ status: 'error', message: 'Vui lòng đăng nhập' });
+            }
+            
+            const user = await User.findById(req.session.user._id).populate({
+                path: 'saved_vouchers',
+                match: { status: true }
+            }).lean();
+
+            if (!user) return res.json({ status: 'error', message: 'Người dùng không tồn tại' });
+
+            const validVouchers = (user.saved_vouchers || []).filter(v => {
+                if (!v) return false;
+                if (new Date() > new Date(v.expiry_date)) return false;
+                if (v.usage_limit > 0 && v.used_count >= v.usage_limit) return false;
+                return true;
+            });
+
+            res.json({ status: 'success', data: validVouchers });
+
+        } catch (error) {
+            console.error(error);
+            res.json({ status: 'error', message: 'Lỗi hệ thống' });
+        }
+    }
+
+    // [POST] /api/voucher/validate
+    async validateVoucher(req, res) {
+        try {
+            const { code, order_total } = req.body;
+            if (!code) return res.json({ status: 'error', message: 'Vui lòng nhập mã giảm giá' });
+
+            const voucher = await Voucher.findOne({ code: code.toUpperCase(), status: true });
+            if (!voucher) {
+                return res.json({ status: 'error', message: 'Mã giảm giá không tồn tại hoặc đã hết hạn' });
+            }
+
+            if (new Date() > voucher.expiry_date) {
+                return res.json({ status: 'error', message: 'Mã giảm giá đã hết hạn' });
+            }
+
+            if (voucher.usage_limit > 0 && voucher.used_count >= voucher.usage_limit) {
+                return res.json({ status: 'error', message: 'Mã giảm giá đã hết lượt sử dụng' });
+            }
+
+            if (order_total < voucher.min_order_value) {
+                return res.json({ status: 'error', message: `Đơn hàng tối thiểu ${voucher.min_order_value.toLocaleString('vi-VN')}đ để áp dụng mã này` });
+            }
+
+            // Kiểm tra category_id (Scope)
+            if (voucher.category_id && req.session.user) {
+                // Lấy giỏ hàng
+                const carts = await Cart.find({ user_id: req.session.user._id }).populate('product_id').lean();
+                const hasCategoryProduct = carts.some(item => 
+                    item.product_id && 
+                    item.product_id.category_id && 
+                    item.product_id.category_id.toString() === voucher.category_id.toString()
+                );
+                
+                if (!hasCategoryProduct) {
+                    return res.json({ status: 'error', message: 'Mã giảm giá không áp dụng cho các sản phẩm trong giỏ hàng' });
+                }
+            } else if (voucher.category_id && !req.session.user) {
+                return res.json({ status: 'error', message: 'Vui lòng đăng nhập để kiểm tra điều kiện mã' });
+            }
+
+            let discountAmount = 0;
+            if (voucher.discount_type === 'fixed') {
+                discountAmount = voucher.discount_value;
+            } else if (voucher.discount_type === 'percent') {
+                discountAmount = (order_total * voucher.discount_value) / 100;
+                if (voucher.max_discount_amount > 0 && discountAmount > voucher.max_discount_amount) {
+                    discountAmount = voucher.max_discount_amount;
+                }
+            }
+
+            res.json({
+                status: 'success',
+                message: 'Áp dụng mã thành công!',
+                data: {
+                    code: voucher.code,
+                    discount_amount: discountAmount
+                }
+            });
+
+        } catch (error) {
+            console.error(error);
+            res.json({ status: 'error', message: 'Lỗi hệ thống khi kiểm tra mã' });
+        }
+    }
+
+    // [GET] /api/vouchers/public
+    async getAllPublicVouchers(req, res) {
+        try {
+            const vouchers = await Voucher.find({ 
+                status: true,
+                expiry_date: { $gt: new Date() }
+            })
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .lean();
+            
+            res.json({ status: 'success', data: vouchers });
+        } catch (error) {
+            console.error(error);
+            res.json({ status: 'error', data: [] });
         }
     }
 }

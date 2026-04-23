@@ -115,14 +115,34 @@
 
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Tạm tính:</span>
-                                <span class="fw-semibold">
+                                <span class="fw-semibold" id="subTotalDisplay" data-value="<%= totalMoney %>">
                                     <%= totalMoney.toLocaleString('vi-VN') %> đ
                                 </span>
                             </div>
-                            <div class="d-flex justify-content-between mb-4">
+                            <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted">Phí vận chuyển:</span>
                                 <span class="text-success fw-bold" id="shippingFeeDisplay">0 đ</span>
                             </div>
+
+                            <!-- Voucher Section -->
+                            <div class="mb-3 border-top pt-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label fw-semibold small mb-0"><i class="fas fa-ticket-alt text-warning me-2"></i>Mã giảm giá</label>
+                                    <a href="javascript:void(0)" class="small text-decoration-none" onclick="openVoucherModal()">Kho Voucher <i class="fas fa-chevron-right ms-1"></i></a>
+                                </div>
+                                <div class="input-group input-group-sm mb-2">
+                                    <input type="text" id="voucherCodeInput" class="form-control text-uppercase" placeholder="Nhập mã giảm giá...">
+                                    <button class="btn btn-outline-primary fw-bold" type="button" id="btnApplyVoucher">Áp dụng</button>
+                                </div>
+                                <div id="voucherMessage" class="small mt-1" style="display: none;"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-3" id="discountRow" style="display: none !important;">
+                                <span class="text-muted">Giảm giá:</span>
+                                <span class="text-danger fw-bold" id="discountDisplay">-0 đ</span>
+                            </div>
+
+                            <input type="hidden" name="voucher_code" id="hiddenVoucherCode" value="">
 
                             <hr>
                             <div class="d-flex justify-content-between mb-4">
@@ -181,6 +201,27 @@
                                 bỏ</button>
                             <button type="button" class="btn btn-success fw-bold px-4" id="btnConfirmPaid"><i
                                     class="fas fa-check-circle me-1"></i>Đã Thanh Toán</button>
+                        </div>
+                    </div>
+                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kho Voucher Modal -->
+            <div class="modal fade" id="khoVoucherModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title fw-bold">Kho Voucher Của Bạn</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body bg-light" id="voucherListContainer">
+                            <div class="text-center py-4">
+                                <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                                <p class="mt-2 text-muted">Đang tải mã giảm giá...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -316,29 +357,168 @@
                     });
                 });
 
-                // Logic Xử lý phí vận chuyển từ Product Detail
+                // Logic Xử lý phí vận chuyển và Voucher
                 document.addEventListener('DOMContentLoaded', function () {
                     const savedFee = localStorage.getItem('shipping_fee');
+                    const shippingFeeDisplay = document.getElementById('shippingFeeDisplay');
+                    const shippingFeeInput = document.getElementById('shippingFeeInput');
+                    const totalMoneyDisplay = document.getElementById('totalMoneyDisplay');
+                    const subTotalDisplay = document.getElementById('subTotalDisplay');
+                    const btnApplyVoucher = document.getElementById('btnApplyVoucher');
+                    const voucherCodeInput = document.getElementById('voucherCodeInput');
+                    const voucherMessage = document.getElementById('voucherMessage');
+                    const discountRow = document.getElementById('discountRow');
+                    const discountDisplay = document.getElementById('discountDisplay');
+                    const hiddenVoucherCode = document.getElementById('hiddenVoucherCode');
+
+                    let currentShippingFee = 0;
+                    let currentDiscount = 0;
+                    const baseSubTotal = parseInt(subTotalDisplay.dataset.value) || 0;
+
+                    function updateTotal() {
+                        let finalTotal = baseSubTotal + currentShippingFee - currentDiscount;
+                        if (finalTotal < 0) finalTotal = 0;
+                        totalMoneyDisplay.innerText = finalTotal.toLocaleString('vi-VN') + ' đ';
+                        totalMoneyDisplay.dataset.value = finalTotal;
+                    }
+
                     if (savedFee) {
-                        const fee = parseInt(savedFee) || 0;
-                        const shippingFeeDisplay = document.getElementById('shippingFeeDisplay');
-                        const shippingFeeInput = document.getElementById('shippingFeeInput');
-                        const totalMoneyDisplay = document.getElementById('totalMoneyDisplay');
+                        currentShippingFee = parseInt(savedFee) || 0;
+                        if (shippingFeeDisplay) shippingFeeDisplay.innerText = currentShippingFee.toLocaleString('vi-VN') + ' đ';
+                        if (shippingFeeInput) shippingFeeInput.value = currentShippingFee;
                         
-                        if (shippingFeeDisplay) shippingFeeDisplay.innerText = fee.toLocaleString('vi-VN') + ' đ';
-                        if (shippingFeeInput) shippingFeeInput.value = fee;
-                        
-                        if (totalMoneyDisplay) {
-                            const subTotal = parseInt(totalMoneyDisplay.dataset.value) || 0;
-                            const finalTotal = subTotal + fee;
-                            totalMoneyDisplay.innerText = finalTotal.toLocaleString('vi-VN') + ' đ';
-                            totalMoneyDisplay.dataset.value = finalTotal;
-                        }
+                        updateTotal();
                         
                         // Xóa sau khi dùng để tránh nhầm lẫn cho đơn sau
                         localStorage.removeItem('shipping_fee');
                     }
+
+                    // Logic Voucher
+                    if (btnApplyVoucher) {
+                        btnApplyVoucher.addEventListener('click', function() {
+                            const code = voucherCodeInput.value.trim();
+                            if (!code) {
+                                voucherMessage.style.display = 'block';
+                                voucherMessage.className = 'small mt-1 text-danger';
+                                voucherMessage.innerText = 'Vui lòng nhập mã giảm giá';
+                                return;
+                            }
+
+                            btnApplyVoucher.disabled = true;
+                            btnApplyVoucher.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                            fetch('/api/voucher/validate', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ code: code, order_total: baseSubTotal })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                voucherMessage.style.display = 'block';
+                                if (data.status === 'success') {
+                                    voucherMessage.className = 'small mt-1 text-success fw-bold';
+                                    voucherMessage.innerText = data.message;
+                                    
+                                    currentDiscount = data.data.discount_amount;
+                                    hiddenVoucherCode.value = data.data.code;
+                                    
+                                    discountRow.style.setProperty('display', 'flex', 'important');
+                                    discountDisplay.innerText = '-' + currentDiscount.toLocaleString('vi-VN') + ' đ';
+                                    
+                                    updateTotal();
+                                } else {
+                                    voucherMessage.className = 'small mt-1 text-danger';
+                                    voucherMessage.innerText = data.message;
+                                    
+                                    currentDiscount = 0;
+                                    hiddenVoucherCode.value = '';
+                                    discountRow.style.setProperty('display', 'none', 'important');
+                                    updateTotal();
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                voucherMessage.style.display = 'block';
+                                voucherMessage.className = 'small mt-1 text-danger';
+                                voucherMessage.innerText = 'Lỗi hệ thống, vui lòng thử lại sau';
+                            })
+                            .finally(() => {
+                                btnApplyVoucher.disabled = false;
+                                btnApplyVoucher.innerText = 'Áp dụng';
+                            });
+                        });
+                    }
                 });
+
+                // Logic Mở Modal Kho Voucher
+                let isVoucherLoaded = false;
+                function openVoucherModal() {
+                    const modalEl = document.getElementById('khoVoucherModal');
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+
+                    if (!isVoucherLoaded) {
+                        fetch('/api/voucher/my-vouchers')
+                            .then(res => res.json())
+                            .then(data => {
+                                const container = document.getElementById('voucherListContainer');
+                                if (data.status === 'success') {
+                                    if (data.data.length === 0) {
+                                        container.innerHTML = '<div class="text-center py-4 text-muted">Bạn chưa lưu mã giảm giá nào hoặc các mã đã hết hạn.</div>';
+                                    } else {
+                                        let html = '';
+                                        data.data.forEach(v => {
+                                            const discountText = v.discount_type === 'percent' ? v.discount_value + '%' : (v.discount_value / 1000) + 'K';
+                                            html += `
+                                                <div class="card mb-3 border-0 shadow-sm">
+                                                    <div class="row g-0">
+                                                        <div class="col-4 bg-primary text-white d-flex align-items-center justify-content-center flex-column p-2 rounded-start">
+                                                            <div class="fw-bold fs-4">${discountText}</div>
+                                                            <div class="small text-center">Giảm</div>
+                                                        </div>
+                                                        <div class="col-8">
+                                                            <div class="card-body p-2 d-flex flex-column h-100 justify-content-between">
+                                                                <div>
+                                                                    <h6 class="card-title fw-bold mb-1 fs-6">${v.title}</h6>
+                                                                    <p class="card-text small text-muted mb-1">Đơn tối thiểu ${v.min_order_value.toLocaleString('vi-VN')}đ</p>
+                                                                    <p class="card-text small text-danger mb-2">HSD: ${new Date(v.expiry_date).toLocaleDateString('vi-VN')}</p>
+                                                                </div>
+                                                                <div class="text-end mt-auto">
+                                                                    <button class="btn btn-sm btn-outline-primary fw-bold" onclick="selectVoucher('${v.code}')">Dùng mã</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        });
+                                        container.innerHTML = html;
+                                    }
+                                    isVoucherLoaded = true;
+                                } else {
+                                    container.innerHTML = `<div class="text-center py-4 text-danger">${data.message}</div>`;
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                document.getElementById('voucherListContainer').innerHTML = '<div class="text-center py-4 text-danger">Lỗi kết nối. Vui lòng thử lại.</div>';
+                            });
+                    }
+                }
+
+                function selectVoucher(code) {
+                    const modalEl = document.getElementById('khoVoucherModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    const voucherInput = document.getElementById('voucherCodeInput');
+                    const btnApply = document.getElementById('btnApplyVoucher');
+                    
+                    if (voucherInput && btnApply) {
+                        voucherInput.value = code;
+                        btnApply.click();
+                    }
+                }
 
                 // Logic Xử lý Modal Thanh toán VietQR
                 document.addEventListener('DOMContentLoaded', function () {

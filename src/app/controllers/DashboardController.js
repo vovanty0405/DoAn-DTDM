@@ -63,8 +63,8 @@ class DashboardController {
                 newCustomersCount,
                 lowStockProducts,
                 revenueByDate,
-                revenueLabels: JSON.stringify(revenueLabels),
-                revenueData: JSON.stringify(revenueData),
+                revenueLabels,
+                revenueData,
                 user: req.session.user || req.user
             });
         } catch (error) {

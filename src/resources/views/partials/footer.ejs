@@ -29,11 +29,38 @@
             <div class="col-md-3 mb-4">
                 <h6 class="fw-bold text-uppercase">NHẬN THÔNG BÁO</h6>
                 <p class="small">Đăng ký để nhận ưu đãi mới nhất.</p>
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Email của bạn">
-                    <button class="btn btn-warning" type="button">Gửi</button>
+                <div class="input-group mb-2">
+                    <input type="email" id="newsletterEmail" class="form-control form-control-sm" placeholder="Email của bạn">
+                    <button class="btn btn-warning btn-sm fw-bold" type="button" id="btnSubscribeNewsletter">Gửi</button>
                 </div>
+                <div id="newsletterSuccess" class="small text-warning fw-bold" style="display: none;"><i class="fas fa-check-circle me-1"></i>Đăng ký thành công!</div>
             </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const btnSub = document.getElementById('btnSubscribeNewsletter');
+                    const inputEmail = document.getElementById('newsletterEmail');
+                    const msgSuccess = document.getElementById('newsletterSuccess');
+                    
+                    if (btnSub) {
+                        btnSub.addEventListener('click', function() {
+                            if (inputEmail.value && inputEmail.value.includes('@')) {
+                                btnSub.disabled = true;
+                                btnSub.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                                setTimeout(() => {
+                                    btnSub.disabled = false;
+                                    btnSub.innerText = 'Gửi';
+                                    inputEmail.value = '';
+                                    msgSuccess.style.display = 'block';
+                                    setTimeout(() => msgSuccess.style.display = 'none', 3000);
+                                }, 1000); // Simulate network delay
+                            } else {
+                                alert('Vui lòng nhập email hợp lệ!');
+                            }
+                        });
+                    }
+                });
+            </script>
         </div>
     </div>
 </footer>

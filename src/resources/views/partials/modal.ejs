@@ -270,6 +270,115 @@
     });
 </script>
 
+<!-- Modal Danh sách Voucher -->
+<div class="modal fade voucher-modal" id="voucherModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-bottom p-3">
+                <h5 class="modal-title fw-bold text-tempi-green">
+                    <i class="fas fa-ticket-alt me-2 text-warning"></i>Mã giảm giá cho bạn
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3 bg-light" id="voucherModalList" style="min-height: 200px;">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                    <div class="mt-2 text-muted small">Đang tìm mã ưu đãi...</div>
+                </div>
+            </div>
+            <div class="modal-footer border-top p-2 bg-white">
+                <button type="button" class="btn btn-tempi-green w-100 rounded-pill text-white fw-bold py-2" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const voucherModal = document.getElementById('voucherModal');
+        const voucherListContainer = document.getElementById('voucherModalList');
+        
+        if (voucherModal) {
+            voucherModal.addEventListener('shown.bs.modal', function() {
+                fetchVouchers();
+            });
+        }
+
+        function fetchVouchers() {
+            fetch('/api/vouchers/public')
+                .then(res => res.json())
+                .then(result => {
+                    if (result.status === 'success' && result.data.length > 0) {
+                        let html = '';
+                        result.data.forEach(v => {
+                            const expiry = new Date(v.expiry_date).toLocaleDateString('vi-VN');
+                            const discountText = v.discount_type === 'percent' 
+                                ? `Giảm ${v.discount_value}%` 
+                                : `Giảm ${v.discount_value.toLocaleString('vi-VN')}đ`;
+                            
+                            html += `
+                                <div class="voucher-card p-3 mb-3 rounded-3 shadow-sm d-flex align-items-center">
+                                    <div class="voucher-icon me-3 text-center" style="min-width: 60px;">
+                                        <i class="fas fa-ticket-alt fs-2 text-tempi-green"></i>
+                                        <div class="small fw-bold text-uppercase mt-1" style="font-size: 0.65rem;">PEW VOUCHER</div>
+                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="fw-bold text-dark mb-1">${discountText}</div>
+                                        <div class="small text-muted mb-1">Đơn tối thiểu ${v.min_order_value.toLocaleString('vi-VN')}đ</div>
+                                        <div class="small text-muted" style="font-size: 0.75rem;">HSD: ${expiry}</div>
+                                    </div>
+                                    <button class="btn btn-sm btn-tempi-green text-white rounded-pill px-3 ms-2 fw-bold" onclick="saveVoucher('${v._id}', this)">
+                                        Lưu
+                                    </button>
+                                </div>
+                            `;
+                        });
+                        voucherListContainer.innerHTML = html;
+                    } else {
+                        voucherListContainer.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Hiện chưa có mã giảm giá nào mới.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi fetch vouchers:", err);
+                    voucherListContainer.innerHTML = '<p class="text-center text-danger py-5">Lỗi khi tải mã giảm giá. Vui lòng thử lại.</p>';
+                });
+        }
+    });
+
+    function saveVoucher(voucherId, btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        
+        fetch('/api/voucher/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ voucher_id: voucherId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                btn.classList.replace('btn-tempi-green', 'btn-success');
+                btn.innerText = 'Đã lưu';
+                // Show toast or notification if available
+            } else {
+                alert(data.message);
+                btn.disabled = false;
+                btn.innerText = 'Lưu';
+            }
+        })
+        .catch(err => {
+            console.error("Lỗi lưu voucher:", err);
+            btn.disabled = false;
+            btn.innerText = 'Lưu';
+        });
+    }
+</script>
+
 <div class="modal fade" id="loginModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content p-4 border-0 shadow-lg">

@@ -8,7 +8,8 @@ const User = new Schema({
     phone: { type: String, required: true },
     address: { type: String, required: true },
     role: { type: Number, default: 0 }, // 0: Khách, 1: Admin
-    status: { type: Number, default: 1 }
+    status: { type: Number, default: 1 },
+    saved_vouchers: [{ type: Schema.Types.ObjectId, ref: 'Voucher' }] // Mảng lưu mã giảm giá
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', User);

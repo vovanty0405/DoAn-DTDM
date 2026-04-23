@@ -49,7 +49,8 @@
                     <a href="/admin/orders"><i class="fas fa-file-invoice-dollar me-2"></i> Đơn Hàng</a>
                     <a href="/admin/contacts"><i class="fas fa-envelope me-2"></i> Liên Hệ</a>
                     <a href="/admin/reviews" class="active"><i class="fas fa-star me-2"></i> Đánh Giá</a>
-                    <a href="/admin/promotions"><i class="fas fa-percent me-2"></i> Khuyến Mãi</a>
+                    <a href="/admin/promotions"><i class="fas fa-percent me-2"></i> Khuyến Mãi Hàng Loạt</a>
+                    <a href="/admin/vouchers"><i class="fas fa-ticket-alt me-2"></i> Mã Giảm Giá</a>
                     <a href="/admin/dashboard"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
                     <a href="/logout" class="text-danger mt-5"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a>
                 </div>
@@ -233,11 +234,13 @@
                                                                                 class="fas fa-stream me-1"></i> Phản hồi
                                                                             (<%= allExistingReplies.length %>)</h6>
                                                                         <% allExistingReplies.forEach(reply=> { %>
-                                                                            <div class="ms-3 mb-2 p-2 border-start border-3 rounded bg-white <%= (reply.user_id && reply.user_id.role === 1) ? 'border-success' : 'border-primary' %>">
+                                                                            <div
+                                                                                class="ms-3 mb-2 p-2 border-start border-3 rounded bg-white <%= (reply.user_id && reply.user_id.role === 1) ? 'border-success' : 'border-primary' %>">
                                                                                 <div
                                                                                     class="d-flex justify-content-between align-items-center">
                                                                                     <div>
-                                                                                        <strong class="<%= (reply.user_id && reply.user_id.role === 1) ? 'text-success' : 'text-primary' %>">
+                                                                                        <strong
+                                                                                            class="<%= (reply.user_id && reply.user_id.role === 1) ? 'text-success' : 'text-primary' %>">
                                                                                             <i
                                                                                                 class="fas fa-reply me-1"></i>
                                                                                             <%= reply.user_id ?
