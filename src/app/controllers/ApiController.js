@@ -279,6 +279,33 @@ class ApiController {
         }
     }
 
+    // [POST] /api/notifications/mark-read/:id — Đánh dấu 1 thông báo đã đọc
+    async markSingleNotificationRead(req, res) {
+        try {
+            if (!req.session.user) return res.json({ status: 'error' });
+            const id = req.params.id;
+            await Notification.findOneAndUpdate(
+                { _id: id, user_id: req.session.user._id },
+                { is_read: true }
+            );
+            res.json({ status: 'success' });
+        } catch (error) {
+            res.json({ status: 'error' });
+        }
+    }
+
+    // [DELETE] /api/notifications/:id — Xóa thông báo
+    async deleteNotification(req, res) {
+        try {
+            if (!req.session.user) return res.json({ status: 'error' });
+            const id = req.params.id;
+            await Notification.findOneAndDelete({ _id: id, user_id: req.session.user._id });
+            res.json({ status: 'success' });
+        } catch (error) {
+            res.json({ status: 'error' });
+        }
+    }
+
     // [POST] /api/stock-subscribe — Đăng ký nhận thông báo khi có hàng
     async stockSubscribe(req, res) {
         try {

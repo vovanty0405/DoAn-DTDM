@@ -164,7 +164,8 @@
 
             <!-- QR Code Modal cho VietQR -->
             <div class="modal fade" id="qrModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                aria-labelledby="qrModalLabel" aria-hidden="true">
+                aria-labelledby="qrModalLabel" aria-hidden="true" 
+                data-order-id="<%= typeof newOrderId !== 'undefined' ? newOrderId.toString().slice(-6).toUpperCase() : '123' %>">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header bg-primary text-white">
@@ -359,7 +360,6 @@
 
                 // Logic Xử lý phí vận chuyển và Voucher
                 document.addEventListener('DOMContentLoaded', function () {
-                    const savedFee = localStorage.getItem('shipping_fee');
                     const shippingFeeDisplay = document.getElementById('shippingFeeDisplay');
                     const shippingFeeInput = document.getElementById('shippingFeeInput');
                     const totalMoneyDisplay = document.getElementById('totalMoneyDisplay');
@@ -382,16 +382,37 @@
                         totalMoneyDisplay.dataset.value = finalTotal;
                     }
 
-                    if (savedFee) {
+                    const savedDistance = localStorage.getItem('shipping_distance');
+                    const savedFee = localStorage.getItem('shipping_fee');
+
+                    if (savedDistance) {
+                        const dist = parseFloat(savedDistance);
+                        let baseFee = 20000;
+                        let isFree = false;
+
+                        if (dist < 50) {
+                            baseFee = 10000;
+                            if (baseSubTotal >= 100000) isFree = true;
+                        } else if (dist <= 100) {
+                            baseFee = 15000;
+                            if (baseSubTotal >= 300000) isFree = true;
+                        } else {
+                            baseFee = 20000;
+                            if (baseSubTotal >= 500000) isFree = true;
+                        }
+
+                        currentShippingFee = isFree ? 0 : baseFee;
+                    } else if (savedFee) {
                         currentShippingFee = parseInt(savedFee) || 0;
-                        if (shippingFeeDisplay) shippingFeeDisplay.innerText = currentShippingFee.toLocaleString('vi-VN') + ' đ';
-                        if (shippingFeeInput) shippingFeeInput.value = currentShippingFee;
-                        
-                        updateTotal();
-                        
-                        // Xóa sau khi dùng để tránh nhầm lẫn cho đơn sau
-                        localStorage.removeItem('shipping_fee');
                     }
+
+                    if (shippingFeeDisplay) shippingFeeDisplay.innerText = currentShippingFee.toLocaleString('vi-VN') + ' đ';
+                    if (shippingFeeInput) shippingFeeInput.value = currentShippingFee;
+                    
+                    updateTotal();
+                    
+                    localStorage.removeItem('shipping_fee');
+                    localStorage.removeItem('shipping_distance');
 
                     // Logic Voucher
                     if (btnApplyVoucher) {
@@ -546,7 +567,7 @@
                             // Lấy các tham số cấu hình thanh toán
                             const amountDisplay = document.getElementById('totalMoneyDisplay');
                             const amount = amountDisplay ? amountDisplay.dataset.value : 0;
-                            const addInfo = 'DH<%= typeof newOrderId !== "undefined" ? newOrderId.toString().slice(-6).toUpperCase() : "123" %>';
+                            const addInfo = 'DH' + (qrModalEl.dataset.orderId || '123');
                             const accountName = 'BACH HOA PEW';
                             const bankId = 'VCB'; // Tuỳ chỉnh thành Vietcombank
                             const accountNo = '1041092680'; // STK mà bạn đã sửa

@@ -1,3 +1,23 @@
+<style>
+    .noti-item:hover {
+        background-color: #f8f9fa;
+    }
+    .noti-item .btn-mark-read, .noti-item .btn-delete-noti {
+        opacity: 0.6;
+        transition: opacity 0.2s, transform 0.2s;
+    }
+    .noti-item:hover .btn-mark-read, .noti-item:hover .btn-delete-noti {
+        opacity: 1;
+    }
+    .noti-item .btn-mark-read:hover { transform: scale(1.1); color: #198754 !important; }
+    .noti-item .btn-delete-noti:hover { transform: scale(1.1); color: #dc3545 !important; }
+    
+    @media (max-width: 576px) {
+        .noti-item .btn-mark-read, .noti-item .btn-delete-noti {
+            opacity: 1; /* Hiển thị luôn trên mobile */
+        }
+    }
+</style>
 <header class="header-bg sticky-top">
     <div class="container">
         <!-- Desktop Navbar -->
@@ -53,7 +73,7 @@
                                         <li><a class="dropdown-item" href="/orders"><i class="fas fa-box me-2"></i> Đơn
                                                 hàng của tôi</a></li>
                                         <li><a class="dropdown-item text-danger" href="/logout"><i
-                                                     class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
+                                                      class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
                             </ul>
                         </li>
                         <% } else { %>
@@ -89,7 +109,7 @@
                                         <!-- Dropdown Thông báo -->
                                         <div id="notiDropdown"
                                             class="position-absolute bg-white shadow-lg rounded text-start"
-                                            style="top: 100%; right: 0; z-index: 9999; display: none; width: 340px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd; margin-top: 8px;">
+                                            style="top: 100%; right: 0; z-index: 9999; display: none; width: 400px; max-height: 480px; overflow-y: auto; border: 1px solid #ddd; margin-top: 8px;">
                                             <div
                                                 class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
                                                 <strong class="text-dark"><i class="fas fa-bell me-1 text-warning"></i>
@@ -190,6 +210,10 @@
                 <i class="fas fa-user-cog me-3 fs-5 text-info"></i> Quản lý tài khoản
             </a>
             <a href="/orders" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0">
+                <i class="fas fa-box me-3 fs-5 text-success"></i> Đơn hàng của tôi
+            </a>
+            <a href="javascript:void(0);" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0" 
+               data-bs-toggle="modal" data-bs-target="#mobileNotiModal" data-bs-dismiss="offcanvas">
                 <i class="fas fa-bell me-3 fs-5 text-warning"></i> Thông báo
                 <% if (typeof user !== 'undefined' && user) { %>
                     <span class="badge rounded-pill bg-danger ms-auto noti-count-badge" style="display: none;">0</span>
@@ -227,6 +251,7 @@
                 <div class="p-3 mt-3">
                     <a href="/logout" class="btn btn-outline-danger w-100 rounded-pill">Đăng xuất</a>
                 </div>
+
             <% } %>
         </div>
     </div>
@@ -286,32 +311,70 @@
             fetch('/api/notifications')
                 .then(r => r.json())
                 .then(notifications => {
-                    if (!notiList) return;
-                    if (notifications.length === 0) {
-                        notiList.innerHTML = '<div class="p-3 text-center text-muted small">Chưa có thông báo nào.</div>';
-                        return;
-                    }
-                    let html = '';
-                    notifications.forEach(n => {
-                        const icon = n.type === 'stock' ? '🔔' : '📦';
-                        const bgClass = n.is_read ? '' : 'bg-light';
-                        const time = new Date(n.createdAt).toLocaleString('vi-VN');
-                        html += `
-                            <div class="p-2 px-3 border-bottom ${bgClass}" style="font-size: 0.85rem; transition: background 0.2s; cursor: default;">
-                                <div class="d-flex align-items-start gap-2">
-                                    <span style="font-size: 1.2rem;">${icon}</span>
-                                    <div>
-                                        <div class="text-dark ${n.is_read ? '' : 'fw-bold'}">${n.message}</div>
-                                        <small class="text-muted">${time}</small>
+                    const containers = [document.getElementById('notiList'), document.getElementById('mobileNotiList')];
+                    
+                    containers.forEach(container => {
+                        if (!container) return;
+                        if (notifications.length === 0) {
+                            container.innerHTML = '<div class="p-3 text-center text-muted small">Chưa có thông báo nào.</div>';
+                            return;
+                        }
+                        let html = '';
+                        notifications.forEach(n => {
+                            const icon = n.type === 'stock' ? '🔔' : '📦';
+                            const bgClass = n.is_read ? '' : 'bg-light';
+                            const time = new Date(n.createdAt).toLocaleString('vi-VN');
+                            
+                            html += `
+                                <div class="p-3 border-bottom ${bgClass} position-relative noti-item" data-id="${n._id}" style="font-size: 0.85rem; transition: background 0.2s;">
+                                    <div class="d-flex align-items-start gap-2 pe-5">
+                                        <span style="font-size: 1.2rem;">${icon}</span>
+                                        <div>
+                                            <div class="text-dark ${n.is_read ? '' : 'fw-bold'}">${n.message}</div>
+                                            <small class="text-muted d-block mt-1">${time}</small>
+                                        </div>
+                                    </div>
+                                    <div class="position-absolute top-50 translate-middle-y end-0 me-2 d-flex flex-column gap-1">
+                                        ${!n.is_read ? `
+                                            <button class="btn btn-sm btn-light p-1 border shadow-sm text-success btn-mark-read" title="Đã đọc" onclick="markReadSingle('${n._id}')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        ` : ''}
+                                        <button class="btn btn-sm btn-light p-1 border shadow-sm text-danger btn-delete-noti" title="Xóa" onclick="deleteNoti('${n._id}')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
                                     </div>
                                 </div>
-                            </div>
-                        `;
+                            `;
+                        });
+                        container.innerHTML = html;
                     });
-                    notiList.innerHTML = html;
                 })
                 .catch(() => { });
         }
+
+        window.markReadSingle = function(id) {
+            fetch(`/api/notifications/mark-read/${id}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        fetchNotiCount();
+                        fetchNotiList();
+                    }
+                });
+        };
+
+        window.deleteNoti = function(id) {
+            if (!confirm('Bạn muốn xóa thông báo này?')) return;
+            fetch(`/api/notifications/${id}`, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        fetchNotiCount();
+                        fetchNotiList();
+                    }
+                });
+        };
 
         if (bellToggle) {
             bellToggle.addEventListener('click', function (e) {
@@ -341,8 +404,52 @@
                 });
             }
 
+            const markAllReadMobile = document.getElementById('markAllReadMobile');
+            if (markAllReadMobile) {
+                markAllReadMobile.addEventListener('click', function () {
+                    fetch('/api/notifications/mark-read', { method: 'POST' })
+                        .then(r => r.json())
+                        .then(() => {
+                            fetchNotiCount();
+                            fetchNotiList();
+                        });
+                });
+            }
+
+            // Mở modal thông báo trên mobile thì fetch list
+            const mobileNotiModal = document.getElementById('mobileNotiModal');
+            if (mobileNotiModal) {
+                mobileNotiModal.addEventListener('show.bs.modal', function () {
+                    fetchNotiList();
+                });
+            }
+
             fetchNotiCount();
             setInterval(fetchNotiCount, 30000);
         }
     });
-</script>
+</script>
+
+<!-- Mobile Notification Modal -->
+<% if (typeof user !== 'undefined' && user) { %>
+<div class="modal fade" id="mobileNotiModal" tabindex="-1" aria-labelledby="mobileNotiModalLabel" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom bg-light">
+                <h5 class="modal-title fw-bold" id="mobileNotiModalLabel">
+                    <i class="fas fa-bell me-2 text-warning"></i>Thông báo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" id="mobileNotiList">
+                <div class="p-4 text-center text-muted">Đang tải...</div>
+            </div>
+            <div class="modal-footer border-top p-2">
+                <button type="button" class="btn btn-sm btn-outline-success w-100 fw-bold" id="markAllReadMobile">
+                    Đánh dấu tất cả đã đọc
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>

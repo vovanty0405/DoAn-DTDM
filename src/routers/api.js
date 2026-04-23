@@ -15,6 +15,8 @@ router.get('/auth/check', apiController.checkAuthExists);
 router.get('/notifications/count', apiController.notificationCount);
 router.get('/notifications', apiController.notificationList);
 router.post('/notifications/mark-read', apiController.markNotificationsRead);
+router.post('/notifications/mark-read/:id', apiController.markSingleNotificationRead);
+router.delete('/notifications/:id', apiController.deleteNotification);
 
 // Stock Subscription
 router.post('/stock-subscribe', apiController.stockSubscribe);

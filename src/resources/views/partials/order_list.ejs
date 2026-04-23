@@ -1,116 +1,130 @@
 <% 
+    // Kiểm tra dữ liệu đầu vào
+    const ordersData = (typeof orders !== 'undefined') ? orders : [];
+    const statusFilter = (typeof filterStatus !== 'undefined') ? filterStatus : 'all';
+
     // Lọc đơn hàng theo Tab hiển thị
-    let filteredOrders = orders;
-    if (filterStatus !== 'all') {
-        filteredOrders = orders.filter(o => filterStatus.includes(o.status));
+    let filteredOrders = ordersData;
+    if (statusFilter !== 'all') {
+        if (Array.isArray(statusFilter)) {
+            filteredOrders = ordersData.filter(o => statusFilter.includes(o.status));
+        } else {
+            filteredOrders = ordersData.filter(o => o.status == statusFilter);
+        }
     }
 %>
 
 <% if (filteredOrders && filteredOrders.length > 0) { %>
     <% filteredOrders.forEach(order => { %>
-        <div class="order-card">
-            <div class="order-header">
+        <% 
+            const orderId = order._id ? order._id.toString().slice(-8).toUpperCase() : 'N/A';
+            const createdAt = order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : 'N/A';
+            const progressWidth = order.status === 0 ? '0%' : (order.status === 1 ? '33%' : (order.status === 2 ? '66%' : '100%'));
+            
+            // Hóa giải lỗi đỏ linter bằng cách nhét toàn bộ attribute vào EJS
+            const progressStyle = `style="width: ${progressWidth};"`;
+            const dataAddr = `data-address="${order.address}"`;
+            const dataStatus = `data-status="${order.status}"`;
+        %>
+        <div class="order-card mb-4 bg-white rounded-4 shadow-sm border overflow-hidden">
+            <div class="order-header p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
                 <div>
-                    <span class="fw-bold text-dark">Mã đơn: #<%= order._id.toString().slice(-8).toUpperCase() %></span>
-                    <small class="text-muted ms-3"><i class="far fa-clock"></i> <%= new Date(order.createdAt).toLocaleString('vi-VN') %></small>
+                    <span class="fw-bold text-dark">Mã đơn: #<%= orderId %></span>
+                    <small class="text-muted ms-3">
+                        <i class="far fa-clock me-1"></i> 
+                        <%= createdAt %>
+                    </small>
                 </div>
                 <div>
                     <% if (order.status === 0) { %>
-                        <span class="status-badge bg-status-0"><i class="fas fa-box me-1"></i> Mới đặt</span>
+                        <span class="badge rounded-pill bg-primary px-3 py-2"><i class="fas fa-box me-1"></i> Mới đặt</span>
                     <% } else if (order.status === 1) { %>
-                        <span class="status-badge bg-status-1"><i class="fas fa-boxes me-1"></i> Đang chuẩn bị</span>
+                        <span class="badge rounded-pill bg-info text-dark px-3 py-2"><i class="fas fa-boxes me-1"></i> Đang chuẩn bị</span>
                     <% } else if (order.status === 2) { %>
-                        <span class="status-badge bg-status-2"><i class="fas fa-truck me-1"></i> Đang giao hàng</span>
+                        <span class="badge rounded-pill bg-warning text-dark px-3 py-2"><i class="fas fa-truck me-1"></i> Đang giao hàng</span>
                     <% } else if (order.status === 3) { %>
-                        <span class="status-badge bg-status-3"><i class="fas fa-check-circle me-1"></i> Hoàn thành</span>
+                        <span class="badge rounded-pill bg-success px-3 py-2"><i class="fas fa-check-circle me-1"></i> Hoàn thành</span>
+                    <% } else if (order.status === -1) { %>
+                        <span class="badge rounded-pill bg-danger px-3 py-2"><i class="fas fa-times-circle me-1"></i> Đã hủy</span>
                     <% } %>
-                    <button type="button" class="btn btn-sm btn-outline-info border-0 ms-2" onclick="showDeliveryMap('<%= order.address %>', <%= order.status %>)">
-                        <i class="fas fa-map-marked-alt text-info"></i> <span class="fw-medium">Xem lộ trình</span>
+                    
+                    <button type="button" class="btn btn-sm btn-outline-info border-0 ms-2" <%- dataAddr %> <%- dataStatus %> onclick="showDeliveryMap(this.dataset.address, this.dataset.status)">
+                        <i class="fas fa-map-marked-alt"></i> <span class="d-none d-md-inline ms-1">Xem lộ trình</span>
                     </button>
                 </div>
             </div>
             
-            <div class="order-body">
-                <!-- Order Timeline Stepper -->
-                <div class="position-relative mb-4 mt-2 px-md-4">
-                    <div class="progress" style="height: 4px; position: absolute; top: 15px; left: 10%; right: 10%; width: 80%; z-index: 1;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: <%= order.status === 0 ? '0%' : (order.status === 1 ? '33%' : (order.status === 2 ? '66%' : '100%')) %>" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <div class="d-flex justify-content-between position-relative z-index-2" style="z-index: 2;">
-                        <!-- Step 1 -->
-                        <div class="text-center" style="width: 25%;">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 <%= order.status >= 0 ? 'bg-success text-white' : 'bg-light text-muted border' %>" style="width: 35px; height: 35px; box-shadow: 0 0 0 4px #fff;">
-                                <i class="fas fa-file-invoice"></i>
-                            </div>
-                            <small class="<%= order.status >= 0 ? 'fw-bold text-success' : 'text-muted' %>">Đã đặt hàng</small>
+            <div class="order-body p-3">
+                <% if (order.status !== -1) { %>
+                    <div class="position-relative mb-5 mt-3 px-md-5">
+                        <div class="progress" style="height: 4px; position: absolute; top: 15px; left: 10%; right: 10%; width: 80%; z-index: 1;">
+                            <div class="progress-bar bg-success" role="progressbar" <%- progressStyle %>></div>
                         </div>
-                        <!-- Step 2 -->
-                        <div class="text-center" style="width: 25%;">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 <%= order.status >= 1 ? 'bg-success text-white' : 'bg-light text-muted border' %>" style="width: 35px; height: 35px; box-shadow: 0 0 0 4px #fff;">
-                                <i class="fas fa-box-open"></i>
-                            </div>
-                            <small class="<%= order.status >= 1 ? 'fw-bold text-success' : 'text-muted' %>">Đang xử lý</small>
-                        </div>
-                        <!-- Step 3 -->
-                        <div class="text-center" style="width: 25%;">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 <%= order.status >= 2 ? 'bg-success text-white' : 'bg-light text-muted border' %>" style="width: 35px; height: 35px; box-shadow: 0 0 0 4px #fff;">
-                                <i class="fas fa-truck"></i>
-                            </div>
-                            <small class="<%= order.status >= 2 ? 'fw-bold text-success' : 'text-muted' %>">Đang giao</small>
-                        </div>
-                        <!-- Step 4 -->
-                        <div class="text-center" style="width: 25%;">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 <%= order.status >= 3 ? 'bg-success text-white' : 'bg-light text-muted border' %>" style="width: 35px; height: 35px; box-shadow: 0 0 0 4px #fff;">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <small class="<%= order.status >= 3 ? 'fw-bold text-success' : 'text-muted' %>">Hoàn thành</small>
+                        <div class="d-flex justify-content-between position-relative" style="z-index: 2;">
+                            <% [
+                                { s: 0, icon: 'fa-file-invoice', label: 'Chờ xác nhận' },
+                                { s: 1, icon: 'fa-box-open', label: 'Đang chuẩn bị' },
+                                { s: 2, icon: 'fa-truck', label: 'Đang giao' },
+                                { s: 3, icon: 'fa-check', label: 'Đã nhận' }
+                            ].forEach(step => { 
+                                const isActive = order.status >= step.s;
+                                const stepClass = "rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 " + (isActive ? "bg-success text-white" : "bg-light text-muted border");
+                                const labelClass = "d-block " + (isActive ? "fw-bold text-success" : "text-muted");
+                            %>
+                                <div class="text-center" style="width: 25%;">
+                                    <div class="<%- stepClass %>" style="width: 32px; height: 32px; box-shadow: 0 0 0 4px #fff;">
+                                        <i class="fas <%= step.icon %>" style="font-size: 0.8rem;"></i>
+                                    </div>
+                                    <small class="<%- labelClass %>" style="font-size: 0.7rem;"><%= step.label %></small>
+                                </div>
+                            <% }) %>
                         </div>
                     </div>
-                </div>
-                <hr class="text-muted border-dashed mb-3">
+                <% } %>
 
-                <% if (order.items && order.items.length > 0) { %>
-                    <% order.items.forEach(item => { %>
-                        <div class="order-item">
-                            <img src="/<%= item.product_id ? item.product_id.cover_image : 'image/default.png' %>" class="item-img" alt="Product">
-                            <div class="item-details">
-                                <h6 class="fw-bold mb-1">
-                                    <a href="/product/<%= item.product_id ? item.product_id._id : '#' %>" class="text-dark text-decoration-none">
-                                        <%= item.product_id ? item.product_id.name : 'Sản phẩm không còn tồn tại' %>
-                                    </a>
-                                </h6>
-                                <p class="text-muted small mb-2">Phân loại: Gói tiêu chuẩn</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-dark">x<%= item.quantity %></span>
-                                    <span class="fw-semibold text-danger"><%= item.price.toLocaleString('vi-VN') %> đ</span>
+                <div class="order-items-list mt-3">
+                    <% if (order.items && order.items.length > 0) { %>
+                        <% order.items.forEach(item => { %>
+                            <div class="d-flex align-items-center py-3 border-bottom">
+                                <img src="/<%= item.product_id ? item.product_id.cover_image : 'image/default.png' %>" class="rounded border" style="width: 70px; height: 70px; object-fit: cover;" alt="Product">
+                                <div class="ms-3 flex-grow-1">
+                                    <h6 class="fw-bold mb-1">
+                                        <a href="/product/<%= item.product_id ? item.product_id._id : '#' %>" class="text-dark text-decoration-none">
+                                            <%= item.product_id ? item.product_id.name : 'Sản phẩm không còn tồn tại' %>
+                                        </a>
+                                    </h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">Số lượng: x<%= item.quantity %></small>
+                                        <span class="fw-bold text-danger"><%= item.price ? item.price.toLocaleString('vi-VN') : 0 %> đ</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    <% }) %>
-                <% } else { %>
-                    <p class="text-muted mb-0">Đơn hàng cũ không lưu chi tiết món.</p>
-                <% } %>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="text-muted text-center py-3 mb-0">Không có thông tin chi tiết sản phẩm.</p>
+                    <% } %>
+                </div>
             </div>
             
-            <div class="order-footer">
-                <div class="d-flex justify-content-between align-items-center">
+            <div class="order-footer p-3 bg-light border-top">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                     <div class="text-start">
-                        <small class="text-muted d-block">Hình thức thanh toán: <%= order.payment_method === 'cod' ? 'Thanh toán tiền mặt (COD)' : order.payment_method %></small>
-                        <small class="text-muted d-block">Giao đến: <%= order.address %></small>
+                        <div class="small text-muted mb-1"><i class="fas fa-wallet me-1"></i> <%= order.payment_method === 'cod' ? 'Thanh toán tiền mặt (COD)' : 'Thanh toán Online' %></div>
+                        <div class="small text-muted"><i class="fas fa-map-marker-alt me-1"></i> <%= order.address %></div>
                     </div>
                     <div class="text-end">
-                        <span class="text-muted me-2">Thành tiền:</span>
-                        <span class="fs-4 fw-bold text-tempi-green"><%= order.total_money.toLocaleString('vi-VN') %> đ</span>
+                        <span class="text-muted me-2">Tổng thanh toán:</span>
+                        <span class="fs-4 fw-bold text-tempi-green"><%= order.total_money ? order.total_money.toLocaleString('vi-VN') : 0 %> đ</span>
                     </div>
                 </div>
             </div>
         </div>
     <% }) %>
 <% } else { %>
-    <div class="text-center p-5 bg-white border rounded shadow-sm">
-        <img src="/image/empty-cart.png" alt="Empty" style="width: 150px; opacity: 0.5;" class="mb-3" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2038/2038854.png'">
+    <div class="text-center p-5 bg-white border rounded-4 shadow-sm my-4">
+        <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" alt="Empty" style="width: 120px; opacity: 0.4;" class="mb-3">
         <h5 class="text-muted fw-bold">Chưa có đơn hàng nào</h5>
         <p class="text-muted mb-4">Bạn chưa có đơn hàng nào trong trạng thái này.</p>
-        <a href="/" class="btn btn-warning fw-bold px-4">Tiếp tục mua sắm</a>
+        <a href="/" class="btn btn-tempi-green text-white fw-bold px-4 rounded-pill">Tiếp tục mua sắm</a>
     </div>
 <% } %>

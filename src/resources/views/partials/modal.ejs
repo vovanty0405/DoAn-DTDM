@@ -406,13 +406,17 @@
     </div>
 </div>
 
+<div id="login-error-trigger" style="display: none;" 
+    <%- `data-has-error="${!!(typeof loginError !== 'undefined' && loginError && loginError.length > 0)}"` %>>
+</div>
 <script>
-        <% if (typeof loginError !== 'undefined' && loginError && loginError.length > 0) { %>
-        document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        const trigger = document.getElementById('login-error-trigger');
+        if (trigger && trigger.dataset.hasError === 'true') {
             var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
             loginModal.show();
-        });
-        <% } %>
+        }
+    });
 </script>
 
 <div class="modal fade" id="registerModal" tabindex="-1">
@@ -471,14 +475,20 @@
     </div>
 </div>
 
+<div id="register-error-trigger" style="display: none;" 
+    <%- `data-has-error="${!!(typeof registerError !== 'undefined' && registerError && registerError.length > 0)}"` %>>
+</div>
 <script>
-        <% if (typeof registerError !== 'undefined' && registerError && registerError.length > 0) { %>
-        document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        const trigger = document.getElementById('register-error-trigger');
+        if (trigger && trigger.dataset.hasError === 'true') {
             var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
             registerModal.show();
-        });
-        <% } %><% // this fixes the extra tag issue %>
+        }
+    });
+</script>
 
+<script>
         // Real-time Email Validation (blur event)
         function validateEmail(email) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
