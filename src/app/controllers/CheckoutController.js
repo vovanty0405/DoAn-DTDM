@@ -12,7 +12,15 @@ class CheckoutController {
             if (!req.session.user) return res.redirect('/#loginModal');
 
             const userId = req.session.user._id;
-            const carts = await Cart.find({ user_id: userId }).populate('product_id').lean();
+            const selectedItemsStr = req.query.items; // Chuỗi ID các sản phẩm chọn thanh toán
+            
+            let filter = { user_id: userId };
+            if (selectedItemsStr) {
+                const itemIds = selectedItemsStr.split(',');
+                filter.product_id = { $in: itemIds };
+            }
+
+            const carts = await Cart.find(filter).populate('product_id').lean();
 
             if (!carts || carts.length === 0) return res.redirect('/cart');
 
@@ -44,7 +52,7 @@ class CheckoutController {
             // Sinh sẵn một Order ID để frontend tạo QR Code
             const newOrderId = new mongoose.Types.ObjectId();
 
-            res.render('checkout', { carts, totalMoney, newOrderId });
+            res.render('checkout', { carts, totalMoney, newOrderId, selectedItems: selectedItemsStr });
         } catch (error) {
             console.log(error);
             res.status(500).send('Lỗi trang thanh toán');
@@ -55,11 +63,16 @@ class CheckoutController {
     async placeOrder(req, res) {
         try {
             const userId = req.session.user._id;
-            const { fullname, phone, address, payment_method, order_id, shipping_fee, voucher_code } = req.body;
+            const { fullname, phone, address, payment_method, order_id, shipping_fee, voucher_code, items } = req.body;
             const shipFee = parseInt(shipping_fee) || 0;
+            
+            let filter = { user_id: userId };
+            if (items) {
+                const itemIds = items.split(',');
+                filter.product_id = { $in: itemIds };
+            }
 
-            // 1. Lấy lại giỏ hàng để kiểm tra sản phẩm
-            const carts = await Cart.find({ user_id: userId }).populate('product_id').lean();
+            const carts = await Cart.find(filter).populate('product_id').lean();
             if (!carts || carts.length === 0) return res.redirect('/cart');
 
             // ===== 2. KIỂM TRA TỒN KHO LẦN CUỐI TRƯỚC KHI ĐẶT HÀNG =====
@@ -166,8 +179,13 @@ class CheckoutController {
                 });
             }
 
-            // 6. Xóa sạch giỏ hàng của khách sau khi đặt thành công
-            await Cart.deleteMany({ user_id: userId });
+            // 6. Xóa các sản phẩm đã thanh toán khỏi giỏ hàng
+            if (items) {
+                const itemIds = items.split(',');
+                await Cart.deleteMany({ user_id: userId, product_id: { $in: itemIds } });
+            } else {
+                await Cart.deleteMany({ user_id: userId });
+            }
 
             // 7. Thông báo và chuyển hướng
             res.send(`

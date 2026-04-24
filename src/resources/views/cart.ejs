@@ -231,6 +231,24 @@
                                 q.addEventListener('keyup', calculateTotal);
                             });
 
+                            // Xử lý nút thanh toán - Chỉ thanh toán các món được chọn
+                            const checkoutBtn = document.querySelector('a[href="/checkout"]');
+                            if (checkoutBtn) {
+                                checkoutBtn.addEventListener('click', function (e) {
+                                    e.preventDefault();
+                                    const selectedIds = Array.from(document.querySelectorAll('.item-check:checked'))
+                                        .map(cb => cb.value);
+                                    
+                                    if (selectedIds.length === 0) {
+                                        alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+                                        return;
+                                    }
+                                    
+                                    // Chuyển hướng kèm theo danh sách ID sản phẩm
+                                    window.location.href = `/checkout?items=${selectedIds.join(',')}`;
+                                });
+                            }
+
                             // Chạy tính toán lần đầu khi load trang
                             if (itemChecks.length > 0) calculateTotal();
                         });

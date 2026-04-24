@@ -23,6 +23,8 @@
             </nav>
 
             <form action="/checkout/place-order" method="POST" id="checkoutForm">
+                <!-- Truyền danh sách ID sản phẩm chọn thanh toán -->
+                <input type="hidden" name="items" value="<%= typeof selectedItems !== 'undefined' ? selectedItems : '' %>">
                 <!-- Truyền mã đơn hàng ID giả lập -->
                 <input type="hidden" name="order_id" value="<%= typeof newOrderId !== 'undefined' ? newOrderId : '' %>">
 
